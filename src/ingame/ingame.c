@@ -23,8 +23,12 @@
 #include "ingame/event/wan_soul.h" //
 #include "os/eeiop/se_ev.h"
 // #include "os/key_cnf.h"
+#include "entry/ap_rgost.h"
 #include "ingame/plyr/plyr_ctl.h"
 #include "main/gamemain.h"
+#include "map/item_ctl.h"
+#include "menu/ig_spd_menu.h"
+#include "menu/pause.h"
 
 /* sdata 356ef0 */ int start_msn = 0;
 /* sdata 356ef4 */ int msn0_wait_timer = 0;

@@ -36,12 +36,12 @@ static int o1 = 0;
 
 void _AddColor(float *v)
 {
-    __asm__ volatile("\n\
-        lqc2     $vf12,0(%0)\n\
-        vadd.xyz $vf18xyz,$vf18xyz,$vf12xyz\n\
-        sqc2     $vf18,0(%0)\n\
-        ": : "r"(v)
-    );
+    //__asm__ volatile("\n\
+    //    lqc2     $vf12,0(%0)\n\
+    //    vadd.xyz $vf18xyz,$vf18xyz,$vf12xyz\n\
+    //    sqc2     $vf18,0(%0)\n\
+    //    ": : "r"(v)
+    //);
 }
 
 void SgSuDebugOn()
@@ -191,19 +191,19 @@ void SetVU1Header()
 
     for (i = 0; i < 13; i++)
     {
-        __asm__ __volatile__("\n\
-            lq $6,0x0(%0)\n\
-            lq $7,0x10(%0)\n\
-            ": : "r" (svec) : "$6", "$7"
-        );
+        //__asm__ __volatile__("\n\
+        //    lq $6,0x0(%0)\n\
+        //    lq $7,0x10(%0)\n\
+        //    ": : "r" (svec) : "$6", "$7"
+        //);
 
         svec += 2;
 
-        __asm__ __volatile__("\n\
-            sq $6,0x0(%0)\n\
-            sq $7,0x10(%0)\n\
-            ": : "r" (dvec) : "$6", "$7"
-        );
+        //__asm__ __volatile__("\n\
+        //    sq $6,0x0(%0)\n\
+        //    sq $7,0x10(%0)\n\
+        //    ": : "r" (dvec) : "$6", "$7"
+        //);
 
         dvec += 2;
     }
@@ -857,58 +857,58 @@ void SgSortUnitKind(void *sgd_top, int num)
 
 void _SetLWMatrix0(sceVu0FMATRIX m0)
 {
-    __asm__ volatile ("\n\
-        lqc2    $vf4,0(%0)\n\
-        lqc2    $vf5,0x10(%0)\n\
-        lqc2    $vf6,0x20(%0)\n\
-        lqc2    $vf7,0x30(%0)\n\
-        ": :"r"(m0)
-    );
+    //__asm__ volatile ("\n\
+    //    lqc2    $vf4,0(%0)\n\
+    //    lqc2    $vf5,0x10(%0)\n\
+    //    lqc2    $vf6,0x20(%0)\n\
+    //    lqc2    $vf7,0x30(%0)\n\
+    //    ": :"r"(m0)
+    //);
 }
 
 void _SetLWMatrix1(sceVu0FMATRIX m0)
 {
-    __asm__ volatile ("\n\
-        lqc2    $vf8,0(%0)\n\
-        lqc2    $vf9,0x10(%0)\n\
-        lqc2    $vf10,0x20(%0)\n\
-        lqc2    $vf11,0x30(%0)\n\
-        ": :"r"(m0)
-    );
+    //__asm__ volatile ("\n\
+    //    lqc2    $vf8,0(%0)\n\
+    //    lqc2    $vf9,0x10(%0)\n\
+    //    lqc2    $vf10,0x20(%0)\n\
+    //    lqc2    $vf11,0x30(%0)\n\
+    //    ": :"r"(m0)
+    //);
 }
 
 void _SetRotTransPersMatrix(sceVu0FMATRIX m0)
 {
-    __asm__ volatile ("\n\
-        lqc2    $vf8,0(%0)\n\
-        lqc2    $vf9,0x10(%0)\n\
-        lqc2    $vf10,0x20(%0)\n\
-        lqc2    $vf11,0x30(%0)\n\
-        ": :"r"(m0)
-    );
+    //__asm__ volatile ("\n\
+    //    lqc2    $vf8,0(%0)\n\
+    //    lqc2    $vf9,0x10(%0)\n\
+    //    lqc2    $vf10,0x20(%0)\n\
+    //    lqc2    $vf11,0x30(%0)\n\
+    //    ": :"r"(m0)
+    //);
 }
 
 void _CalcVertex(float *dp, float *v, float *n)
 {
-    __asm__ volatile ("\n\
-        lqc2         $vf13,0(%1)\n\
-        vmulax.xyzw  ACCxyzw,$vf4xyzw,$vf13x\n\
-        vmadday.xyzw ACCxyzw,$vf5xyzw,$vf13y\n\
-        vmaddaz.xyzw ACCxyzw,$vf6xyzw,$vf13z\n\
-        vmaddw.xyzw  $vf12xyzw,$vf7xyzw,$vf13w\n\
-        lq           $6,0(%2)\n\
-        sq           $6,0x10(%0)\n\
-        sqc2         $vf12,0(%0)\n\
-        ": :"r"(dp), "r"(v), "r"(n) : "$6"
-    );
+    //__asm__ volatile ("\n\
+    //    lqc2         $vf13,0(%1)\n\
+    //    vmulax.xyzw  ACCxyzw,$vf4xyzw,$vf13x\n\
+    //    vmadday.xyzw ACCxyzw,$vf5xyzw,$vf13y\n\
+    //    vmaddaz.xyzw ACCxyzw,$vf6xyzw,$vf13z\n\
+    //    vmaddw.xyzw  $vf12xyzw,$vf7xyzw,$vf13w\n\
+    //    lq           $6,0(%2)\n\
+    //    sq           $6,0x10(%0)\n\
+    //    sqc2         $vf12,0(%0)\n\
+    //    ": :"r"(dp), "r"(v), "r"(n) : "$6"
+    //);
 }
 
 void _vfito0(int *v0)
 {
-    __asm__ volatile ("\n\
-        vminiw.xyzw $vf18xyzw,$vf18xyzw,$vf19w\n\
-        vftoi0.xyzw $vf18xyzw,$vf18xyzw\n\
-        sqc2        $vf18,0(%0)\n\
-        ": :"r"(v0)
-    );
+    //__asm__ volatile ("\n\
+    //    vminiw.xyzw $vf18xyzw,$vf18xyzw,$vf19w\n\
+    //    vftoi0.xyzw $vf18xyzw,$vf18xyzw\n\
+    //    sqc2        $vf18,0(%0)\n\
+    //    ": :"r"(v0)
+    //);
 }

@@ -2,6 +2,9 @@
 #include "typedefs.h"
 #include "leditor.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "sce/sifdev.h"
 
 #include "main/glob.h"
@@ -12,6 +15,7 @@
 #include "graphics/graph3d/sglight.h"
 
 #include "data/room_name.h" // static char *room_name[];
+#include "sce/libvu0.h"
 static u_int *ldata_top;
 static u_int *pdata_top;
 static u_int *sdata_top;

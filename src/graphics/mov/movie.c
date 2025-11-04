@@ -36,6 +36,12 @@
 #include "os/eeiop/eese.h"
 #include "graphics/graph3d/sglib.h"
 // #include "ingame/map/map_area.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "graphics/graph2d/tim2_new.h"
+#include "graphics/graph3d/sgdma.h"
 #include "graphics/scene/scene_dat.h"
 #include "ingame/map/map_area.h"
 #include "graphics/scene/scene.h"
@@ -295,7 +301,7 @@ int PlayMpegEvent()
                 smn = scene_movie_no; // HACK: regswap fix
             }
 
-            ClearDispRoom(1);
+            //ClearDispRoom(1);
 
 #ifdef BUILD_EU_VERSION
             movie(mpegName[sys_wrk.pal_disp_mode][play_mov_no]);
@@ -338,7 +344,7 @@ int PlayMpegEvent()
             SgInit3D();
             sceGsSyncPath(0, 0);
 
-            vfunc();
+            //vfunc();
 
             if (scene_bg_color == 0)
             {
@@ -490,7 +496,7 @@ static int readMpeg(VideoDec *vd, ReadBuf *rb, StrFile *file)
         getsize = readBufBeginGet(rb, &get_ptr);
         if (getsize > 0)
         {
-            proceed = sceMpegDemuxPssRing(&vd->mpeg, get_ptr, getsize, rb->data, rb->size);
+            //proceed = sceMpegDemuxPssRing(&vd->mpeg, get_ptr, getsize, rb->data, rb->size);
             readBufEndGet(rb, proceed);
             writerest -= proceed;
         }
@@ -558,7 +564,7 @@ void initMov(char *bsfilename)
     viBufData = (val + (SCE_MPEG_BUFFER_SIZE(MPEG_DISP_WIDTH, MPEG_DISP_HEIGHT) - 8192));
 
     readBufCreate(readBuf);
-    sceMpegInit();
+    //sceMpegInit();
 
     videoDecCreate(&videoDec, mpegWork, (SCE_MPEG_BUFFER_SIZE(MAX_WIDTH, MAX_HEIGHT) - 8192), viBufData, viBufTag, VIBUF_SIZE, timeStamp, VIBUF_TS_SIZE);
 
@@ -587,11 +593,11 @@ void initMov(char *bsfilename)
 
     while (!strFileOpen(&infile, bsfilename)) {}
 
-    sceGsSyncVCallback(vblankHandlerM);
+    //sceGsSyncVCallback(vblankHandlerM);
 
-    videoDec.hid_endimage = AddDmacHandler(DMAC_GIF, handler_endimage, 0);
+    //videoDec.hid_endimage = AddDmacHandler(DMAC_GIF, handler_endimage, 0);
 
-    EnableDmac(2);
+    //EnableDmac(2);
 
     vblankCount = 0;
     scn_vib_time1 = 0;
@@ -606,27 +612,27 @@ static void termMov()
     readBufDelete(readBuf);
     voBufDelete(&voBuf);
 
-    TerminateThread(videoDecTh);
-    DeleteThread(videoDecTh);
+    //TerminateThread(videoDecTh);
+    //DeleteThread(videoDecTh);
 
-    DisableDmac(2);
-    RemoveDmacHandler(2,videoDec.hid_endimage);
+    //DisableDmac(2);
+    //RemoveDmacHandler(2,videoDec.hid_endimage);
 
     videoDecDelete(&videoDec);
     audioDecDelete(&audioDec);
 
     strFileClose(&infile);
 
-    UserIMR = sceGsPutIMR(0xff00);
+    //UserIMR = sceGsPutIMR(0xff00);
     gparam = sceGsGetGParam();
 
-    DisableIntc(2);
-    RemoveIntcHandler(2, gparam->sceGsVSCid);
+    //DisableIntc(2);
+    //RemoveIntcHandler(2, gparam->sceGsVSCid);
 
     gparam->sceGsVSCfunc = NULL;
     gparam->sceGsVSCid = 0;
 
-    sceGsPutIMR(UserIMR);
+    //sceGsPutIMR(UserIMR);
 }
 
 void defMain(void)
@@ -661,12 +667,12 @@ int MoviePlay(int scene_no)
 
     while (checkIOP() != 0)
     {
-        vfunc();
+        //vfunc();
     }
 
     AdpcmShiftMovie();
     SeStopAll();
-    vfunc();
+    //vfunc();
 
     do
     {
@@ -687,7 +693,7 @@ int MoviePlay(int scene_no)
 
     if (scene_no != 0 && scene_no != 0x62 && scene_no != 99)
     {
-        ClearDispRoom(1);
+        //ClearDispRoom(1);
     }
 
 #ifdef BUILD_EU_VERSION
@@ -747,7 +753,7 @@ int MoviePlay(int scene_no)
         clearGsMem(0xff, 0xff, 0xff, DISP_WIDTH, DISP_HEIGHT);
     }
 
-    vfunc();
+    //vfunc();
     AdpcmReturnFromMovie();
     EiMain();
 
@@ -822,7 +828,7 @@ void MovieTest(int scene_no)
     SgInit3D();
     sceGsSyncPath(0, 0);
 
-    vfunc();
+    //vfunc();
     AdpcmReturnFromMovie();
     EiMain();
 
@@ -1032,7 +1038,7 @@ void ReqLogoMovie(void) {
     movie_wrk.play_event_sta = 0x4 | 0x2 | 0x1;
     play_mov_no = 37;
 
-    vfunc();
+    //vfunc();
 
     DrawAll2DMes_P2();
 
@@ -1410,7 +1416,7 @@ void clearGsMem(int r, int g, int b, int disp_width, int disp_height)
 
     dmaGif = sceDmaGetChan(SCE_DMA_GIF);
 
-    SCE_GIF_CLEAR_TAG(&db.giftag0);
+    /// SCE_GIF_CLEAR_TAG(&db.giftag0);
 
     db.giftag0.NLOOP = 8;
     db.giftag0.EOP = SCE_GS_TRUE;
@@ -2406,7 +2412,7 @@ int viBufModifyPts(ViBuf *f, TimeStamp *new_ts)
                 break;
             }
 
-            if (IsPtsInRegion(ts->pos, new_ts->pos, new_ts->len, datasize))
+            if (/*IsPtsInRegion(ts->pos, new_ts->pos, new_ts->len, datasize)*/ false)
             {
                 len = min(new_ts->pos + new_ts->len - ts->pos, ts->len);
 

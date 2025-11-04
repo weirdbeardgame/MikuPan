@@ -4,6 +4,8 @@
 #include "enums.h"
 #include "memory_album.h"
 
+#include <string.h>
+
 #include "ingame/menu/item.h"
 #include "ingame/menu/ig_camra.h"
 #include "ingame/menu/ig_menu.h"
@@ -2940,7 +2942,7 @@ void TruthPhoto(u_char mode, short int px, short int py, u_char alp)
         {
             PutStringYW(0x21, 0x3, px + 0x1b8U, obj_py[0][0] + 0x10b + py, 0x808080, str_alp, 0x1000, 0);
         }
-        PutDate(&tmp_pic, px + 0x175, py + 0x154, str_alp, 0x1000);
+        //PutDate(&tmp_pic, px + 0x175, py + 0x154, str_alp, 0x1000);
         PutStringYW(0x1e, tmp_pic.room, px + 0x181, py + 0x171, 0x808080, str_alp, 0x1000, 0);
         PutNumberYW(0, tmp_pic.score, px + 0x1a5, py + 0x18d, 1.0f, 1.0f, 0x808080, str_alp, 0x1000, 7, 0);
     }
@@ -2990,7 +2992,7 @@ void TruthPhoto(u_char mode, short int px, short int py, u_char alp)
         {
             PutStringYW(0x21, 0x3, px + 0xb9U, obj_py2[0][0] + 0x15b + py, 0x808080, str_alp, 0x1000, 0x0);
         }
-        PutDate(&tmp_pic, px + 0x184, py + 0x154, str_alp, 0x1000);
+        //PutDate(&tmp_pic, px + 0x184, py + 0x154, str_alp, 0x1000);
         PutStringYW(0x1e, tmp_pic.room, px + 0x18f, py + 0x171, 0x808080, str_alp, 0x1000, 0x0);
         PutNumberYW(0, tmp_pic.score, px + 0x1b3, py + 0x18c, 1.0f, 1.0f, 0x808080, str_alp, 0x1000, 7, 0);
     }

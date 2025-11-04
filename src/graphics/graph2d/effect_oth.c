@@ -3,6 +3,9 @@
 #include "typedefs.h"
 #include "effect_oth.h"
 
+#include <stdio.h>
+
+#include "effect_rdr.h"
 #include "ee/eestruct.h"
 #include "sce/libvu0.h"
 
@@ -1173,27 +1176,27 @@ int draw_distortion_particles(sceVu0FMATRIX *local_screen, sceVu0FMATRIX *local_
     d[n++] = areg;
     d[n++] = SCE_GS_ALPHA_1;
 
-    asm __volatile__ (
-        "lqc2 $vf4,0(%0)\n"
-        "lqc2 $vf5,0x10(%0)\n"
-        "lqc2 $vf6,0x20(%0)\n"
-        "lqc2 $vf7,0x30(%0)\n"
-        "lqc2 $vf28,0(%1)\n"
-        "lqc2 $vf29,0x10(%1)\n"
-        "lqc2 $vf30,0x20(%1)\n"
-        "lqc2 $vf31,0x30(%1)\n"
-        : :"r"(local_screen),"r"(local_clip)
-    );
+    //asm __volatile__ (
+    //    "lqc2 $vf4,0(%0)\n"
+    //    "lqc2 $vf5,0x10(%0)\n"
+    //    "lqc2 $vf6,0x20(%0)\n"
+    //    "lqc2 $vf7,0x30(%0)\n"
+    //    "lqc2 $vf28,0(%1)\n"
+    //    "lqc2 $vf29,0x10(%1)\n"
+    //    "lqc2 $vf30,0x20(%1)\n"
+    //    "lqc2 $vf31,0x30(%1)\n"
+    //    : :"r"(local_screen),"r"(local_clip)
+    //);
 
-    asm __volatile__ (
-        "lqc2 $vf3,0(%0)\n"
-        "lqc2 $vf1,0(%1)\n"
-        "lqc2 $vf25,0(%2)\n"
-        "lqc2 $vf26,0(%3)\n"
-        "lqc2 $vf19,0(%4)\n"
-        "lqc2 $vf24,0(%5)\n"
-        : :"r"(particle_size),"r"(warp_add),"r"(st_add),"r"(st_scale),"r"(ones),"r"(screen_size)
-    );
+    //asm __volatile__ (
+    //    "lqc2 $vf3,0(%0)\n"
+    //    "lqc2 $vf1,0(%1)\n"
+    //    "lqc2 $vf25,0(%2)\n"
+    //    "lqc2 $vf26,0(%3)\n"
+    //    "lqc2 $vf19,0(%4)\n"
+    //    "lqc2 $vf24,0(%5)\n"
+    //    : :"r"(particle_size),"r"(warp_add),"r"(st_add),"r"(st_scale),"r"(ones),"r"(screen_size)
+    //);
 
     num = 0;
 
@@ -1212,108 +1215,108 @@ int draw_distortion_particles(sceVu0FMATRIX *local_screen, sceVu0FMATRIX *local_
                 p[1][0] = p[1][1] = p[1][2] = (rr + gg + bb) / 3.0f;
             }
 
-            asm __volatile__ (
-                "lqc2 $vf8, 0x0(%1)\n"
-                "lqc2 $vf22, 0x10(%1)\n"
-                "vmulax.xyzw  ACC, $vf28, $vf8x\n"
-                "vmadday.xyzw ACC, $vf29, $vf8y\n"
-                "vmaddaz.xyzw ACC, $vf30, $vf8z\n"
-                "vmaddw.xyzw  $vf12, $vf31, $vf8w\n"
-                "vclipw.xyz   $vf12xyz,$vf12w\n"
-                "vnop\n"
-                "vnop\n"
-                "vnop\n"
-                "vnop\n"
-                "vnop\n"
-                "cfc2 %0, $vi18\n"
-                :"=r"(clip_flags) :"r"(p)
-            );
+            //asm __volatile__ (
+            //    "lqc2 $vf8, 0x0(%1)\n"
+            //    "lqc2 $vf22, 0x10(%1)\n"
+            //    "vmulax.xyzw  ACC, $vf28, $vf8x\n"
+            //    "vmadday.xyzw ACC, $vf29, $vf8y\n"
+            //    "vmaddaz.xyzw ACC, $vf30, $vf8z\n"
+            //    "vmaddw.xyzw  $vf12, $vf31, $vf8w\n"
+            //    "vclipw.xyz   $vf12xyz,$vf12w\n"
+            //    "vnop\n"
+            //    "vnop\n"
+            //    "vnop\n"
+            //    "vnop\n"
+            //    "vnop\n"
+            //    "cfc2 %0, $vi18\n"
+            //    :"=r"(clip_flags) :"r"(p)
+            //);
 
             if ((clip_flags & 0x3f) == 0)
             {
-                asm __volatile__ (
-                    "vmulax.xyzw  ACC, $vf4, $vf8x\n"
-                    "vmadday.xyzw ACC, $vf5, $vf8y\n"
-                    "vmaddaz.xyzw ACC, $vf6, $vf8z\n"
-                    "vmaddw.xyzw $vf12, $vf7, $vf8w\n"
-                    "vdiv Q, $vf0w, $vf12w\n"
-                    "vwaitq\n"
-                    "vmulq.xyzw $vf12, $vf12, Q\n"
-                    "vmulq.xyz $vf9, $vf3, Q\n"
-                    "vadd.xyzw $vf14, $vf12, $vf25\n"
-                    "vadd.xyzw $vf27, $vf14, $vf1\n"
-                    "vsub.xyzw $vf13, $vf27, $vf9\n"
-                    "vsub.xyzw $vf13, $vf13, $vf19\n"
-                    "vmax.xyzw $vf13, $vf13, $vf0\n"
-                    "vadd.xyzw $vf14, $vf27, $vf9\n"
-                    "vadd.xyzw $vf14, $vf14, $vf19\n"
-                    "vmini.xyzw $vf14, $vf14, $vf24\n"
-                );
+                //asm __volatile__ (
+                //    "vmulax.xyzw  ACC, $vf4, $vf8x\n"
+                //    "vmadday.xyzw ACC, $vf5, $vf8y\n"
+                //    "vmaddaz.xyzw ACC, $vf6, $vf8z\n"
+                //    "vmaddw.xyzw $vf12, $vf7, $vf8w\n"
+                //    "vdiv Q, $vf0w, $vf12w\n"
+                //    "vwaitq\n"
+                //    "vmulq.xyzw $vf12, $vf12, Q\n"
+                //    "vmulq.xyz $vf9, $vf3, Q\n"
+                //    "vadd.xyzw $vf14, $vf12, $vf25\n"
+                //    "vadd.xyzw $vf27, $vf14, $vf1\n"
+                //    "vsub.xyzw $vf13, $vf27, $vf9\n"
+                //    "vsub.xyzw $vf13, $vf13, $vf19\n"
+                //    "vmax.xyzw $vf13, $vf13, $vf0\n"
+                //    "vadd.xyzw $vf14, $vf27, $vf9\n"
+                //    "vadd.xyzw $vf14, $vf14, $vf19\n"
+                //    "vmini.xyzw $vf14, $vf14, $vf24\n"
+                //);
 
                 //                                                    prim 0x4d or 0x5d depending on dtex being 0 or 1
                 d[n++] = SCE_GIF_SET_TAG(1, SCE_GS_TRUE, SCE_GS_TRUE, (u_long)dtex << 4 | 0x4d, SCE_GIF_PACKED, 14);
 
                 d[n++] = 0 \
-                    | (long)SCE_GS_RGBAQ << (4 * 0)
-                    | (long)SCE_GS_ST    << (4 * 1)
-                    | (long)SCE_GS_XYZF2 << (4 * 2)
-                    | (long)SCE_GS_RGBAQ << (4 * 3)
-                    | (long)SCE_GS_ST    << (4 * 4)
-                    | (long)SCE_GS_XYZF2 << (4 * 5)
-                    | (long)SCE_GS_ST    << (4 * 6)
-                    | (long)SCE_GS_XYZF2 << (4 * 7)
-                    | (long)SCE_GS_ST    << (4 * 8)
-                    | (long)SCE_GS_XYZF2 << (4 * 9)
-                    | (long)SCE_GS_ST    << (4 * 10)
-                    | (long)SCE_GS_XYZF2 << (4 * 11)
-                    | (long)SCE_GS_ST    << (4 * 12)
-                    | (long)SCE_GS_XYZF2 << (4 * 13);
+                    | (long long)SCE_GS_RGBAQ << (4 * 0)
+                    | (long long)SCE_GS_ST    << (4 * 1)
+                    | (long long)SCE_GS_XYZF2 << (4 * 2)
+                    | (long long)SCE_GS_RGBAQ << (4 * 3)
+                    | (long long)SCE_GS_ST    << (4 * 4)
+                    | (long long)SCE_GS_XYZF2 << (4 * 5)
+                    | (long long)SCE_GS_ST    << (4 * 6)
+                    | (long long)SCE_GS_XYZF2 << (4 * 7)
+                    | (long long)SCE_GS_ST    << (4 * 8)
+                    | (long long)SCE_GS_XYZF2 << (4 * 9)
+                    | (long long)SCE_GS_ST    << (4 * 10)
+                    | (long long)SCE_GS_XYZF2 << (4 * 11)
+                    | (long long)SCE_GS_ST    << (4 * 12)
+                    | (long long)SCE_GS_XYZF2 << (4 * 13);
 
-                asm __volatile__ (
-                    "vftoi0.xyzw $vf22, $vf22\n"
-                    "sqc2 $vf22, 0x0(%0)\n"
-                    "vmove.w $vf22, $vf19\n"
-                    "sqc2 $vf22, 0x30(%0)\n"
-                    "vmove.w $vf9, $vf19\n"
-                    "vmul.xyzw $vf8, $vf9, $vf26\n"
-                    "vmove.xyzw $vf14, $vf8\n"
-                    "vmove.y $vf8, $vf0\n"
-                    "vmove.x $vf14, $vf0\n"
-                    "vmove.xyzw $vf22, $vf9\n"
-                    "vmove.y $vf9, $vf0\n"
-                    "vmove.x $vf22, $vf0\n"
-                    "vmove.z $vf27, $vf19\n"
-                    "vmul.xy $vf27, $vf27, $vf26\n"
-                    "sqc2 $vf27, 0x10(%0)\n"
-                    "vftoi4.xyzw $vf13, $vf12\n"
-                    "sqc2 $vf13, 0x20(%0)\n"
-                    "vsub.xyzw $vf13, $vf27, $vf14\n"
-                    "sqc2 $vf13, 0x40(%0)\n"
-                    "vsub.xyzw $vf10, $vf12, $vf22\n"
-                    "vftoi4.xyzw $vf13, $vf10\n"
-                    "sqc2 $vf13, 0x50(%0)\n"
-                    "vadd.xyzw $vf13, $vf27, $vf8\n"
-                    "sqc2 $vf13, 0x60(%0)\n"
-                    "vadd.xyzw $vf10, $vf12, $vf9\n"
-                    "vftoi4.xyzw $vf13, $vf10\n"
-                    "sqc2 $vf13, 0x70(%0)\n"
-                    "vadd.xyzw $vf13, $vf27, $vf14\n"
-                    "sqc2 $vf13, 0x80(%0)\n"
-                    "vadd.xyzw $vf10, $vf12, $vf22\n"
-                    "vftoi4.xyzw $vf13, $vf10\n"
-                    "sqc2 $vf13, 0x90(%0)\n"
-                    "vsub.xyzw $vf13, $vf27, $vf8\n"
-                    "sqc2 $vf13, 0xa0(%0)\n"
-                    "vsub.xyzw $vf13, $vf12, $vf9\n"
-                    "vftoi4.xyzw $vf13, $vf13\n"
-                    "sqc2 $vf13, 0xb0(%0)\n"
-                    "vsub.xyzw $vf13, $vf27, $vf14\n"
-                    "sqc2 $vf13, 0xc0(%0)\n"
-                    "vsub.xyzw $vf13, $vf12, $vf22\n"
-                    "vftoi4.xyzw $vf13, $vf13\n"
-                    "sqc2 $vf13, 0xd0(%0)\n"
-                    : :"r"(&d[n])
-                );
+                //asm __volatile__ (
+                //    "vftoi0.xyzw $vf22, $vf22\n"
+                //    "sqc2 $vf22, 0x0(%0)\n"
+                //    "vmove.w $vf22, $vf19\n"
+                //    "sqc2 $vf22, 0x30(%0)\n"
+                //    "vmove.w $vf9, $vf19\n"
+                //    "vmul.xyzw $vf8, $vf9, $vf26\n"
+                //    "vmove.xyzw $vf14, $vf8\n"
+                //    "vmove.y $vf8, $vf0\n"
+                //    "vmove.x $vf14, $vf0\n"
+                //    "vmove.xyzw $vf22, $vf9\n"
+                //    "vmove.y $vf9, $vf0\n"
+                //    "vmove.x $vf22, $vf0\n"
+                //    "vmove.z $vf27, $vf19\n"
+                //    "vmul.xy $vf27, $vf27, $vf26\n"
+                //    "sqc2 $vf27, 0x10(%0)\n"
+                //    "vftoi4.xyzw $vf13, $vf12\n"
+                //    "sqc2 $vf13, 0x20(%0)\n"
+                //    "vsub.xyzw $vf13, $vf27, $vf14\n"
+                //    "sqc2 $vf13, 0x40(%0)\n"
+                //    "vsub.xyzw $vf10, $vf12, $vf22\n"
+                //    "vftoi4.xyzw $vf13, $vf10\n"
+                //    "sqc2 $vf13, 0x50(%0)\n"
+                //    "vadd.xyzw $vf13, $vf27, $vf8\n"
+                //    "sqc2 $vf13, 0x60(%0)\n"
+                //    "vadd.xyzw $vf10, $vf12, $vf9\n"
+                //    "vftoi4.xyzw $vf13, $vf10\n"
+                //    "sqc2 $vf13, 0x70(%0)\n"
+                //    "vadd.xyzw $vf13, $vf27, $vf14\n"
+                //    "sqc2 $vf13, 0x80(%0)\n"
+                //    "vadd.xyzw $vf10, $vf12, $vf22\n"
+                //    "vftoi4.xyzw $vf13, $vf10\n"
+                //    "sqc2 $vf13, 0x90(%0)\n"
+                //    "vsub.xyzw $vf13, $vf27, $vf8\n"
+                //    "sqc2 $vf13, 0xa0(%0)\n"
+                //    "vsub.xyzw $vf13, $vf12, $vf9\n"
+                //    "vftoi4.xyzw $vf13, $vf13\n"
+                //    "sqc2 $vf13, 0xb0(%0)\n"
+                //    "vsub.xyzw $vf13, $vf27, $vf14\n"
+                //    "sqc2 $vf13, 0xc0(%0)\n"
+                //    "vsub.xyzw $vf13, $vf12, $vf22\n"
+                //    "vftoi4.xyzw $vf13, $vf13\n"
+                //    "sqc2 $vf13, 0xd0(%0)\n"
+                //    : :"r"(&d[n])
+                //);
 
                 n += 14 * 2;
             }
@@ -1612,8 +1615,8 @@ void* ContHeatHaze(void *addr, int type, float *pos, float *pos2, int st, float 
         {
             int a = hh->cnt / n1;
 
-            asm volatile ("mfhi $3");
-            asm volatile ("andi $2,$2,1");
+            //asm volatile ("mfhi $3");
+            //asm volatile ("andi $2,$2,1");
 
             if (hh->cnt / n1 <= n2 && hh->cnt / n1)
             {
@@ -1841,7 +1844,7 @@ void SetPartInit(HEAT_HAZE *addr, int type, int lifetime)
 
 void* GetItemPartAddr(void *addr, int type, int lifetime)
 {
-    return;
+    return NULL;
 }
 
 void* GetEnePartAddr(void *addr, int type, int lifetime)
@@ -4580,8 +4583,8 @@ u_char SetCanalSub(int no, float *mpos)
 
         wlm[0][0] = wlm[1][1] = wlm[2][2] = ligscl;
 
-        sceVu0NormalLightMatrix(NormalLightMatrix, rip_light0, rip_light1, rip_light2);
-        sceVu0LightColorMatrix(LightColorMatrix, rip_color0, rip_color1, rip_color2, rip_ambient);
+        //sceVu0NormalLightMatrix(NormalLightMatrix, rip_light0, rip_light1, rip_light2);
+        //sceVu0LightColorMatrix(LightColorMatrix, rip_color0, rip_color1, rip_color2, rip_ambient);
         sceVu0MulMatrix(LocalLightMatrix, NormalLightMatrix, wlm);
     }
 
@@ -5318,7 +5321,7 @@ void SetFireflySub(FIREFLY *ffp)
     while (PI <= rot[1]) rot[1] -= PI2;
 
     sceVu0UnitMatrix(mtx);
-    sceVu0RotMatrix(mtx,mtx,rot);
+    //sceVu0RotMatrix(mtx,mtx,rot);
     sceVu0TransMatrix(mtx,mtx,ffp->npos);
     sceVu0ApplyMatrix(pos,mtx,ffp->vel);
 

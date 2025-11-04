@@ -10,6 +10,8 @@
 #include "graphics/graph3d/sgsu.h"
 #include "graphics/graph3d/sglight.h"
 
+#include <stdio.h>
+
 static int stack_num = 0;
 static int dbg_flg = 0;
 
@@ -104,77 +106,77 @@ void SgSetDefaultLight(sceVu0FVECTOR eye, SgLIGHT *p0, SgLIGHT *p1, SgLIGHT *p2)
 
 static void _SetColorMtx(sceVu0FMATRIX dc, sceVu0FMATRIX sc, sceVu0FVECTOR am, sceVu0FVECTOR v)
 {
-    __asm__ volatile ("\n\
-        lqc2      $vf16,0(%3)\n\
-        lqc2      $vf12,0(%2)\n\
-        vmul.xyz  $vf19xyz,$vf16xyz,$vf12xyz\n\
-        vmulw.xyz $vf19xyz,$vf19xyz,$vf12w\n\
-        lqc2      $vf16,0x30(%3)\n\
-        lqc2      $vf12,0(%0)\n\
-        vmulw.xyz $vf16xyz,$vf16xyz,$vf12w\n\
-        vadd.xyz  $vf19xyz,$vf19xyz,$vf16xyz\n\
-        lqc2      $vf16,0x10(%3)\n\
-        vmove.w   $vf19w,$vf12w\n\
-        lqc2      $vf12,0(%0)\n\
-        lqc2      $vf13,0x10(%0)\n\
-        lqc2      $vf14,0x20(%0)\n\
-        vmul.xyz  $vf26xyz,$vf12xyz,$vf16xyz\n\
-        vmul.xyz  $vf27xyz,$vf13xyz,$vf16xyz\n\
-        vmul.xyz  $vf28xyz,$vf14xyz,$vf16xyz\n\
-        vmulw.xyz $vf26xyz,$vf26xyz,$vf12w\n\
-        vmulw.xyz $vf27xyz,$vf27xyz,$vf12w\n\
-        vmulw.xyz $vf28xyz,$vf28xyz,$vf12w\n\
-        vmove.w   $vf27w,$vf16w\n\
-        lqc2      $vf16,0x20(%3)\n\
-        lqc2      $vf12,0(%1)\n\
-        lqc2      $vf13,0x10(%1)\n\
-        lqc2      $vf14,0x20(%1)\n\
-        vmul.xyz  $vf12xyz,$vf12xyz,$vf16xyz\n\
-        vmul.xyz  $vf13xyz,$vf13xyz,$vf16xyz\n\
-        vmul.xyz  $vf14xyz,$vf14xyz,$vf16xyz\n\
-        vmulw.xyz $vf12xyz,$vf12xyz,$vf13w\n\
-        vmulw.xyz $vf13xyz,$vf13xyz,$vf13w\n\
-        vmulw.xyz $vf14xyz,$vf14xyz,$vf13w\n\
-        vmove.w   $vf12w,$vf16w\n\
-        vmove.w   $vf13w,$vf27w\n\
-        vmove.w   $vf19w,$vf14w\n\
-        viaddi    $vi2,$vi0,0xf\n\
-        viaddi    $vi2,$vi2,0xb\n\
-        vsqi.xyzw $vf26xyzw,($vi2++)\n\
-        vsqi.xyzw $vf27xyzw,($vi2++)\n\
-        vsqi.xyzw $vf28xyzw,($vi2++)\n\
-        vsqi.xyzw $vf12xyzw,($vi2++)\n\
-        vsqi.xyzw $vf13xyzw,($vi2++)\n\
-        vsqi.xyzw $vf14xyzw,($vi2++)\n\
-        vsqi.xyzw $vf19xyzw,($vi2++) \n\
-    ": :"r"(dc), "r"(sc), "r"(am), "r"(v));
+    //__asm__ volatile ("\n\
+    //    lqc2      $vf16,0(%3)\n\
+    //    lqc2      $vf12,0(%2)\n\
+    //    vmul.xyz  $vf19xyz,$vf16xyz,$vf12xyz\n\
+    //    vmulw.xyz $vf19xyz,$vf19xyz,$vf12w\n\
+    //    lqc2      $vf16,0x30(%3)\n\
+    //    lqc2      $vf12,0(%0)\n\
+    //    vmulw.xyz $vf16xyz,$vf16xyz,$vf12w\n\
+    //    vadd.xyz  $vf19xyz,$vf19xyz,$vf16xyz\n\
+    //    lqc2      $vf16,0x10(%3)\n\
+    //    vmove.w   $vf19w,$vf12w\n\
+    //    lqc2      $vf12,0(%0)\n\
+    //    lqc2      $vf13,0x10(%0)\n\
+    //    lqc2      $vf14,0x20(%0)\n\
+    //    vmul.xyz  $vf26xyz,$vf12xyz,$vf16xyz\n\
+    //    vmul.xyz  $vf27xyz,$vf13xyz,$vf16xyz\n\
+    //    vmul.xyz  $vf28xyz,$vf14xyz,$vf16xyz\n\
+    //    vmulw.xyz $vf26xyz,$vf26xyz,$vf12w\n\
+    //    vmulw.xyz $vf27xyz,$vf27xyz,$vf12w\n\
+    //    vmulw.xyz $vf28xyz,$vf28xyz,$vf12w\n\
+    //    vmove.w   $vf27w,$vf16w\n\
+    //    lqc2      $vf16,0x20(%3)\n\
+    //    lqc2      $vf12,0(%1)\n\
+    //    lqc2      $vf13,0x10(%1)\n\
+    //    lqc2      $vf14,0x20(%1)\n\
+    //    vmul.xyz  $vf12xyz,$vf12xyz,$vf16xyz\n\
+    //    vmul.xyz  $vf13xyz,$vf13xyz,$vf16xyz\n\
+    //    vmul.xyz  $vf14xyz,$vf14xyz,$vf16xyz\n\
+    //    vmulw.xyz $vf12xyz,$vf12xyz,$vf13w\n\
+    //    vmulw.xyz $vf13xyz,$vf13xyz,$vf13w\n\
+    //    vmulw.xyz $vf14xyz,$vf14xyz,$vf13w\n\
+    //    vmove.w   $vf12w,$vf16w\n\
+    //    vmove.w   $vf13w,$vf27w\n\
+    //    vmove.w   $vf19w,$vf14w\n\
+    //    viaddi    $vi2,$vi0,0xf\n\
+    //    viaddi    $vi2,$vi2,0xb\n\
+    //    vsqi.xyzw $vf26xyzw,($vi2++)\n\
+    //    vsqi.xyzw $vf27xyzw,($vi2++)\n\
+    //    vsqi.xyzw $vf28xyzw,($vi2++)\n\
+    //    vsqi.xyzw $vf12xyzw,($vi2++)\n\
+    //    vsqi.xyzw $vf13xyzw,($vi2++)\n\
+    //    vsqi.xyzw $vf14xyzw,($vi2++)\n\
+    //    vsqi.xyzw $vf19xyzw,($vi2++) \n\
+    //": :"r"(dc), "r"(sc), "r"(am), "r"(v));
 }
 
 void _ReadDLightMtx(sceVu0FMATRIX tmp)
 {
-    __asm__ volatile ("\n\
-        sqc2    $vf20,0(%0)\n\
-        sqc2    $vf21,0x10(%0)\n\
-        sqc2    $vf22,0x20(%0)\n\
-    ": :"r"(tmp));
+    //__asm__ volatile ("\n\
+    //    sqc2    $vf20,0(%0)\n\
+    //    sqc2    $vf21,0x10(%0)\n\
+    //    sqc2    $vf22,0x20(%0)\n\
+    //": :"r"(tmp));
 }
 
 static void _ReadSLightMtx(sceVu0FMATRIX tmp)
 {
-    __asm__ volatile ("\n\
-        sqc2    $vf23,0(%0)\n\
-        sqc2    $vf24,0x10(%0)\n\
-        sqc2    $vf25,0x20(%0)\n\
-    ": :"r"(tmp));
+    //__asm__ volatile ("\n\
+    //    sqc2    $vf23,0(%0)\n\
+    //    sqc2    $vf24,0x10(%0)\n\
+    //    sqc2    $vf25,0x20(%0)\n\
+    //": :"r"(tmp));
 }
 
 void _ReadDColor(sceVu0FMATRIX tmp)
 {
-    __asm__ volatile ("\n\
-        sqc2    $vf26,0(%0)\n\
-        sqc2    $vf27,0x10(%0)\n\
-        sqc2    $vf28,0x20(%0)\n\
-    ": :"r"(tmp));
+    //__asm__ volatile ("\n\
+    //    sqc2    $vf26,0(%0)\n\
+    //    sqc2    $vf27,0x10(%0)\n\
+    //    sqc2    $vf28,0x20(%0)\n\
+    //": :"r"(tmp));
 }
 
 static int Tim2CalcBufWidth(int psm, int w)
@@ -211,22 +213,22 @@ static int Tim2CalcBufWidth(int psm, int w)
 
 int GetDecay()
 {
-    u_int tmp;
+    u_int tmp = 0;
 
-    __asm__ volatile("\n\
-        cfc2    %0,$vi13\n\
-        ": :"r"(tmp)
-    );
+    //__asm__ volatile("\n\
+    //    cfc2    %0,$vi13\n\
+    //    ": :"r"(tmp)
+    //);
 
     return tmp;
 }
 
 static inline void _SetDevay_asm(u_int decay)
 {
-    __asm__ volatile("\n\
-        ctc2    %0,$vi13\n\
-        ": :"r"(decay)
-    );
+    //__asm__ volatile("\n\
+    //    ctc2    %0,$vi13\n\
+    //    ": :"r"(decay)
+    //);
 }
 
 static void SetDecay(u_int decay)
@@ -439,24 +441,24 @@ void SetMaterialPointerCoordVU()
 
 inline static void load_abmient(float *amb)
 {
-    __asm__ volatile ("\n\
-        lqc2    $vf19,0(%0)\n\
-        ": :"r"(amb)
-    );
+    //__asm__ volatile ("\n\
+    //    lqc2    $vf19,0(%0)\n\
+    //    ": :"r"(amb)
+    //);
 }
 
 void SetMaterialDataPrerender()
 {
-    __asm__ volatile ("\n\
-        lqc2    $vf4,0(%0)\n\
-        lqc2    $vf5,0x10(%0)\n\
-        lqc2    $vf6,0x20(%0)\n\
-        lqc2    $vf7,0(%1)\n\
-        lqc2    $vf8,0x10(%1)\n\
-        lqc2    $vf9,0x20(%1)\n\
-        lqc2    $vf10,0x30(%1)\n\
-        ": :"r"(&SCRATCHPAD[0x110]), "r"(&SCRATCHPAD[0x150])
-    );
+    //__asm__ volatile ("\n\
+    //    lqc2    $vf4,0(%0)\n\
+    //    lqc2    $vf5,0x10(%0)\n\
+    //    lqc2    $vf6,0x20(%0)\n\
+    //    lqc2    $vf7,0(%1)\n\
+    //    lqc2    $vf8,0x10(%1)\n\
+    //    lqc2    $vf9,0x20(%1)\n\
+    //    lqc2    $vf10,0x30(%1)\n\
+    //    ": :"r"(&SCRATCHPAD[0x110]), "r"(&SCRATCHPAD[0x150])
+    //);
 
     load_abmient(SgLightParallelp->Parallel_Ambient);
 }
@@ -561,32 +563,32 @@ void SetMaterialData(u_int *prim)
 
 static void _SetDLight(sceVu0FMATRIX m0)
 {
-    __asm__ volatile ("\n\
-        lqc2      $vf20,0(%0)\n\
-        lqc2      $vf21,0x10(%0)\n\
-        lqc2      $vf22,0x20(%0)\n\
-        viaddi    $vi2,$vi0,0xf\n\
-        viaddi    $vi2,$vi2,5\n\
-        vsqi.xyzw $vf20,($vi2++)\n\
-        vsqi.xyzw $vf21,($vi2++)\n\
-        vsqi.xyzw $vf22,($vi2++)\n\
-        ": :"r"(m0)
-    );
+    //__asm__ volatile ("\n\
+    //    lqc2      $vf20,0(%0)\n\
+    //    lqc2      $vf21,0x10(%0)\n\
+    //    lqc2      $vf22,0x20(%0)\n\
+    //    viaddi    $vi2,$vi0,0xf\n\
+    //    viaddi    $vi2,$vi2,5\n\
+    //    vsqi.xyzw $vf20,($vi2++)\n\
+    //    vsqi.xyzw $vf21,($vi2++)\n\
+    //    vsqi.xyzw $vf22,($vi2++)\n\
+    //    ": :"r"(m0)
+    //);
 }
 
 static void _SetSLight(sceVu0FMATRIX m0)
 {
-    __asm__ volatile ("\n\
-        lqc2      $vf23,0(%0)\n\
-        lqc2      $vf24,0x10(%0)\n\
-        lqc2      $vf25,0x20(%0)\n\
-        viaddi    $vi2,$vi0,0xf\n\
-        viaddi    $vi2,$vi2,8\n\
-        vsqi.xyzw $vf23,($vi2++)\n\
-        vsqi.xyzw $vf24,($vi2++)\n\
-        vsqi.xyzw $vf25,($vi2++)\n\
-        ": :"r"(m0)
-    );
+    //__asm__ volatile ("\n\
+    //    lqc2      $vf23,0(%0)\n\
+    //    lqc2      $vf24,0x10(%0)\n\
+    //    lqc2      $vf25,0x20(%0)\n\
+    //    viaddi    $vi2,$vi0,0xf\n\
+    //    viaddi    $vi2,$vi2,8\n\
+    //    vsqi.xyzw $vf23,($vi2++)\n\
+    //    vsqi.xyzw $vf24,($vi2++)\n\
+    //    vsqi.xyzw $vf25,($vi2++)\n\
+    //    ": :"r"(m0)
+    //);
 }
 
 void SetPointGroup()
@@ -952,75 +954,75 @@ void ClearLightStack()
 
 static void _CalcPointA(sceVu0FMATRIX grc, float *grm, float *len)
 {
-    asm volatile("                              \n\
-        lqc2           $vf14,   0x00(%0)        \n\
-        lqc2           $vf15,   0x10(%0)        \n\
-        lqc2           $vf16,   0x20(%0)        \n\
-        vsub.xyz       $vf14,   $vf14,   $vf12  \n\
-        vsub.xyz       $vf15,   $vf15,   $vf12  \n\
-        vsub.xyz       $vf16,   $vf16,   $vf12  \n\
-        vmulax.xyz     ACC,     $vf4,    $vf13x \n\
-        vmadday.xyz    ACC,     $vf5,    $vf13y \n\
-        vmaddz.xyz     $vf26,   $vf6,    $vf13z \n\
-        vmul.xyz       $vf23,   $vf14,   $vf14  \n\
-        vmul.xyz       $vf24,   $vf15,   $vf15  \n\
-        vmul.xyz       $vf25,   $vf16,   $vf16  \n\
-        vmul.xyz       $vf14,   $vf26,   $vf14  \n\
-        vmul.xyz       $vf15,   $vf26,   $vf15  \n\
-        vmul.xyz       $vf16,   $vf26,   $vf16  \n\
-        vadday.x       ACCx,    $vf23x,  $vf23y \n\
-        vmaddz.x       $vf23x,  $vf1x,   $vf23z \n\
-        vaddax.y       ACCy,    $vf24y,  $vf24x \n\
-        vmaddz.y       $vf23y,  $vf1y,   $vf24z \n\
-        vaddax.z       ACCz,    $vf25z,  $vf25x \n\
-        vmaddy.z       $vf23z,  $vf1z,   $vf25y \n\
-        vdiv           Q,       $vf0w,   $vf23x \n\
-        vadday.x       ACCx,    $vf14x,  $vf14y \n\
-        vmaddz.x       $vf17x,  $vf1x,   $vf14z \n\
-        vaddaz.y       ACCy,    $vf15y,  $vf15z \n\
-        vmaddx.y       $vf17y,  $vf1y,   $vf15x \n\
-        vaddax.z       ACCz,    $vf16z,  $vf16x \n\
-        vmaddy.z       $vf17z,  $vf1z,   $vf16y \n\
-        vwaitq                                  \n\
-        vaddq.x        $vf27x,  $vf0x,   Q      \n\
-        vdiv           Q,$vf0w, $vf23y          \n\
-        lqc2           $vf24,   0x00(%1)        \n\
-        vmul.xyz       $vf17,   $vf17,   $vf24  \n\
-        vmaxx.xyz      $vf17,   $vf17,   $vf0x  \n\
-        vwaitq                                  \n\
-        vaddq.y        $vf27y,  $vf0y,   Q      \n\
-        vdiv           Q,$vf0w, $vf23z          \n\
-        lqc2           $vf20,   0x10(%1)        \n\
-        lqc2           $vf21,   0x20(%1)        \n\
-        lqc2           $vf22,   0x30(%1)        \n\
-        lqc2           $vf14,   0x40(%1)        \n\
-        lqc2           $vf15,   0x50(%1)        \n\
-        lqc2           $vf16,   0x60(%1)        \n\
-        vwaitq                                  \n\
-        vaddq.z        $vf27z,  $vf0z,   Q      \n\
-        sqc2           $vf27,   0x00(%2)        \n\
-        ": :"r"(grc), "r"(grm), "r"(len)
-    );
+    //asm volatile("                              \n\
+    //    lqc2           $vf14,   0x00(%0)        \n\
+    //    lqc2           $vf15,   0x10(%0)        \n\
+    //    lqc2           $vf16,   0x20(%0)        \n\
+    //    vsub.xyz       $vf14,   $vf14,   $vf12  \n\
+    //    vsub.xyz       $vf15,   $vf15,   $vf12  \n\
+    //    vsub.xyz       $vf16,   $vf16,   $vf12  \n\
+    //    vmulax.xyz     ACC,     $vf4,    $vf13x \n\
+    //    vmadday.xyz    ACC,     $vf5,    $vf13y \n\
+    //    vmaddz.xyz     $vf26,   $vf6,    $vf13z \n\
+    //    vmul.xyz       $vf23,   $vf14,   $vf14  \n\
+    //    vmul.xyz       $vf24,   $vf15,   $vf15  \n\
+    //    vmul.xyz       $vf25,   $vf16,   $vf16  \n\
+    //    vmul.xyz       $vf14,   $vf26,   $vf14  \n\
+    //    vmul.xyz       $vf15,   $vf26,   $vf15  \n\
+    //    vmul.xyz       $vf16,   $vf26,   $vf16  \n\
+    //    vadday.x       ACCx,    $vf23x,  $vf23y \n\
+    //    vmaddz.x       $vf23x,  $vf1x,   $vf23z \n\
+    //    vaddax.y       ACCy,    $vf24y,  $vf24x \n\
+    //    vmaddz.y       $vf23y,  $vf1y,   $vf24z \n\
+    //    vaddax.z       ACCz,    $vf25z,  $vf25x \n\
+    //    vmaddy.z       $vf23z,  $vf1z,   $vf25y \n\
+    //    vdiv           Q,       $vf0w,   $vf23x \n\
+    //    vadday.x       ACCx,    $vf14x,  $vf14y \n\
+    //    vmaddz.x       $vf17x,  $vf1x,   $vf14z \n\
+    //    vaddaz.y       ACCy,    $vf15y,  $vf15z \n\
+    //    vmaddx.y       $vf17y,  $vf1y,   $vf15x \n\
+    //    vaddax.z       ACCz,    $vf16z,  $vf16x \n\
+    //    vmaddy.z       $vf17z,  $vf1z,   $vf16y \n\
+    //    vwaitq                                  \n\
+    //    vaddq.x        $vf27x,  $vf0x,   Q      \n\
+    //    vdiv           Q,$vf0w, $vf23y          \n\
+    //    lqc2           $vf24,   0x00(%1)        \n\
+    //    vmul.xyz       $vf17,   $vf17,   $vf24  \n\
+    //    vmaxx.xyz      $vf17,   $vf17,   $vf0x  \n\
+    //    vwaitq                                  \n\
+    //    vaddq.y        $vf27y,  $vf0y,   Q      \n\
+    //    vdiv           Q,$vf0w, $vf23z          \n\
+    //    lqc2           $vf20,   0x10(%1)        \n\
+    //    lqc2           $vf21,   0x20(%1)        \n\
+    //    lqc2           $vf22,   0x30(%1)        \n\
+    //    lqc2           $vf14,   0x40(%1)        \n\
+    //    lqc2           $vf15,   0x50(%1)        \n\
+    //    lqc2           $vf16,   0x60(%1)        \n\
+    //    vwaitq                                  \n\
+    //    vaddq.z        $vf27z,  $vf0z,   Q      \n\
+    //    sqc2           $vf27,   0x00(%2)        \n\
+    //    ": :"r"(grc), "r"(grm), "r"(len)
+    //);
 }
 
 static void _CalcPointB(float *len)
 {
-    asm volatile("\n\
-        lqc2           $vf27, 0x00(%0)        \n\
-        vmul.xyz       $vf25, $vf27,   $vf17  \n\
-        vminiw.xyz     $vf25, $vf25,   $vf0w  \n\
-        vmul.xyz       $vf23, $vf25,   $vf25  \n\
-        vmulax.xyz     ACC,   $vf20,   $vf25x \n\
-        vmadday.xyz    ACC,   $vf21,   $vf25y \n\
-        vmaddaz.xyz    ACC,   $vf22,   $vf25z \n\
-        vmul.xyz       $vf25, $vf23,   $vf23  \n\
-        vmul.xyz       $vf25, $vf25,   $vf25  \n\
-        vmaddax.xyz    ACC,   $vf14,   $vf25x \n\
-        vmadday.xyz    ACC,   $vf15,   $vf25y \n\
-        vmaddaz.xyz    ACC,   $vf16,   $vf25z \n\
-        vmadd.xyz      $vf18, $vf18,   $vf1   \n\
-        ": :"r"(len)
-    );
+    //asm volatile("\n\
+    //    lqc2           $vf27, 0x00(%0)        \n\
+    //    vmul.xyz       $vf25, $vf27,   $vf17  \n\
+    //    vminiw.xyz     $vf25, $vf25,   $vf0w  \n\
+    //    vmul.xyz       $vf23, $vf25,   $vf25  \n\
+    //    vmulax.xyz     ACC,   $vf20,   $vf25x \n\
+    //    vmadday.xyz    ACC,   $vf21,   $vf25y \n\
+    //    vmaddaz.xyz    ACC,   $vf22,   $vf25z \n\
+    //    vmul.xyz       $vf25, $vf23,   $vf23  \n\
+    //    vmul.xyz       $vf25, $vf25,   $vf25  \n\
+    //    vmaddax.xyz    ACC,   $vf14,   $vf25x \n\
+    //    vmadday.xyz    ACC,   $vf15,   $vf25y \n\
+    //    vmaddaz.xyz    ACC,   $vf16,   $vf25z \n\
+    //    vmadd.xyz      $vf18, $vf18,   $vf1   \n\
+    //    ": :"r"(len)
+    //);
 }
 
 void CalcPointLight()
@@ -1053,88 +1055,88 @@ void CalcPointLight()
 
 inline static void asm_CalcSpotLight(LMATRIX cdata, sceVu0FVECTOR mdata)
 {
-    asm volatile("                              \n\
-        lqc2           $vf14, 0x00(%0)          \n\
-        lqc2           $vf15, 0x10(%0)          \n\
-        lqc2           $vf16, 0x20(%0)          \n\
-        vsub.xyz       $vf14, $vf14,    $vf12   \n\
-        vsub.xyz       $vf15, $vf15,    $vf12   \n\
-        vsub.xyz       $vf16, $vf16,    $vf12   \n\
-        vmulax.xyz     ACC,   $vf4,     $vf13x  \n\
-        vmadday.xyz    ACC,   $vf5,     $vf13y  \n\
-        vmaddz.xyz     $vf26, $vf6,     $vf13z  \n\
-        vmul.xyz       $vf23, $vf14,    $vf14   \n\
-        vmul.xyz       $vf24, $vf15,    $vf15   \n\
-        vmul.xyz       $vf25, $vf16,    $vf16   \n\
-        lqc2           $vf20, 0x50(%0)          \n\
-        lqc2           $vf21, 0x60(%0)          \n\
-        lqc2           $vf22, 0x70(%0)          \n\
-        vmul.xyz       $vf20, $vf20,    $vf14   \n\
-        vmul.xyz       $vf21, $vf21,    $vf15   \n\
-        vmul.xyz       $vf22, $vf22,    $vf16   \n\
-        vadday.x       ACC,   $vf23,    $vf23y  \n\
-        vmaddz.x       $vf23, $vf1,     $vf23z  \n\
-        vaddax.y       ACC,   $vf24,    $vf24x  \n\
-        vmaddz.y       $vf23, $vf1,     $vf24z  \n\
-        vaddax.z       ACC,   $vf25,    $vf25x  \n\
-        vmaddy.z       $vf23, $vf1,     $vf25y  \n\
-        vdiv           Q,     $vf0w,    $vf23x  \n\
-        vadday.x       ACC,   $vf20,    $vf20y  \n\
-        vmaddz.x       $vf17, $vf1,     $vf20z  \n\
-        vaddaz.y       ACC,   $vf21,    $vf21z  \n\
-        vmaddx.y       $vf17, $vf1,     $vf21x  \n\
-        vaddax.z       ACC,   $vf22,    $vf22x  \n\
-        vmaddy.z       $vf17, $vf1,     $vf22y  \n\
-        vwaitq                                  \n\
-        vaddq.x        $vf23, $vf0,     Q       \n\
-        vdiv           Q,     $vf0w,    $vf23y  \n\
-        vmul.xyz       $vf14, $vf26,    $vf14   \n\
-        vmul.xyz       $vf15, $vf26,    $vf15   \n\
-        vmul.xyz       $vf16, $vf26,    $vf16   \n\
-        vmaxx.xyz      $vf17, $vf17,    $vf0x   \n\
-        vwaitq                                  \n\
-        vaddq.y        $vf23, $vf0,     Q       \n\
-        vdiv           Q,     $vf0w,    $vf23z  \n\
-        vadday.x       ACC,   $vf14,    $vf14y  \n\
-        vmaddz.x       $vf24, $vf1,     $vf14z  \n\
-        vaddaz.y       ACC,   $vf15,    $vf15z  \n\
-        vmaddx.y       $vf24, $vf1,     $vf15x  \n\
-        vaddax.z       ACC,   $vf16,    $vf16x  \n\
-        vmaddy.z       $vf24, $vf1,     $vf16y  \n\
-        vmaxx.xyz      $vf24, $vf24,    $vf0x   \n\
-        vwaitq                                  \n\
-        vaddq.z        $vf23, $vf0,     Q       \n\
-        vmul.xyz       $vf17, $vf17,    $vf17   \n\
-        lqc2           $vf27, 0x30(%0)          \n\
-        lqc2           $vf28, 0x40(%0)          \n\
-        vmula.xyz      ACC,   $vf17,    $vf23   \n\
-        vmsub.xyz      $vf17, $vf27,    $vf1    \n\
-        vmaxx.xyz      $vf17, $vf17,    $vf0x   \n\
-        vmul.xyz       $vf17, $vf17,    $vf28   \n\
-        lqc2           $vf26, 0x00(%1)          \n\
-        vmul.xyz       $vf24, $vf24,    $vf23   \n\
-        vmul.xyz       $vf24, $vf24,    $vf26   \n\
-        vminiw.xyz     $vf24, $vf24,    $vf0w   \n\
-        vmul.xyz       $vf25, $vf24,    $vf24   \n\
-        vmul.xyz       $vf25, $vf25,    $vf25   \n\
-        vmul.xyz       $vf25, $vf25,    $vf25   \n\
-        vmul.xyz       $vf24, $vf24,    $vf17   \n\
-        vmul.xyz       $vf25, $vf25,    $vf17   \n\
-        lqc2           $vf20, 0x10(%1)          \n\
-        lqc2           $vf21, 0x20(%1)          \n\
-        lqc2           $vf22, 0x30(%1)          \n\
-        vmulax.xyz     ACC,   $vf18,    $vf1x   \n\
-        vmaddax.xyz    ACC,   $vf20,    $vf24x  \n\
-        vmadday.xyz    ACC,   $vf21,    $vf24y  \n\
-        vmaddaz.xyz    ACC,   $vf22,    $vf24z  \n\
-        lqc2           $vf14, 0x40(%1)          \n\
-        lqc2           $vf15, 0x50(%1)          \n\
-        lqc2           $vf16, 0x60(%1)          \n\
-        vmaddax.xyz    ACC,   $vf14,    $vf25x  \n\
-        vmadday.xyz    ACC,   $vf15,    $vf25y  \n\
-        vmaddz.xyz     $vf18, $vf16,    $vf25z  \n\
-        ": :"r"(cdata), "r"(mdata)
-    );
+    //asm volatile("                              \n\
+    //    lqc2           $vf14, 0x00(%0)          \n\
+    //    lqc2           $vf15, 0x10(%0)          \n\
+    //    lqc2           $vf16, 0x20(%0)          \n\
+    //    vsub.xyz       $vf14, $vf14,    $vf12   \n\
+    //    vsub.xyz       $vf15, $vf15,    $vf12   \n\
+    //    vsub.xyz       $vf16, $vf16,    $vf12   \n\
+    //    vmulax.xyz     ACC,   $vf4,     $vf13x  \n\
+    //    vmadday.xyz    ACC,   $vf5,     $vf13y  \n\
+    //    vmaddz.xyz     $vf26, $vf6,     $vf13z  \n\
+    //    vmul.xyz       $vf23, $vf14,    $vf14   \n\
+    //    vmul.xyz       $vf24, $vf15,    $vf15   \n\
+    //    vmul.xyz       $vf25, $vf16,    $vf16   \n\
+    //    lqc2           $vf20, 0x50(%0)          \n\
+    //    lqc2           $vf21, 0x60(%0)          \n\
+    //    lqc2           $vf22, 0x70(%0)          \n\
+    //    vmul.xyz       $vf20, $vf20,    $vf14   \n\
+    //    vmul.xyz       $vf21, $vf21,    $vf15   \n\
+    //    vmul.xyz       $vf22, $vf22,    $vf16   \n\
+    //    vadday.x       ACC,   $vf23,    $vf23y  \n\
+    //    vmaddz.x       $vf23, $vf1,     $vf23z  \n\
+    //    vaddax.y       ACC,   $vf24,    $vf24x  \n\
+    //    vmaddz.y       $vf23, $vf1,     $vf24z  \n\
+    //    vaddax.z       ACC,   $vf25,    $vf25x  \n\
+    //    vmaddy.z       $vf23, $vf1,     $vf25y  \n\
+    //    vdiv           Q,     $vf0w,    $vf23x  \n\
+    //    vadday.x       ACC,   $vf20,    $vf20y  \n\
+    //    vmaddz.x       $vf17, $vf1,     $vf20z  \n\
+    //    vaddaz.y       ACC,   $vf21,    $vf21z  \n\
+    //    vmaddx.y       $vf17, $vf1,     $vf21x  \n\
+    //    vaddax.z       ACC,   $vf22,    $vf22x  \n\
+    //    vmaddy.z       $vf17, $vf1,     $vf22y  \n\
+    //    vwaitq                                  \n\
+    //    vaddq.x        $vf23, $vf0,     Q       \n\
+    //    vdiv           Q,     $vf0w,    $vf23y  \n\
+    //    vmul.xyz       $vf14, $vf26,    $vf14   \n\
+    //    vmul.xyz       $vf15, $vf26,    $vf15   \n\
+    //    vmul.xyz       $vf16, $vf26,    $vf16   \n\
+    //    vmaxx.xyz      $vf17, $vf17,    $vf0x   \n\
+    //    vwaitq                                  \n\
+    //    vaddq.y        $vf23, $vf0,     Q       \n\
+    //    vdiv           Q,     $vf0w,    $vf23z  \n\
+    //    vadday.x       ACC,   $vf14,    $vf14y  \n\
+    //    vmaddz.x       $vf24, $vf1,     $vf14z  \n\
+    //    vaddaz.y       ACC,   $vf15,    $vf15z  \n\
+    //    vmaddx.y       $vf24, $vf1,     $vf15x  \n\
+    //    vaddax.z       ACC,   $vf16,    $vf16x  \n\
+    //    vmaddy.z       $vf24, $vf1,     $vf16y  \n\
+    //    vmaxx.xyz      $vf24, $vf24,    $vf0x   \n\
+    //    vwaitq                                  \n\
+    //    vaddq.z        $vf23, $vf0,     Q       \n\
+    //    vmul.xyz       $vf17, $vf17,    $vf17   \n\
+    //    lqc2           $vf27, 0x30(%0)          \n\
+    //    lqc2           $vf28, 0x40(%0)          \n\
+    //    vmula.xyz      ACC,   $vf17,    $vf23   \n\
+    //    vmsub.xyz      $vf17, $vf27,    $vf1    \n\
+    //    vmaxx.xyz      $vf17, $vf17,    $vf0x   \n\
+    //    vmul.xyz       $vf17, $vf17,    $vf28   \n\
+    //    lqc2           $vf26, 0x00(%1)          \n\
+    //    vmul.xyz       $vf24, $vf24,    $vf23   \n\
+    //    vmul.xyz       $vf24, $vf24,    $vf26   \n\
+    //    vminiw.xyz     $vf24, $vf24,    $vf0w   \n\
+    //    vmul.xyz       $vf25, $vf24,    $vf24   \n\
+    //    vmul.xyz       $vf25, $vf25,    $vf25   \n\
+    //    vmul.xyz       $vf25, $vf25,    $vf25   \n\
+    //    vmul.xyz       $vf24, $vf24,    $vf17   \n\
+    //    vmul.xyz       $vf25, $vf25,    $vf17   \n\
+    //    lqc2           $vf20, 0x10(%1)          \n\
+    //    lqc2           $vf21, 0x20(%1)          \n\
+    //    lqc2           $vf22, 0x30(%1)          \n\
+    //    vmulax.xyz     ACC,   $vf18,    $vf1x   \n\
+    //    vmaddax.xyz    ACC,   $vf20,    $vf24x  \n\
+    //    vmadday.xyz    ACC,   $vf21,    $vf24y  \n\
+    //    vmaddaz.xyz    ACC,   $vf22,    $vf24z  \n\
+    //    lqc2           $vf14, 0x40(%1)          \n\
+    //    lqc2           $vf15, 0x50(%1)          \n\
+    //    lqc2           $vf16, 0x60(%1)          \n\
+    //    vmaddax.xyz    ACC,   $vf14,    $vf25x  \n\
+    //    vmadday.xyz    ACC,   $vf15,    $vf25y  \n\
+    //    vmaddz.xyz     $vf18, $vf16,    $vf25z  \n\
+    //    ": :"r"(cdata), "r"(mdata)
+    //);
 }
 
 void CalcSpotLight()
@@ -1370,32 +1372,32 @@ u_int* GetNextUnpackAddr(u_int *prim)
 
 inline static void asm_1__SetPreRenderTYPE0(sceVu0FVECTOR normal, sceVu0FVECTOR vertex)
 {
-    asm volatile("                              \n\
-        lqc2            $vf13, 0x00(%0)         \n\
-        lqc2            $vf12, 0x00(%1)         \n\
-        vmulax.xyzw     ACC,   $vf7,    $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf8,    $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf9,    $vf12z  \n\
-        vmaddw.xyzw     $vf12, $vf10,   $vf12w  \n\
-        ": :"r"(normal), "r"(vertex)
-    );
+    //asm volatile("                              \n\
+    //    lqc2            $vf13, 0x00(%0)         \n\
+    //    lqc2            $vf12, 0x00(%1)         \n\
+    //    vmulax.xyzw     ACC,   $vf7,    $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf8,    $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf9,    $vf12z  \n\
+    //    vmaddw.xyzw     $vf12, $vf10,   $vf12w  \n\
+    //    ": :"r"(normal), "r"(vertex)
+    //);
 }
 
 inline static void asm_2__SetPreRenderTYPE0(sceVu0FVECTOR first)
 {
-    asm volatile("              \n\
-        lqc2    $vf18, 0x00(%0) \n\
-        ": :"r"(first)
-    );
+    //asm volatile("              \n\
+    //    lqc2    $vf18, 0x00(%0) \n\
+    //    ": :"r"(first)
+    //);
 }
 
 inline static void asm_3__SetPreRenderTYPE0(sceVu0FVECTOR pcol)
 {
-    asm volatile("                           \n\
-        vminiw.xyzw    $vf18, $vf18, $vf19w  \n\
-        sqc2           $vf18, 0x00(%0)       \n\
-        ": :"r"(pcol)
-    );
+    //asm volatile("                           \n\
+    //    vminiw.xyzw    $vf18, $vf18, $vf19w  \n\
+    //    sqc2           $vf18, 0x00(%0)       \n\
+    //    ": :"r"(pcol)
+    //);
 }
 
 void SetPreRenderTYPE0(int gloops, u_int *prim)
@@ -1666,26 +1668,26 @@ void SetPreRenderMeshData(u_int *prim)
 
 static void _SetSpotPos(sceVu0FVECTOR pos, sceVu0FVECTOR dir)
 {
-    asm volatile("              \n\
-        lqc2    $vf12, 0(%0)    \n\
-        lqc2    $vf13, 0(%1)    \n\
-        ": :"r"(pos), "r"(dir)
-    );
+    //asm volatile("              \n\
+    //    lqc2    $vf12, 0(%0)    \n\
+    //    lqc2    $vf13, 0(%1)    \n\
+    //    ": :"r"(pos), "r"(dir)
+    //);
 }
 
 static float _SpotInnerProduct(sceVu0FVECTOR bpos)
 {
-    float ret;
+    float ret = 0.5f;
 
-    asm volatile("\n\
-        lqc2        $vf14, 0(%1)          \n\
-        vsub.xyz    $vf14, $vf12, $vf14   \n\
-        vmul.xyz    $vf14, $vf13, $vf14   \n\
-        vaddy.x     $vf14, $vf14, $vf14y  \n\
-        vaddz.x     $vf14, $vf14, $vf14z  \n\
-        qmfc2       %0,    $vf14          \n\
-        ":"=r"(ret) :"r"(bpos)
-    );
+    //asm volatile("\n\
+    //    lqc2        $vf14, 0(%1)          \n\
+    //    vsub.xyz    $vf14, $vf12, $vf14   \n\
+    //    vmul.xyz    $vf14, $vf13, $vf14   \n\
+    //    vaddy.x     $vf14, $vf14, $vf14y  \n\
+    //    vaddz.x     $vf14, $vf14, $vf14z  \n\
+    //    qmfc2       %0,    $vf14          \n\
+    //    ":"=r"(ret) :"r"(bpos)
+    //);
 
     return ret;
 }

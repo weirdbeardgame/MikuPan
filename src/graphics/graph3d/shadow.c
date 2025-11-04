@@ -264,61 +264,61 @@ void SetVU1HeaderShadow()
 
 static void _CalcWeightedVertexSM(sceVu0FVECTOR dp, sceVu0FVECTOR v)
 {
-    asm volatile("                               \n\
-        lqc2            $vf12, 0(%0)             \n\
-        vmulax.xyzw     ACC,   $vf4,     $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf5,     $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf6,     $vf12z  \n\
-        vmaddw.xyz      $vf13, $vf7,     $vf0w   \n\
-        vsubw.w         $vf14, $vf0,     $vf12   \n\
-        vmove.w         $vf13, $vf12             \n\
-        lqc2            $vf12, 0x10(%0)          \n\
-        vmulax.xyzw     ACC,   $vf8,     $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf9,     $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf10,    $vf12z  \n\
-        vmaddw.xyz      $vf14, $vf11,    $vf0w   \n\
-        vmulaw.xyz      ACC,   $vf13,    $vf13w  \n\
-        vmaddw.xyz      $vf15, $vf14,    $vf14w  \n\
-        vmove.w         $vf15, $vf0              \n\
-        sqc2            $vf15, 0(%1)             \n\
-        ": :"r"(v), "r"(dp)
-    );
+    //asm volatile("                               \n\
+    //    lqc2            $vf12, 0(%0)             \n\
+    //    vmulax.xyzw     ACC,   $vf4,     $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf5,     $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf6,     $vf12z  \n\
+    //    vmaddw.xyz      $vf13, $vf7,     $vf0w   \n\
+    //    vsubw.w         $vf14, $vf0,     $vf12   \n\
+    //    vmove.w         $vf13, $vf12             \n\
+    //    lqc2            $vf12, 0x10(%0)          \n\
+    //    vmulax.xyzw     ACC,   $vf8,     $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf9,     $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf10,    $vf12z  \n\
+    //    vmaddw.xyz      $vf14, $vf11,    $vf0w   \n\
+    //    vmulaw.xyz      ACC,   $vf13,    $vf13w  \n\
+    //    vmaddw.xyz      $vf15, $vf14,    $vf14w  \n\
+    //    vmove.w         $vf15, $vf0              \n\
+    //    sqc2            $vf15, 0(%1)             \n\
+    //    ": :"r"(v), "r"(dp)
+    //);
 }
 
 static void _CalcWeightedVertexBufferSM(sceVu0FVECTOR dp, sceVu0FVECTOR v)
 {
-    asm volatile("                               \n\
-        lqc2            $vf12, 0(%0)             \n\
-        vmulax.xyzw     ACC,   $vf4,     $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf5,     $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf6,     $vf12z  \n\
-        vmaddw.xyz      $vf13, $vf7,     $vf0w   \n\
-        vsubw.w         $vf14, $vf0,     $vf12   \n\
-        vmove.w         $vf13, $vf12             \n\
-        lqc2            $vf12, 0x10(%0)          \n\
-        vmulax.xyzw     ACC,   $vf8,     $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf9,     $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf10,    $vf12z  \n\
-        vmaddw.xyz      $vf14, $vf11,    $vf0w   \n\
-        vmulaw.xyz      ACC,   $vf13,    $vf13w  \n\
-        vmaddw.xyz      $vf15, $vf14,    $vf14w  \n\
-        vmove.w         $vf15, $vf0              \n\
-        sqc2            $vf15, 0(%1)             \n\
-        ": :"r"(v), "r"(dp)
-    );
+    //asm volatile("                               \n\
+    //    lqc2            $vf12, 0(%0)             \n\
+    //    vmulax.xyzw     ACC,   $vf4,     $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf5,     $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf6,     $vf12z  \n\
+    //    vmaddw.xyz      $vf13, $vf7,     $vf0w   \n\
+    //    vsubw.w         $vf14, $vf0,     $vf12   \n\
+    //    vmove.w         $vf13, $vf12             \n\
+    //    lqc2            $vf12, 0x10(%0)          \n\
+    //    vmulax.xyzw     ACC,   $vf8,     $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf9,     $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf10,    $vf12z  \n\
+    //    vmaddw.xyz      $vf14, $vf11,    $vf0w   \n\
+    //    vmulaw.xyz      ACC,   $vf13,    $vf13w  \n\
+    //    vmaddw.xyz      $vf15, $vf14,    $vf14w  \n\
+    //    vmove.w         $vf15, $vf0              \n\
+    //    sqc2            $vf15, 0(%1)             \n\
+    //    ": :"r"(v), "r"(dp)
+    //);
 }
 
 static void _CalcVertexSM(sceVu0FVECTOR dp, sceVu0FVECTOR v)
 {
-    asm volatile("\n\
-        lqc2            $vf13, 0(%0)          \n\
-        vmulax.xyzw     ACC,   $vf4,  $vf13x  \n\
-        vmadday.xyzw    ACC,   $vf5,  $vf13y  \n\
-        vmaddaz.xyzw    ACC,   $vf6,  $vf13z  \n\
-        vmaddw.xyzw     $vf12, $vf7,  $vf13w  \n\
-        sqc2            $vf12, 0(%1)          \n\
-        ": :"r"(v), "r"(dp)
-    );
+    //asm volatile("\n\
+    //    lqc2            $vf13, 0(%0)          \n\
+    //    vmulax.xyzw     ACC,   $vf4,  $vf13x  \n\
+    //    vmadday.xyzw    ACC,   $vf5,  $vf13y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf6,  $vf13z  \n\
+    //    vmaddw.xyzw     $vf12, $vf7,  $vf13w  \n\
+    //    sqc2            $vf12, 0(%1)          \n\
+    //    ": :"r"(v), "r"(dp)
+    //);
 }
 
 void CalcVertexBufferShadow(u_int *prim)
@@ -694,48 +694,48 @@ void ShadowMeshDataVU(u_int *prim)
 
 int ClipCheckShadow(sceVu0FVECTOR *vec, float *cul)
 {
-    int ret;
+    int ret = 0;
 
-    asm volatile("                      \n\
-        lqc2          $vf16, 0(%1)       \n\
-        lqc2          $vf12, 0(%2)       \n\
-        lqc2          $vf13, 0x10(%2)    \n\
-        lqc2          $vf14, 0x20(%2)    \n\
-        lqc2          $vf15, 0x30(%2)    \n\
-        vclipw.xyz    $vf12, $vf16w      \n\
-        vclipw.xyz    $vf13, $vf16w      \n\
-        vclipw.xyz    $vf14, $vf16w      \n\
-        vclipw.xyz    $vf15, $vf16w      \n\
-        vnop                             \n\
-        vnop                             \n\
-        vnop                             \n\
-        vnop                             \n\
-        vnop                             \n\
-        cfc2          %0,    $vi18       \n\
-        ":"=r"(ret):"r"(cul),"r"(vec)
-    );
+    //asm volatile("                      \n\
+    //    lqc2          $vf16, 0(%1)       \n\
+    //    lqc2          $vf12, 0(%2)       \n\
+    //    lqc2          $vf13, 0x10(%2)    \n\
+    //    lqc2          $vf14, 0x20(%2)    \n\
+    //    lqc2          $vf15, 0x30(%2)    \n\
+    //    vclipw.xyz    $vf12, $vf16w      \n\
+    //    vclipw.xyz    $vf13, $vf16w      \n\
+    //    vclipw.xyz    $vf14, $vf16w      \n\
+    //    vclipw.xyz    $vf15, $vf16w      \n\
+    //    vnop                             \n\
+    //    vnop                             \n\
+    //    vnop                             \n\
+    //    vnop                             \n\
+    //    vnop                             \n\
+    //    cfc2          %0,    $vi18       \n\
+    //    ":"=r"(ret):"r"(cul),"r"(vec)
+    //);
 
     return ret;
 }
 
 int ShadowBoundClip(float *v0, float *v1)
 {
-    int ret;
+    int ret = 0;
 
-    asm volatile("                             \n\
-        lqc2            $vf12, 0(%1)           \n\
-        vmulax.xyzw     ACC,   $vf4,   $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf5,   $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf6,   $vf12z  \n\
-        vmaddw.xyzw     $vf12, $vf7,   $vf0w   \n\
-        vclipw.xyz      $vf12, $vf12w          \n\
-        sqc2            $vf12, 0(%2)           \n\
-        vnop                                   \n\
-        vnop                                   \n\
-        vnop                                   \n\
-        cfc2            %0,    $vi18           \n\
-        ":"=r"(ret):"r"(v1),"r"(v0)
-    );
+    //asm volatile("                             \n\
+    //    lqc2            $vf12, 0(%1)           \n\
+    //    vmulax.xyzw     ACC,   $vf4,   $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf5,   $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf6,   $vf12z  \n\
+    //    vmaddw.xyzw     $vf12, $vf7,   $vf0w   \n\
+    //    vclipw.xyz      $vf12, $vf12w          \n\
+    //    sqc2            $vf12, 0(%2)           \n\
+    //    vnop                                   \n\
+    //    vnop                                   \n\
+    //    vnop                                   \n\
+    //    cfc2            %0,    $vi18           \n\
+    //    ":"=r"(ret):"r"(v1),"r"(v0)
+    //);
 
     return ret;
 }
@@ -1399,11 +1399,11 @@ void CalcShadowMatrix(ShadowHandle *shandle, sceVu0FVECTOR center, float ax, flo
 
 static void _ftoi0(int *out, float *in)
 {
-    asm volatile ("\n\
-        lqc2    $vf12,0(%0) \n\
-        vftoi0.xyzw $vf12xyzw,$vf12xyzw \n\
-        sqc2    $vf12,0(%1) \n\
-    ": :"r"(in),"r"(out));
+    //asm volatile ("\n\
+    //    lqc2    $vf12,0(%0) \n\
+    //    vftoi0.xyzw $vf12xyzw,$vf12xyzw \n\
+    //    sqc2    $vf12,0(%1) \n\
+    //": :"r"(in),"r"(out));
 }
 
 void CalcShadowHeight(sceVu0FVECTOR *bbox)

@@ -40,11 +40,12 @@ typedef struct {
 
 extern void *_gp;
 
-#define ExitHandler() \
-    asm volatile("\n\
-        sync.l    \n\
-        ei        \n\
-    ");
+#define ExitHandler()
+//#define ExitHandler() \
+//    asm volatile("\n\
+//        sync.l    \n\
+//        ei        \n\
+//    ");
 
 int CreateThread(ThreadParam *);
 int StartThread(int, void *arg);

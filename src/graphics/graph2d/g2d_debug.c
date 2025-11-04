@@ -2,6 +2,8 @@
 #include "typedefs.h"
 #include "g2d_debug.h"
 
+#include <string.h>
+
 #include "sce/libpc.h"
 
 #include "main/glob.h"

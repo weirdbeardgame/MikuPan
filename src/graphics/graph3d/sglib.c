@@ -2,6 +2,7 @@
 #include "typedefs.h"
 #include "sglib.h"
 
+#include <math.h>
 #include <stdio.h>
 
 #include "ee/eestruct.h"
@@ -83,6 +84,7 @@ static inline float asm_1(float rad)
 
 static inline float asm_2(float rad)
 {
+    /*
     float ret;
 
     __asm__ volatile("\n\
@@ -115,10 +117,32 @@ static inline float asm_2(float rad)
     );
 
     return ret;
+    */
+
+    const float c1 = -1.0f / 6.0f;
+    const float c2 =  1.0f / 120.0f;
+    const float c3 = -1.0f / 5040.0f;
+    const float c4 =  1.0f / 362880.0f;
+
+    // Polynomial approximation of sin(rad)
+    float x  = rad;
+    float x2 = x * x;
+    float x3 = x2 * x;
+    float x5 = x3 * x2;
+    float x7 = x5 * x2;
+    float x9 = x7 * x2;
+
+    float ret = x + c1 * x3 + c2 * x5 + c3 * x7 + c4 * x9;
+
+    if (ret > 1.0f) ret = 1.0f;
+    else if (ret < -1.0f) ret = -1.0f;
+
+    return ret;
 }
 
 static inline float asm_3(float degree)
 {
+    /*
     float ret;
 
     __asm__ volatile("\n\
@@ -142,10 +166,27 @@ static inline float asm_3(float degree)
     );
 
     return ret;
+    */
+
+    // Constants from trad
+    const float inv2pi = 1.0f / (PI * 2.0f);
+    const float neg2pi = -2.0f * PI;
+    const float deg2rad = PI / 180.0f;
+
+    // Convert degrees to radians
+    float rad = degree * deg2rad;
+    // Find how many full rotations it represents
+    float turns = rad * inv2pi;
+    // Truncate (round toward zero) the number of full turns
+    turns = (float)((int)turns);
+    // Subtract full turns to wrap the angle into [0, 2π)
+    float wrapped = rad + turns * neg2pi;
+    return wrapped;
 }
 
 void _GetNormalVectorFromVector(sceVu0FVECTOR norm, sceVu0FVECTOR p0, sceVu0FVECTOR p1)
 {
+    /*
     __asm__ volatile("\n\
     lqc2        vf12,0x0(%1)\n\
     lqc2        vf13,0x0(%2)\n\
@@ -153,15 +194,26 @@ void _GetNormalVectorFromVector(sceVu0FVECTOR norm, sceVu0FVECTOR p0, sceVu0FVEC
     vopmsub.xyz vf12,vf13,vf12\n\
     sqc2        vf12,0x0(%0)\n\
     ": : "r" (norm) , "r" (p0) ,"r" (p1));
+    */
+
+    // Compute cross product p1 × p0
+    norm[0] = p1[1] * p0[2] - p1[2] * p0[1];  // X
+    norm[1] = p1[2] * p0[0] - p1[0] * p0[2];  // Y
+    norm[2] = p1[0] * p0[1] - p1[1] * p0[0];  // Z
+    norm[3] = 0.0f;                           // PS2 VU typically keeps W = 0 for direction vectors
+
 }
 
 void WaitVU1()
 {
+    /// Instant on modern PC
+    /*
     asm volatile("\n\
         WVU1:\n\
         bc2t WVU1\n\
         nop\n\
     ");
+    */
 }
 
 float _TransPPower(float scale)
@@ -188,10 +240,12 @@ void Set12Register()
     vf[1][2] = 0.0f;
     vf[1][3] = 0.0f;
 
+    /*
     __asm__ volatile("\n\
         lqc2 $vf1,0x0(%0)\n\
         lqc2 $vf2,0x10(%0)\n\
     ": :"r"(vf));
+    */
 }
 
 void SetVF2Register(sceVu0FVECTOR vf2reg)
@@ -302,21 +356,39 @@ void SgSetProjection(float scrz)
 
     tmp[3] = scrz;
 
+    /*
     __asm__ volatile ("\n\
         lqc2    $vf12,0(%0)\n\
         vdiv    Q,$vf0w,$vf12w\n\
         vwaitq  \n\
         vmulq.w $vf1w,$vf0w,Q\n\
         ": : "r" (tmp));
+        */
+
+    // Avoid division by zero
+    if (scrz == 0.0f)
+        return;
+
+    float reciprocal = 1.0f / scrz;
+
+    // On PS2, vf1.w would now hold this value globally;
+    // here we just simulate setting it somewhere.
+    // For example, you might store it in a static or global variable:
+    static float vf1w = 1.0f;
+    vf1w = reciprocal;
+
+    // (In actual PS2 code, vf1.w was used in projection transformations.)
 }
 
 float SgGetProjection()
 {
     sceVu0FVECTOR tmp;
 
+    /*
     __asm__ volatile ("\n\
         sqc2 $vf1,0(%0)\n\
         ": : "r" (tmp));
+        */
 
     return tmp[3];
 }
@@ -390,7 +462,7 @@ void GetMatrixFromQuaternion(sceVu0FMATRIX quat, sceVu0FVECTOR qvert)
     lmat[3][1] = +qvert[1];
     lmat[3][2] = +qvert[2];
     lmat[3][3] = +qvert[3];
-
+/*
     __asm__ volatile ("\n\
         lqc2         $vf12,0(%1)\n\
         lqc2         $vf13,0x10(%1)\n\
@@ -422,6 +494,18 @@ void GetMatrixFromQuaternion(sceVu0FMATRIX quat, sceVu0FVECTOR qvert)
         sqc2         $vf19,0x30(%0)\n\
         ": : "r" (quat), "r" (rmat), "r" (lmat)
     );
+    */
+
+    // Multiply rmat × lmat → quat
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            quat[i][j] =
+                rmat[i][0] * lmat[0][j] +
+                rmat[i][1] * lmat[1][j] +
+                rmat[i][2] * lmat[2][j] +
+                rmat[i][3] * lmat[3][j];
+        }
+    }
 }
 
 void GetMatrixRotateAxis(sceVu0FMATRIX quat, float *axis, float theta)
@@ -504,6 +588,7 @@ float SgACosf(float ccos)
 
 static void GetATanf(sceVu0FVECTOR *tmpv)
 {
+    /*
      __asm__ volatile("\n\
         lqc2      $vf12,0(%0)\n\
         lqc2      $vf13,0x10(%0)\n\
@@ -533,6 +618,38 @@ static void GetATanf(sceVu0FVECTOR *tmpv)
         sqc2      $vf12,0(%0)\n\
         ": :"r" (tmpv)
     );
+    */
+
+    float *v12 = (*tmpv);         // first vector (input/output)
+    float *v13 = (*tmpv + 4);     // second vector (coefficients)
+    float *v16 = (*tmpv + 8);     // third vector (constants)
+
+    float x = v12[0];
+
+    // Map domain via (x - 1)/(x + 1)
+    float q = (x - 1.0f) / (x + 1.0f);
+    x = q + 1.0f;
+
+    // Polynomial coefficients (read from the same memory layout)
+    float a1 = v12[1];
+    float a2 = v12[2];
+    float a3 = v12[3];
+    float b1 = v13[0];
+    float b2 = v13[1];
+    float b3 = v13[2];
+    float b4 = v13[3];
+    float c1 = v16[0];
+    float offset = v16[1];   // final offset (likely π/4)
+
+    // Evaluate polynomial in powers of x²
+    float x2 = x * x;
+    float result = ((((((b4 * x2 + b3) * x2 + b2) * x2 + b1) * x2 + a3) * x2 + a2) * x2 + a1) * x + c1;
+
+    // Add constant offset (π/4)
+    result += offset;
+
+    // Store result back
+    v12[0] = result;
 }
 
 float SgAtanf(float x)
@@ -619,6 +736,7 @@ float SgAtan2f(float y, float x)
 
 float SgSqrtf(float len)
 {
+    /*
     float ret;
 
     __asm__ volatile("\n\
@@ -638,10 +756,17 @@ float SgSqrtf(float len)
     );
 
     return ret;
+    */
+
+    float vf12x = len;     // emulate VU0 register
+    float Q = sqrtf(vf12x); // emulate vsqrt Q
+    vf12x = 0.0f + Q;       // emulate vaddq.x
+    return vf12x;
 }
 
 float SgRSqrtf(float len)
 {
+    /*
     float ret;
 
     __asm__ volatile("\n\
@@ -661,21 +786,25 @@ float SgRSqrtf(float len)
     );
 
     return ret;
+    */
+
+    if (len == 0.0f) return INFINITY; // handle divide by zero
+    return 1.0f / sqrtf(len);
 }
 
 static void GetSgCalclen(sceVu0FVECTOR tmpv)
 {
-    __asm__ volatile("\n\
-        lqc2     $vf12,0(%0)\n\
-        vmul.xyz $vf12xyz,$vf12xyz,$vf12xyz\n\
-        vaddy.x  $vf12x,$vf12x,$vf12y\n\
-        vaddz.x  $vf12x,$vf12x,$vf12z\n\
-        vsqrt    Q,$vf12x\n\
-        vwaitq   \n\
-        vaddq.x  $vf12x,$vf0x,Q\n\
-        sqc2     $vf12,0(%0)\n\
-        ": : "r"(tmpv)
-    );
+    //__asm__ volatile("\n\
+    //    lqc2     $vf12,0(%0)\n\
+    //    vmul.xyz $vf12xyz,$vf12xyz,$vf12xyz\n\
+    //    vaddy.x  $vf12x,$vf12x,$vf12y\n\
+    //    vaddz.x  $vf12x,$vf12x,$vf12z\n\
+    //    vsqrt    Q,$vf12x\n\
+    //    vwaitq   \n\
+    //    vaddq.x  $vf12x,$vf0x,Q\n\
+    //    sqc2     $vf12,0(%0)\n\
+    //    ": : "r"(tmpv)
+    //);
 }
 
 float SgCalcLen(float x, float y, float z)
@@ -695,6 +824,7 @@ float _CalcLen(sceVu0FVECTOR v0, sceVu0FVECTOR v1)
 {
     sceVu0FVECTOR tmpv;
 
+    /*
     __asm__ volatile("\n\
         lqc2     $vf12,0(%0)\n\
         lqc2     $vf13,0(%1)\n\
@@ -708,12 +838,20 @@ float _CalcLen(sceVu0FVECTOR v0, sceVu0FVECTOR v1)
         sqc2     $vf14,0(%2)\n\
         ": : "r"(v0), "r"(v1), "r"(tmpv)
     );
+    */
 
-    return tmpv[0];
+    //return tmpv[0];
+
+    float dx = v0[0] - v1[0];
+    float dy = v0[1] - v1[1];
+    float dz = v0[2] - v1[2];
+
+    return sqrtf(dx*dx + dy*dy + dz*dz);
 }
 
 void _MulRotMatrix(sceVu0FMATRIX ans, sceVu0FMATRIX m0, sceVu0FMATRIX m1)
 {
+    /*
     __asm__ volatile("\n\
         lqc2        $vf12,0(%0)\n\
         lqc2        $vf13,0x10(%0)\n\
@@ -735,10 +873,27 @@ void _MulRotMatrix(sceVu0FMATRIX ans, sceVu0FMATRIX m0, sceVu0FMATRIX m1)
         sqc2        $vf17,0x20(%2)\n\
         ": : "r"(m0), "r"(m1), "r"(ans)
     );
+    */
+
+    for (int i = 0; i < 3; ++i) {        // rows of result
+        for (int j = 0; j < 3; ++j) {    // columns of result
+            ans[i][j] =
+                m0[i][0] * m1[0][j] +
+                m0[i][1] * m1[1][j] +
+                m0[i][2] * m1[2][j];
+        }
+    }
+
+    // Optional: preserve last row as identity (for 4x4)
+    ans[3][0] = 0.0f;
+    ans[3][1] = 0.0f;
+    ans[3][2] = 0.0f;
+    ans[3][3] = 1.0f;
 }
 
 void _MulMatrix(sceVu0FMATRIX ans, sceVu0FMATRIX m0, sceVu0FMATRIX m1)
 {
+    /*
     __asm__ volatile("\n\
         lqc2         $vf12,0(%0)\n\
         lqc2         $vf13,0x10(%0)\n\
@@ -770,10 +925,22 @@ void _MulMatrix(sceVu0FMATRIX ans, sceVu0FMATRIX m0, sceVu0FMATRIX m1)
         sqc2         $vf19,0x30(%2)\n\
         ": : "r"(m0), "r"(m1), "r"(ans)
     );
+    */
+
+    for (int i = 0; i < 4; ++i) {      // rows of result
+        for (int j = 0; j < 4; ++j) {  // columns of result
+            ans[i][j] =
+                m0[i][0] * m1[0][j] +
+                m0[i][1] * m1[1][j] +
+                m0[i][2] * m1[2][j] +
+                m0[i][3] * m1[3][j];
+        }
+    }
 }
 
 void _SetMulMatrix(sceVu0FMATRIX m0, sceVu0FMATRIX m1)
 {
+    /*
     __asm__ volatile("\n\
         lqc2         $vf12,0(%0)\n\
         lqc2         $vf13,0x10(%0)\n\
@@ -801,10 +968,12 @@ void _SetMulMatrix(sceVu0FMATRIX m0, sceVu0FMATRIX m1)
         vmaddw.xyzw  $vf7xyzw,$vf15xyzw,$vf19w\n\
         ": : "r"(m0), "r"(m1)
     );
+    */
 }
 
 void _CalcLenASM(sceVu0FVECTOR out, sceVu0FVECTOR v0, sceVu0FVECTOR v1)
 {
+    /*
     __asm__ volatile("\n\
         lqc2     $vf12,0(%0)\n\
         lqc2     $vf13,0(%1)\n\
@@ -818,10 +987,12 @@ void _CalcLenASM(sceVu0FVECTOR out, sceVu0FVECTOR v0, sceVu0FVECTOR v1)
         sqc2     $vf14,0(%2)\n\
         ": : "r"(v0), "r"(v1), "r"(out)
     );
+    */
 }
 
 void _NormalizeVector(sceVu0FVECTOR v, sceVu0FVECTOR v0)
 {
+    /*
     __asm__ volatile("\n\
         lqc2      $vf12,0(%0)\n\
         vmul.xyz  $vf13xyz,$vf12xyz,$vf12xyz\n\
@@ -834,10 +1005,12 @@ void _NormalizeVector(sceVu0FVECTOR v, sceVu0FVECTOR v0)
         sqc2      $vf13,0(%1)\n\
         ": : "r"(v0), "r"(v)
     );
+    */
 }
 
 void _NormalizeVector2(sceVu0FVECTOR v, sceVu0FVECTOR v0)
 {
+    /*
     __asm__ volatile("\n\
         lqc2      $vf12,0(%0)\n\
         vmul.xyz  $vf13xyz,$vf12xyz,$vf12xyz\n\
@@ -850,10 +1023,12 @@ void _NormalizeVector2(sceVu0FVECTOR v, sceVu0FVECTOR v0)
         sqc2      $vf13,0(%1)\n\
         ": : "r"(v0), "r"(v)
     );
+    */
 }
 
 void _ApplyRotMatrix(sceVu0FVECTOR v0, sceVu0FVECTOR v1)
 {
+    /*
     __asm__ volatile("\n\
         lqc2         $vf13,0(%0)\n\
         vmulax.xyzw  ACCxyzw,$vf4xyzw,$vf13x\n\
@@ -862,10 +1037,12 @@ void _ApplyRotMatrix(sceVu0FVECTOR v0, sceVu0FVECTOR v1)
         sqc2         $vf12,0(%1)\n\
         ": : "r"(v1), "r"(v0)
     );
+    */
 }
 
 void _ApplyMatrixXYZ(sceVu0FVECTOR v0, sceVu0FMATRIX m, sceVu0FVECTOR v1)
 {
+    /*
     __asm__ volatile("\n\
         lqc2        $vf12,0(%0)\n\
         lqc2        $vf13,0(%1)\n\
@@ -877,4 +1054,5 @@ void _ApplyMatrixXYZ(sceVu0FVECTOR v0, sceVu0FMATRIX m, sceVu0FVECTOR v1)
         sqc2        $vf16,0(%2)\n\
         ": : "r"(v1), "r"(m), "r"(v0)
     );
+    */
 }

@@ -2,6 +2,9 @@
 #include "typedefs.h"
 #include "sce/sifrpc.h"
 #include "os/eeiop/eeiop.h"
+
+#include <stdio.h>
+
 #include "os/eeiop/eese.h"
 #include "os/eeiop/cdvd/eecdvd.h"
 

@@ -797,16 +797,16 @@ void CallDeform2(/* a0 4 */ int in, /* a1 5 */ int keep, /* t2 10 */ int out, /*
 
 static void _SetScrData(/* a0 4 */ Q_WORDDATA *dst, /* a1 5 */ SCRDEF *src)
 {
-    asm __volatile__(
-        "lqc2    vf12,0(%1)\n"
-        "lqc2    vf13,0x10(%1)\n"
-        "vftoi4.xy vf12xy,$vf12xy\n"
-        "vftoi4.xyz vf13xyz,$vf13xyz\n"
-        "vmulx.zw vf12zw,$vf12zw,$vf0x\n"
-        "sqc2    vf13,0x10(%0)\n"
-        "sqc2    vf12,0(%0)\n"
-    	: :"r"(dst),"r"(src):"memory"
-    );
+    //asm __volatile__(
+    //    "lqc2    vf12,0(%1)\n"
+    //    "lqc2    vf13,0x10(%1)\n"
+    //    "vftoi4.xy vf12xy,$vf12xy\n"
+    //    "vftoi4.xyz vf13xyz,$vf13xyz\n"
+    //    "vmulx.zw vf12zw,$vf12zw,$vf0x\n"
+    //    "sqc2    vf13,0x10(%0)\n"
+    //    "sqc2    vf12,0(%0)\n"
+    //	: :"r"(dst),"r"(src):"memory"
+    //);
 }
 
 void MakeScrDeformPacket(/* s1 17 */ int pnumw, /* 0x0(sp) */ int pnumh, /* s2 18 */ u_long tex0, /* s7 23 */ SCRDEF (*scrdef)[33], /* s0 16 */ int alp)

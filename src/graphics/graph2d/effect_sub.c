@@ -3184,73 +3184,73 @@ void Vu0SubOuterProduct(sceVu0FVECTOR v0, sceVu0FVECTOR v1, sceVu0FVECTOR v2, sc
 {
     register u_int reg0 = 0;
     
-	asm __volatile__(
-    	"lqc2    vf4,0x0(%1)\n"
-    	"lqc2    vf5,0x0(%2)\n"
-    	"lqc2    vf7,0x0(%3)\n"
-    	"vsub.xyz	vf5,vf5,vf4\n"
-    	"vsub.xyz	vf4,vf7,vf4\n"
-    	"vopmula.xyz	ACC,vf5,vf4\n"
-    	"vopmsub.xyz	vf6,vf4,vf5\n"
-    	"vsub.w vf6,vf6,vf6\n"
-    	"sqc2    vf6,0x0(%0)\n"
-    	: :"r"(v0),"r"(v1),"r"(v2),"r"(v3),"r"(reg0):"memory"
-    );
+	//asm __volatile__(
+    //	"lqc2    vf4,0x0(%1)\n"
+    //	"lqc2    vf5,0x0(%2)\n"
+    //	"lqc2    vf7,0x0(%3)\n"
+    //	"vsub.xyz	vf5,vf5,vf4\n"
+    //	"vsub.xyz	vf4,vf7,vf4\n"
+    //	"vopmula.xyz	ACC,vf5,vf4\n"
+    //	"vopmsub.xyz	vf6,vf4,vf5\n"
+    //	"vsub.w vf6,vf6,vf6\n"
+    //	"sqc2    vf6,0x0(%0)\n"
+    //	: :"r"(v0),"r"(v1),"r"(v2),"r"(v3),"r"(reg0):"memory"
+    //);
 }
 
 void Vu0Normalize(sceVu0FVECTOR v0, sceVu0FVECTOR v1)
 {
-    asm __volatile__(
-        "lqc2    vf4,0x0(%1)\n"
-        "vmul.xyz vf5,vf4,vf4\n"
-        "vaddy.x vf5,vf5,vf5\n"
-        "vaddz.x vf5,vf5,vf5\n"
-        "vsqrt Q,vf5x\n"
-        "vwaitq\n"
-        "vaddq.x vf5x,vf0x,Q\n"
-        "vdiv    Q,vf0w,vf5x\n"
-        "vsub.xyzw vf7,vf0,vf0\n"
-        "vwaitq\n"
-        "vmulq.xyz  vf7,vf4,Q\n"
-        "sqc2    vf7,0x0(%0)\n"
-        : :"r"(v0),"r"(v1):"memory"
-    );
+    //asm __volatile__(
+    //    "lqc2    vf4,0x0(%1)\n"
+    //    "vmul.xyz vf5,vf4,vf4\n"
+    //    "vaddy.x vf5,vf5,vf5\n"
+    //    "vaddz.x vf5,vf5,vf5\n"
+    //    "vsqrt Q,vf5x\n"
+    //    "vwaitq\n"
+    //    "vaddq.x vf5x,vf0x,Q\n"
+    //    "vdiv    Q,vf0w,vf5x\n"
+    //    "vsub.xyzw vf7,vf0,vf0\n"
+    //    "vwaitq\n"
+    //    "vmulq.xyz  vf7,vf4,Q\n"
+    //    "sqc2    vf7,0x0(%0)\n"
+    //    : :"r"(v0),"r"(v1):"memory"
+    //);
 }
 
 void Vu0ApplyMatrix(sceVu0FVECTOR v0, sceVu0FMATRIX m0, sceVu0FVECTOR v1)
 {
-    asm __volatile__(
-    	"lqc2    vf4,0x0(%1)\n"
-    	"lqc2    vf5,0x10(%1)\n"
-    	"lqc2    vf6,0x20(%1)\n"
-    	"lqc2    vf7,0x30(%1)\n"
-    	"lqc2    vf8,0x0(%2)\n"
-    	"vmulax.xyzw	ACC,   vf4,vf8\n"
-    	"vmadday.xyzw	ACC,   vf5,vf8\n"
-    	"vmaddaz.xyzw	ACC,   vf6,vf8\n"
-    	"vmaddw.xyzw	vf12,vf7,vf8\n"
-    	"sqc2    vf12,0x0(%0)\n"
-    	: :"r"(v0),"r"(m0),"r"(v1):"memory"
-    );
+    //asm __volatile__(
+    //	"lqc2    vf4,0x0(%1)\n"
+    //	"lqc2    vf5,0x10(%1)\n"
+    //	"lqc2    vf6,0x20(%1)\n"
+    //	"lqc2    vf7,0x30(%1)\n"
+    //	"lqc2    vf8,0x0(%2)\n"
+    //	"vmulax.xyzw	ACC,   vf4,vf8\n"
+    //	"vmadday.xyzw	ACC,   vf5,vf8\n"
+    //	"vmaddaz.xyzw	ACC,   vf6,vf8\n"
+    //	"vmaddw.xyzw	vf12,vf7,vf8\n"
+    //	"sqc2    vf12,0x0(%0)\n"
+    //	: :"r"(v0),"r"(m0),"r"(v1):"memory"
+    //);
 }
 
 void Vu0MulVector(sceVu0FVECTOR v0, sceVu0FVECTOR v1, sceVu0FVECTOR v2)
 {
-    asm __volatile__(
-    	"lqc2    vf4,0x0(%1)\n"
-    	"lqc2    vf8,0x0(%2)\n"
-    	"vmul.xyzw	vf12,vf4,vf8\n"
-    	"sqc2    vf12,0x0(%0)\n"
-    	: :"r"(v0),"r"(v1),"r"(v2):"memory"
-    );
+    //asm __volatile__(
+    //	"lqc2    vf4,0x0(%1)\n"
+    //	"lqc2    vf8,0x0(%2)\n"
+    //	"vmul.xyzw	vf12,vf4,vf8\n"
+    //	"sqc2    vf12,0x0(%0)\n"
+    //	: :"r"(v0),"r"(v1),"r"(v2):"memory"
+    //);
 }
 
 void Vu0FTOI0Vector(sceVu0IVECTOR v0, sceVu0FVECTOR v1)
 {
-    asm __volatile__(
-    	"lqc2    vf4,0(%1)\n"
-    	"vftoi0.xyzw	vf6,vf4\n"
-    	"sqc2    vf6,0(%0)\n"
-    	: :"r"(v0),"r"(v1):"memory"
-    );
+    //asm __volatile__(
+    //	"lqc2    vf4,0(%1)\n"
+    //	"vftoi0.xyzw	vf6,vf4\n"
+    //	"sqc2    vf6,0(%0)\n"
+    //	: :"r"(v0),"r"(v1):"memory"
+    //);
 }

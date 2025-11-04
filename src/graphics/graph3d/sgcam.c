@@ -235,28 +235,28 @@ void printClipValue()
 
 int BoundClip(sceVu0FVECTOR ed, sceVu0FVECTOR v)
 {
-    int ret;
+    int ret = 0.5f;
 
-    asm volatile("                             \n\
-        lqc2            $vf12, 0(%1)           \n\
-        vmulax.xyzw     ACC,   $vf4,   $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf5,   $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf6,   $vf12z  \n\
-        vmaddw.xyzw     $vf14, $vf7,   $vf0w   \n\
-        vmulax.xyzw     ACC,   $vf8,   $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf9,   $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf10,  $vf12z  \n\
-        vmaddw.xyzw     $vf13, $vf11,  $vf0w   \n\
-        vclipw.xyz      $vf14, $vf14w          \n\
-        vnop                                   \n\
-        vnop                                   \n\
-        vnop                                   \n\
-        vnop                                   \n\
-        vnop                                   \n\
-        sqc2            $vf13, 0(%2)           \n\
-        cfc2            %0,    $vi18           \n\
-        ":"=r"(ret):"r"(v),"r"(ed)
-    );
+    //asm volatile("                             \n\
+    //    lqc2            $vf12, 0(%1)           \n\
+    //    vmulax.xyzw     ACC,   $vf4,   $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf5,   $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf6,   $vf12z  \n\
+    //    vmaddw.xyzw     $vf14, $vf7,   $vf0w   \n\
+    //    vmulax.xyzw     ACC,   $vf8,   $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf9,   $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf10,  $vf12z  \n\
+    //    vmaddw.xyzw     $vf13, $vf11,  $vf0w   \n\
+    //    vclipw.xyz      $vf14, $vf14w          \n\
+    //    vnop                                   \n\
+    //    vnop                                   \n\
+    //    vnop                                   \n\
+    //    vnop                                   \n\
+    //    vnop                                   \n\
+    //    sqc2            $vf13, 0(%2)           \n\
+    //    cfc2            %0,    $vi18           \n\
+    //    ":"=r"(ret):"r"(v),"r"(ed)
+    //);
 
     return ret;
 }
@@ -265,25 +265,25 @@ int BoundClipQ(sceVu0FVECTOR ed, sceVu0FVECTOR v0, sceVu0FVECTOR v1)
 {
     int ret;
 
-    asm volatile("                             \n\
-        lqc2            $vf12, 0(%1)           \n\
-        vmulax.xyzw     ACC,   $vf4,   $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf5,   $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf6,   $vf12z  \n\
-        vmaddw.xyzw     $vf14, $vf7,   $vf0w   \n\
-        vmulax.xyzw     ACC,   $vf8,   $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf9,   $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf10,  $vf12z  \n\
-        vdiv            Q,     $vf0w,  $vf14w  \n\
-        vclipw.xyz      $vf14, $vf14w          \n\
-        vmaddw.xyzw     $vf13, $vf11,  $vf0w   \n\
-        vwaitq                                 \n\
-        vmulq.xyz       $vf14, $vf14,  Q       \n\
-        sqc2            $vf13, 0(%2)           \n\
-        sqc2            $vf14, 0(%3)           \n\
-        cfc2            %0,    $vi18           \n\
-        ":"=r"(ret):"r"(v1),"r"(ed),"r"(v0)
-    );
+    //asm volatile("                             \n\
+    //    lqc2            $vf12, 0(%1)           \n\
+    //    vmulax.xyzw     ACC,   $vf4,   $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf5,   $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf6,   $vf12z  \n\
+    //    vmaddw.xyzw     $vf14, $vf7,   $vf0w   \n\
+    //    vmulax.xyzw     ACC,   $vf8,   $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf9,   $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf10,  $vf12z  \n\
+    //    vdiv            Q,     $vf0w,  $vf14w  \n\
+    //    vclipw.xyz      $vf14, $vf14w          \n\
+    //    vmaddw.xyzw     $vf13, $vf11,  $vf0w   \n\
+    //    vwaitq                                 \n\
+    //    vmulq.xyz       $vf14, $vf14,  Q       \n\
+    //    sqc2            $vf13, 0(%2)           \n\
+    //    sqc2            $vf14, 0(%3)           \n\
+    //    cfc2            %0,    $vi18           \n\
+    //    ":"=r"(ret):"r"(v1),"r"(ed),"r"(v0)
+    //);
 
     return ret;
 }
@@ -311,23 +311,23 @@ int ClipCheck(sceVu0FVECTOR *vec)
 {
     int ret;
 
-    asm volatile("\n\
-        lqc2          $vf12, 0(%1)       \n\
-        lqc2          $vf13, 0x10(%1)    \n\
-        lqc2          $vf14, 0x20(%1)    \n\
-        lqc2          $vf15, 0x30(%1)    \n\
-        vclipw.xyz    $vf12, $vf12w      \n\
-        vclipw.xyz    $vf13, $vf13w      \n\
-        vclipw.xyz    $vf14, $vf14w      \n\
-        vclipw.xyz    $vf15, $vf15w      \n\
-        vnop                             \n\
-        vnop                             \n\
-        vnop                             \n\
-        vnop                             \n\
-        vnop                             \n\
-        cfc2          %0,    $vi18       \n\
-        ":"=r"(ret):"r"(*vec)
-    );
+    //asm volatile("\n\
+    //    lqc2          $vf12, 0(%1)       \n\
+    //    lqc2          $vf13, 0x10(%1)    \n\
+    //    lqc2          $vf14, 0x20(%1)    \n\
+    //    lqc2          $vf15, 0x30(%1)    \n\
+    //    vclipw.xyz    $vf12, $vf12w      \n\
+    //    vclipw.xyz    $vf13, $vf13w      \n\
+    //    vclipw.xyz    $vf14, $vf14w      \n\
+    //    vclipw.xyz    $vf15, $vf15w      \n\
+    //    vnop                             \n\
+    //    vnop                             \n\
+    //    vnop                             \n\
+    //    vnop                             \n\
+    //    vnop                             \n\
+    //    cfc2          %0,    $vi18       \n\
+    //    ":"=r"(ret):"r"(*vec)
+    //);
 
     return ret;
 }
@@ -335,53 +335,53 @@ int ClipCheck(sceVu0FVECTOR *vec)
 // similar to: void _SetMulMatrixBB(sceVu0FMATRIX m0, sceVu0FMATRIX m1, sceVu0FMATRIX lw);
 static inline void asm_1__CheckBoundingBox(sceVu0FMATRIX m0, sceVu0FMATRIX m1, sceVu0FMATRIX lw)
 {
-    asm volatile ("                              \n\
-        lqc2            $vf12, 0(%0)             \n\
-        lqc2            $vf13, 0x10(%0)          \n\
-        lqc2            $vf14, 0x20(%0)          \n\
-        lqc2            $vf15, 0x30(%0)          \n\
-        lqc2            $vf16, 0(%1)             \n\
-        lqc2            $vf17, 0x10(%1)          \n\
-        lqc2            $vf18, 0x20(%1)          \n\
-        lqc2            $vf19, 0x30(%1)          \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf16x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf16y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf16z  \n\
-        vmaddw.xyzw     $vf4,  $vf15,    $vf16w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf17x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf17y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf17z  \n\
-        vmaddw.xyzw     $vf5,  $vf15,    $vf17w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf18x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf18y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf18z  \n\
-        vmaddw.xyzw     $vf6,  $vf15,    $vf18w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf19x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf19y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf19z  \n\
-        vmaddw.xyzw     $vf7,  $vf15,    $vf19w  \n\
-        lqc2            $vf12, 0(%2)             \n\
-        lqc2            $vf13, 0x10(%2)          \n\
-        lqc2            $vf14, 0x20(%2)          \n\
-        lqc2            $vf15, 0x30(%2)          \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf16x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf16y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf16z  \n\
-        vmaddw.xyzw     $vf8,  $vf15,    $vf16w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf17x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf17y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf17z  \n\
-        vmaddw.xyzw     $vf9,  $vf15,    $vf17w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf18x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf18y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf18z  \n\
-        vmaddw.xyzw     $vf10, $vf15,    $vf18w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf19x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf19y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf19z  \n\
-        vmaddw.xyzw     $vf11, $vf15,    $vf19w  \n\
-        ": :"r"(m0),"r"(lw),"r"(m1)
-    );
+    //asm volatile ("                              \n\
+    //    lqc2            $vf12, 0(%0)             \n\
+    //    lqc2            $vf13, 0x10(%0)          \n\
+    //    lqc2            $vf14, 0x20(%0)          \n\
+    //    lqc2            $vf15, 0x30(%0)          \n\
+    //    lqc2            $vf16, 0(%1)             \n\
+    //    lqc2            $vf17, 0x10(%1)          \n\
+    //    lqc2            $vf18, 0x20(%1)          \n\
+    //    lqc2            $vf19, 0x30(%1)          \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf16x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf16y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf16z  \n\
+    //    vmaddw.xyzw     $vf4,  $vf15,    $vf16w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf17x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf17y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf17z  \n\
+    //    vmaddw.xyzw     $vf5,  $vf15,    $vf17w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf18x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf18y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf18z  \n\
+    //    vmaddw.xyzw     $vf6,  $vf15,    $vf18w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf19x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf19y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf19z  \n\
+    //    vmaddw.xyzw     $vf7,  $vf15,    $vf19w  \n\
+    //    lqc2            $vf12, 0(%2)             \n\
+    //    lqc2            $vf13, 0x10(%2)          \n\
+    //    lqc2            $vf14, 0x20(%2)          \n\
+    //    lqc2            $vf15, 0x30(%2)          \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf16x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf16y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf16z  \n\
+    //    vmaddw.xyzw     $vf8,  $vf15,    $vf16w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf17x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf17y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf17z  \n\
+    //    vmaddw.xyzw     $vf9,  $vf15,    $vf17w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf18x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf18y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf18z  \n\
+    //    vmaddw.xyzw     $vf10, $vf15,    $vf18w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf19x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf19y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf19z  \n\
+    //    vmaddw.xyzw     $vf11, $vf15,    $vf19w  \n\
+    //    ": :"r"(m0),"r"(lw),"r"(m1)
+    //);
 }
 
 int CheckBoundingBox(u_int *prim)
@@ -601,51 +601,51 @@ void SgSetWScissorBox(float ax, float ay, float az, float bx, float by, float bz
 
 void _SetMulMatrixBB(sceVu0FMATRIX m0, sceVu0FMATRIX m1, sceVu0FMATRIX lw)
 {
-    asm volatile("\n\
-        lqc2            $vf12, 0(%0)             \n\
-        lqc2            $vf13, 0x10(%0)          \n\
-        lqc2            $vf14, 0x20(%0)          \n\
-        lqc2            $vf15, 0x30(%0)          \n\
-        lqc2            $vf16, 0(%1)             \n\
-        lqc2            $vf17, 0x10(%1)          \n\
-        lqc2            $vf18, 0x20(%1)          \n\
-        lqc2            $vf19, 0x30(%1)          \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf16x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf16y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf16z  \n\
-        vmaddw.xyzw     $vf4,  $vf15,    $vf16w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf17x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf17y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf17z  \n\
-        vmaddw.xyzw     $vf5,  $vf15,    $vf17w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf18x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf18y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf18z  \n\
-        vmaddw.xyzw     $vf6,  $vf15,    $vf18w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf19x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf19y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf19z  \n\
-        vmaddw.xyzw     $vf7,  $vf15,    $vf19w  \n\
-        lqc2            $vf12, 0(%2)             \n\
-        lqc2            $vf13, 0x10(%2)          \n\
-        lqc2            $vf14, 0x20(%2)          \n\
-        lqc2            $vf15, 0x30(%2)          \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf16x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf16y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf16z  \n\
-        vmaddw.xyzw     $vf8,  $vf15,    $vf16w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf17x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf17y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf17z  \n\
-        vmaddw.xyzw     $vf9,  $vf15,    $vf17w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf18x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf18y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf18z  \n\
-        vmaddw.xyzw     $vf10, $vf15,    $vf18w  \n\
-        vmulax.xyzw     ACC,   $vf12,    $vf19x  \n\
-        vmadday.xyzw    ACC,   $vf13,    $vf19y  \n\
-        vmaddaz.xyzw    ACC,   $vf14,    $vf19z  \n\
-        vmaddw.xyzw     $vf11, $vf15,    $vf19w  \n\
-        ": :"r"(m0),"r"(lw),"r"(m1)
-    );
+    //asm volatile("\n\
+    //    lqc2            $vf12, 0(%0)             \n\
+    //    lqc2            $vf13, 0x10(%0)          \n\
+    //    lqc2            $vf14, 0x20(%0)          \n\
+    //    lqc2            $vf15, 0x30(%0)          \n\
+    //    lqc2            $vf16, 0(%1)             \n\
+    //    lqc2            $vf17, 0x10(%1)          \n\
+    //    lqc2            $vf18, 0x20(%1)          \n\
+    //    lqc2            $vf19, 0x30(%1)          \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf16x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf16y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf16z  \n\
+    //    vmaddw.xyzw     $vf4,  $vf15,    $vf16w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf17x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf17y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf17z  \n\
+    //    vmaddw.xyzw     $vf5,  $vf15,    $vf17w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf18x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf18y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf18z  \n\
+    //    vmaddw.xyzw     $vf6,  $vf15,    $vf18w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf19x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf19y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf19z  \n\
+    //    vmaddw.xyzw     $vf7,  $vf15,    $vf19w  \n\
+    //    lqc2            $vf12, 0(%2)             \n\
+    //    lqc2            $vf13, 0x10(%2)          \n\
+    //    lqc2            $vf14, 0x20(%2)          \n\
+    //    lqc2            $vf15, 0x30(%2)          \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf16x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf16y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf16z  \n\
+    //    vmaddw.xyzw     $vf8,  $vf15,    $vf16w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf17x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf17y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf17z  \n\
+    //    vmaddw.xyzw     $vf9,  $vf15,    $vf17w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf18x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf18y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf18z  \n\
+    //    vmaddw.xyzw     $vf10, $vf15,    $vf18w  \n\
+    //    vmulax.xyzw     ACC,   $vf12,    $vf19x  \n\
+    //    vmadday.xyzw    ACC,   $vf13,    $vf19y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf14,    $vf19z  \n\
+    //    vmaddw.xyzw     $vf11, $vf15,    $vf19w  \n\
+    //    ": :"r"(m0),"r"(lw),"r"(m1)
+    //);
 }

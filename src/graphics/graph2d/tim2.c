@@ -1776,20 +1776,32 @@ void CopySprDToSpr(DISP_SPRT *s, SPRT_DAT *d)
 
 void _ftoi0(int *out, float *in)
 {
-    asm volatile ("\n\
-        lqc2    $vf12,0(%0) \n\
-        vftoi0.xyzw $vf12xyzw,$vf12xyzw \n\
-        sqc2    $vf12,0(%1) \n\
-    ": :"r"(in),"r"(out));
+    //asm volatile ("\n\
+    //    lqc2    $vf12,0(%0) \n\
+    //    vftoi0.xyzw $vf12xyzw,$vf12xyzw \n\
+    //    sqc2    $vf12,0(%1) \n\
+    //": :"r"(in),"r"(out));
+
+    // Convert 4 floats to integers (truncate toward zero)
+    out[0] = (int)in[0];
+    out[1] = (int)in[1];
+    out[2] = (int)in[2];
+    out[3] = (int)in[3];
 }
 
 void _ftoi4(int *out, float *in)
 {
-    asm volatile ("\n\
-        lqc2    $vf12,0(%0) \n\
-        vftoi4.xyzw $vf12xyzw,$vf12xyzw \n\
-        sqc2    $vf12,0(%1) \n\
-    ": :"r"(in),"r"(out));
+    //asm volatile ("\n\
+    //    lqc2    $vf12,0(%0) \n\
+    //    vftoi4.xyzw $vf12xyzw,$vf12xyzw \n\
+    //    sqc2    $vf12,0(%1) \n\
+    //": :"r"(in),"r"(out));
+
+    // Convert 4 floats to integers with 4-bit fixed point (multiply by 16, then truncate)
+    out[0] = (int)(in[0] * 16.0f);
+    out[1] = (int)(in[1] * 16.0f);
+    out[2] = (int)(in[2] * 16.0f);
+    out[3] = (int)(in[3] * 16.0f);
 }
 
 void DispSprD(DISP_SPRT *s)

@@ -55,6 +55,9 @@ int scn_vib_time1 = 0;
 
 static int scn_load_id[2];
 
+extern sceVu0FMATRIX fod_cmn_mtx;
+extern FOD_EFF_PARAM eff_param;
+
 #define MIM_BUF_BASE_ADDR 0x1310000
 
 #define PI 3.1415927f
@@ -167,7 +170,7 @@ int SceneDataLoadWait()
     SCENE_CTRL *sc;
     int i;
 
-    if (scn_load_num == 0) return; // missing return value??
+    if (scn_load_num == 0) return 0; // missing return value??
 
     if (IsLoadEnd(scn_load_id[scn_load_num - 1]) == 0)
     {

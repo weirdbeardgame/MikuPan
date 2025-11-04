@@ -23,47 +23,47 @@ float tanf(float x);
 
 static inline void Vu0Func0000(sceVu0FVECTOR v0, sceVu0FVECTOR v1)
 {
-    __asm__ __volatile__("                     \n\
-        lqc2         $vf12,0(%1)               \n\
-        vmulz.xy     $vf12xy,$vf12xy,$vf8z     \n\
-        vmulaw.xyzw  ACCxyzw,$vf7xyzw,$vf0w    \n\
-        vmaddaz.xyzw ACCxyzw,$vf6xyzw,$vf12z   \n\
-        vmadday.xyzw ACCxyzw,$vf5xyzw,$vf12y   \n\
-        vmaddx.xyzw  $vf13xyzw,$vf4xyzw,$vf12x \n\
-        vdiv         Q,$vf0w,$vf13w            \n\
-        vwaitq                                 \n\
-        vmulq.xyz    $vf13xyz,$vf13xyz,Q       \n\
-        vsub.xy      $vf13xy,$vf13xy,$vf8xy    \n\
-        vmaxx.x      $vf13x,$vf13x,$vf9x       \n\
-        vminiy.x     $vf13x,$vf13x,$vf9y       \n\
-        vmaxz.y      $vf13y,$vf13y,$vf9z       \n\
-        vminiw.y     $vf13y,$vf13y,$vf9w       \n\
-        vmulq.xy     $vf14xy,$vf10xy,Q         \n\
-        vmul.xy      $vf13xy,$vf13xy,$vf14xy   \n\
-        vmulq.z      $vf13z,$vf10z,Q           \n\
-        vmulw.xyz    $vf13xyz,$vf13xyz,$vf10w  \n\
-        sqc2         $vf13,0(%0)               \n\
-        ": : "r" (v0), "r" (v1)
-    );
+    //__asm__ __volatile__("                     \n\
+    //    lqc2         $vf12,0(%1)               \n\
+    //    vmulz.xy     $vf12xy,$vf12xy,$vf8z     \n\
+    //    vmulaw.xyzw  ACCxyzw,$vf7xyzw,$vf0w    \n\
+    //    vmaddaz.xyzw ACCxyzw,$vf6xyzw,$vf12z   \n\
+    //    vmadday.xyzw ACCxyzw,$vf5xyzw,$vf12y   \n\
+    //    vmaddx.xyzw  $vf13xyzw,$vf4xyzw,$vf12x \n\
+    //    vdiv         Q,$vf0w,$vf13w            \n\
+    //    vwaitq                                 \n\
+    //    vmulq.xyz    $vf13xyz,$vf13xyz,Q       \n\
+    //    vsub.xy      $vf13xy,$vf13xy,$vf8xy    \n\
+    //    vmaxx.x      $vf13x,$vf13x,$vf9x       \n\
+    //    vminiy.x     $vf13x,$vf13x,$vf9y       \n\
+    //    vmaxz.y      $vf13y,$vf13y,$vf9z       \n\
+    //    vminiw.y     $vf13y,$vf13y,$vf9w       \n\
+    //    vmulq.xy     $vf14xy,$vf10xy,Q         \n\
+    //    vmul.xy      $vf13xy,$vf13xy,$vf14xy   \n\
+    //    vmulq.z      $vf13z,$vf10z,Q           \n\
+    //    vmulw.xyz    $vf13xyz,$vf13xyz,$vf10w  \n\
+    //    sqc2         $vf13,0(%0)               \n\
+    //    ": : "r" (v0), "r" (v1)
+    //);
 }
 
 static inline void dummy1(sceVu0FMATRIX m0)
 {
-    asm volatile ("\n\
-        lqc2 $vf4,0(%0) \n\
-        lqc2 $vf5,0x10(%0) \n\
-        lqc2 $vf6,0x20(%0) \n\
-        lqc2 $vf7,0x30(%0) \n\
-    ": :"r"(m0));
+    //asm volatile ("\n\
+    //    lqc2 $vf4,0(%0) \n\
+    //    lqc2 $vf5,0x10(%0) \n\
+    //    lqc2 $vf6,0x20(%0) \n\
+    //    lqc2 $vf7,0x30(%0) \n\
+    //": :"r"(m0));
 }
 
 static inline void dummy2(sceVu0FVECTOR *v0)
 {
-    asm volatile ("\n\
-        lqc2 $vf8,0(%0) \n\
-        lqc2 $vf9,0x10(%0) \n\
-        lqc2 $vf10,0x20(%0) \n\
-    ": :"r"(v0));
+    //asm volatile ("\n\
+    //    lqc2 $vf8,0(%0) \n\
+    //    lqc2 $vf9,0x10(%0) \n\
+    //    lqc2 $vf10,0x20(%0) \n\
+    //": :"r"(v0));
 }
 
 typedef struct {
@@ -355,45 +355,45 @@ void SetPartsDeform(EFFECT_CONT *ec)
 
 void SetVURand(float x)
 {
-    asm __volatile__(
-        "qmtc2    $2,$vf12\n"
-        "vrinit    R,$vf12x\n"
-        : :"r"(x):"memory"
-    );
+    //asm __volatile__(
+    //    "qmtc2    $2,$vf12\n"
+    //    "vrinit    R,$vf12x\n"
+    //    : :"r"(x):"memory"
+    //);
 }
 
 int CalcPartsDeformXYZ(sceVu0IVECTOR vi, sceVu0FVECTOR vf)
 {
-    int ret;
+    int ret = 0;
 
-    asm __volatile__(
-        "lqc2       $vf12, 0x0(%0)\n"
-        "vmulax.xyzw ACC, $vf4, $vf12x\n"
-        "vmadday.xyzw ACC, $vf5, $vf12y\n"
-        "vmaddaz.xyzw ACC, $vf6, $vf12z\n"
-        "vmaddw.xyzw $vf13, $vf7, $vf0w\n"
-        "vmulax.xyzw ACC, $vf8, $vf12x\n"
-        "vmadday.xyzw ACC, $vf9, $vf12y\n"
-        "vmaddaz.xyzw ACC, $vf10, $vf12z\n"
-        "vmaddw.xyzw $vf14, $vf11, $vf0w\n"
-        "vdiv       Q, $vf0w, $vf13w\n"
-        "vnop\n"
-        "vnop\n"
-        "vclipw.xyz $vf14, $vf14w\n"
-        "vnop\n"
-        "vnop\n"
-        "vnop\n"
-        "vwaitq\n"
-        "vmulq.xyz  $vf13, $vf13, Q\n"
-        "vnop\n"
-        "vftoi4.xy  $vf13, $vf13\n"
-        "vnop\n"
-        "vftoi0.z   $vf13, $vf13\n"
-        "vnop\n"
-        "sqc2       $vf13, 0x0(%1)\n"
-        "cfc2       $2, $vi18\n"
-        : :"r"(vf),"r"(vi):"memory"
-    );
+    //asm __volatile__(
+    //    "lqc2       $vf12, 0x0(%0)\n"
+    //    "vmulax.xyzw ACC, $vf4, $vf12x\n"
+    //    "vmadday.xyzw ACC, $vf5, $vf12y\n"
+    //    "vmaddaz.xyzw ACC, $vf6, $vf12z\n"
+    //    "vmaddw.xyzw $vf13, $vf7, $vf0w\n"
+    //    "vmulax.xyzw ACC, $vf8, $vf12x\n"
+    //    "vmadday.xyzw ACC, $vf9, $vf12y\n"
+    //    "vmaddaz.xyzw ACC, $vf10, $vf12z\n"
+    //    "vmaddw.xyzw $vf14, $vf11, $vf0w\n"
+    //    "vdiv       Q, $vf0w, $vf13w\n"
+    //    "vnop\n"
+    //    "vnop\n"
+    //    "vclipw.xyz $vf14, $vf14w\n"
+    //    "vnop\n"
+    //    "vnop\n"
+    //    "vnop\n"
+    //    "vwaitq\n"
+    //    "vmulq.xyz  $vf13, $vf13, Q\n"
+    //    "vnop\n"
+    //    "vftoi4.xy  $vf13, $vf13\n"
+    //    "vnop\n"
+    //    "vftoi0.z   $vf13, $vf13\n"
+    //    "vnop\n"
+    //    "sqc2       $vf13, 0x0(%1)\n"
+    //    "cfc2       $2, $vi18\n"
+    //    : :"r"(vf),"r"(vi):"memory"
+    //);
 
     return ret;
 }
@@ -2060,38 +2060,38 @@ void SetNegaCircle(EFFECT_CONT *ec)
 
 void _SetPartsDeformSTQRegs(sceVu0FVECTOR *params)
 {
-    asm __volatile__(
-        "lqc2    $vf8,0(%0)\n"
-        "lqc2    $vf9,0x10(%0)\n"
-        "lqc2    $vf10,0x20(%0)\n"
-        : :"r"(params):"memory"
-    );
+    //asm __volatile__(
+    //    "lqc2    $vf8,0(%0)\n"
+    //    "lqc2    $vf9,0x10(%0)\n"
+    //    "lqc2    $vf10,0x20(%0)\n"
+    //    : :"r"(params):"memory"
+    //);
 }
 
 void _CalcParstDeformSTQ(float *stq, float *vt)
 {
-    asm __volatile__(
-        "lqc2       $vf12, 0x0(%0)\n"
-        "vmulz.xy   $vf12, $vf12, $vf8z\n"
-        "vmulaw.xyzw ACC, $vf7, $vf0w\n"
-        "vmaddaz.xyzw ACC, $vf6, $vf12z\n"
-        "vmadday.xyzw ACC, $vf5, $vf12y\n"
-        "vmaddx.xyzw $vf13, $vf4, $vf12x\n"
-        "vdiv       Q, $vf0w, $vf13w\n"
-        "vwaitq\n"
-        "vmulq.xyz  $vf13, $vf13, Q\n"
-        "vsub.xy    $vf13, $vf13, $vf8\n"
-        "vmaxx.x    $vf13, $vf13, $vf9x\n"
-        "vminiy.x   $vf13, $vf13, $vf9y\n"
-        "vmaxz.y    $vf13, $vf13, $vf9z\n"
-        "vminiw.y   $vf13, $vf13, $vf9w\n"
-        "vmulq.xy   $vf14, $vf10, Q\n"
-        "vmul.xy    $vf13, $vf13, $vf14\n"
-        "vmulq.z    $vf13, $vf10, Q\n"
-        "vmulw.xyz  $vf13, $vf13, $vf10w\n"
-        "sqc2       $vf13, 0x0(%1)\n"
-        : :"r"(vt),"r"(stq):"memory"
-    );
+    //asm __volatile__(
+    //    "lqc2       $vf12, 0x0(%0)\n"
+    //    "vmulz.xy   $vf12, $vf12, $vf8z\n"
+    //    "vmulaw.xyzw ACC, $vf7, $vf0w\n"
+    //    "vmaddaz.xyzw ACC, $vf6, $vf12z\n"
+    //    "vmadday.xyzw ACC, $vf5, $vf12y\n"
+    //    "vmaddx.xyzw $vf13, $vf4, $vf12x\n"
+    //    "vdiv       Q, $vf0w, $vf13w\n"
+    //    "vwaitq\n"
+    //    "vmulq.xyz  $vf13, $vf13, Q\n"
+    //    "vsub.xy    $vf13, $vf13, $vf8\n"
+    //    "vmaxx.x    $vf13, $vf13, $vf9x\n"
+    //    "vminiy.x   $vf13, $vf13, $vf9y\n"
+    //    "vmaxz.y    $vf13, $vf13, $vf9z\n"
+    //    "vminiw.y   $vf13, $vf13, $vf9w\n"
+    //    "vmulq.xy   $vf14, $vf10, Q\n"
+    //    "vmul.xy    $vf13, $vf13, $vf14\n"
+    //    "vmulq.z    $vf13, $vf10, Q\n"
+    //    "vmulw.xyz  $vf13, $vf13, $vf10w\n"
+    //    "sqc2       $vf13, 0x0(%1)\n"
+    //    : :"r"(vt),"r"(stq):"memory"
+    //);
 }
 
 EFFINFO2 efi[8] = {0};

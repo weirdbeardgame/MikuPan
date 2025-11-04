@@ -22,7 +22,7 @@ u_char MoneyIsTime(u_char time);
 void PutDate(PICTURE_WRK *pic_inf, short int pos_x, short int pos_y, short int alpha, int pri);
 #endif
 #else
-void PutDate(PICTURE_WRK *pic_inf, short int pos_x, short int pos_y, short int alpha, int pri);
+//void PutDate(PICTURE_WRK *pic_inf, short int pos_x, short int pos_y, short int alpha, int pri);
 #endif
 
 void OutGameInitPhoto();

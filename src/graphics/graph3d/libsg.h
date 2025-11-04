@@ -8,47 +8,55 @@
 // line 26
 static inline void load_matrix_0(sceVu0FMATRIX m0)
 {
+    /*
     asm volatile ("            \n\
         lqc2    $vf4, 0(%0)    \n\
         lqc2    $vf5, 0x10(%0) \n\
         lqc2    $vf6, 0x20(%0) \n\
         lqc2    $vf7, 0x30(%0) \n\
     ": :"r"(m0));
+    */
 }
 
 // line 36
 static inline void load_matrix_1(sceVu0FMATRIX m0)
 {
+    /*
     asm volatile ("             \n\
         lqc2    $vf8,  0(%0)    \n\
         lqc2    $vf9,  0x10(%0) \n\
         lqc2    $vf10, 0x20(%0) \n\
         lqc2    $vf11, 0x30(%0) \n\
     ": :"r"(m0));
+    */
 }
 
 // Line 73
 static inline void copy_skinned_data(sceVu0FVECTOR *vb, float *s0, float *s1)
 {
+    /*
     asm volatile("         \n\
         lq    $6, 0x0(%1)  \n\
         lq    $7, 0x0(%2)  \n\
         sq    $6, 0x0(%0)  \n\
         sq    $7, 0x10(%0) \n\
         ": :"r" (vb), "r" (s0), "r" (s1) : "$6", "$7");
+        */
 }
 
 // Line 151
 static inline float vu0Rand()
 {
-    float r;
+    float r = 0.5f;
 
+    /*
     asm volatile("                      \n\
         vrnext.x    $vf12, R            \n\
         vsubw.x     $vf12, $vf12, $vf0w \n\
         qmfc2       %0,    $vf12        \n\
         ":"=r"(r)
     );
+    */
 
     return r;
 }
@@ -56,6 +64,7 @@ static inline float vu0Rand()
 // Line 233
 static inline void calc_skinned_data(sceVu0FVECTOR *dp, float *m, float *n)
 {
+    /*
     asm volatile("                             \n\
         lqc2            $vf12, 0(%1)           \n\
         vmulax.xyzw     ACC,   $vf4,    $vf12x \n\
@@ -88,6 +97,7 @@ static inline void calc_skinned_data(sceVu0FVECTOR *dp, float *m, float *n)
         sqc2            $vf15, 0(%0)           \n\
         sqc2            $vf12, 0x10(%0)        \n\
     ": :"r"(dp), "r"(m), "r"(n));
+    */
 }
 
 // line 285
@@ -174,6 +184,8 @@ static inline void calc_skinned_position(sceVu0FVECTOR dp, sceVu0FVECTOR v)
     vpd->w = 1.0f;
 
     */
+
+    /*
     asm volatile ("                         \n\
         lqc2          $vf12, 0(%1)          \n\
         vmulax        ACC,   $vf4,    $vf12 \n\
@@ -191,6 +203,7 @@ static inline void calc_skinned_position(sceVu0FVECTOR dp, sceVu0FVECTOR v)
         vmaddw.xyz    $vf15, $vf14,   $vf13 \n\
         sqc2          $vf15, 0(%0)          \n\
     ": :"r"(dp), "r"(v));
+    */
 }
 
 // Line 314
@@ -269,6 +282,7 @@ static inline void calc_skinned_normal(sceVu0FVECTOR dp, sceVu0FVECTOR v)
     vpd->w = 1.0f;
     */
 
+    /*
     asm volatile ("                          \n\
         lqc2           $vf12, 0(%1)          \n\
         vmulax.xyz     ACC,   $vf4,    $vf12 \n\
@@ -286,6 +300,7 @@ static inline void calc_skinned_normal(sceVu0FVECTOR dp, sceVu0FVECTOR v)
         vmaddw.xyz     $vf15, $vf14,   $vf13 \n\
         sqc2           $vf15, 0(%0)          \n\
     ": :"r"(dp), "r"(v));
+    */
 }
 
 // Line 351
@@ -308,115 +323,115 @@ static inline void Vu0CopyVector(sceVu0FVECTOR v0, sceVu0FVECTOR v1)
 // Line 366
 inline static void Vu0ZeroVector(sceVu0FVECTOR v)
 {
-    asm volatile("          \n\
-        sqc2    vf0,0x0(%0) \n\
-        ": :"r"(v)
-    );
+    //asm volatile("          \n\
+    //    sqc2    vf0,0x0(%0) \n\
+    //    ": :"r"(v)
+    //);
 }
 
 // Line 373
 static inline void Vu0AddVector(sceVu0FVECTOR v, sceVu0FVECTOR v0, sceVu0FVECTOR v1)
 {
-    asm volatile("                       \n\
-        lqc2         $vf12, 0(%1)        \n\
-        lqc2         $vf13, 0(%2)        \n\
-        vadd.xyzw    $vf14, $vf12, $vf13 \n\
-        sqc2         $vf14, 0(%0)        \n\
-        ": :"r"(v), "r"(v0), "r"(v1)
-    );
+    //asm volatile("                       \n\
+    //    lqc2         $vf12, 0(%1)        \n\
+    //    lqc2         $vf13, 0(%2)        \n\
+    //    vadd.xyzw    $vf14, $vf12, $vf13 \n\
+    //    sqc2         $vf14, 0(%0)        \n\
+    //    ": :"r"(v), "r"(v0), "r"(v1)
+    //);
 }
 
 // Line 383
 inline static void Vu0SubVector(sceVu0FVECTOR v0, sceVu0FVECTOR v1, sceVu0FVECTOR v2)
 {
-    asm volatile("                      \n\
-        lqc2         vf12, 0x0(%1)      \n\
-        lqc2         vf13, 0x0(%2)      \n\
-        vsub.xyzw    vf14, vf12,   vf13 \n\
-        sqc2         vf14, 0x0(%0)      \n\
-        ": :"r" (v0), "r"(v1), "r"(v2)
-    );
+    //asm volatile("                      \n\
+    //    lqc2         vf12, 0x0(%1)      \n\
+    //    lqc2         vf13, 0x0(%2)      \n\
+    //    vsub.xyzw    vf14, vf12,   vf13 \n\
+    //    sqc2         vf14, 0x0(%0)      \n\
+    //    ": :"r" (v0), "r"(v1), "r"(v2)
+    //);
 }
 
 // Line 393
 static inline void Vu0MulVectorXYZW(sceVu0FVECTOR v, sceVu0FVECTOR v0, sceVu0FVECTOR v1)
 {
-    asm volatile("                       \n\
-        lqc2         $vf12, 0(%1)        \n\
-        lqc2         $vf13, 0(%2)        \n\
-        vmul.xyzw    $vf14, $vf12, $vf13 \n\
-        sqc2         $vf14, 0(%0)        \n\
-        ": :"r"(v), "r"(v0), "r"(v1)
-    );
+    //asm volatile("                       \n\
+    //    lqc2         $vf12, 0(%1)        \n\
+    //    lqc2         $vf13, 0(%2)        \n\
+    //    vmul.xyzw    $vf14, $vf12, $vf13 \n\
+    //    sqc2         $vf14, 0(%0)        \n\
+    //    ": :"r"(v), "r"(v0), "r"(v1)
+    //);
 }
 
 // Line 403
 static inline void Vu0MulVectorXYZ(sceVu0FVECTOR v, sceVu0FVECTOR v0, sceVu0FVECTOR v1)
 {
-    asm volatile("                      \n\
-        lqc2        $vf12, 0(%1)        \n\
-        lqc2        $vf13, 0(%2)        \n\
-        vmul.xyz    $vf14, $vf12, $vf13 \n\
-        sqc2        $vf14, 0(%0)        \n\
-        ": :"r"(v), "r"(v0), "r"(v1)
-    );
+    //asm volatile("                      \n\
+    //    lqc2        $vf12, 0(%1)        \n\
+    //    lqc2        $vf13, 0(%2)        \n\
+    //    vmul.xyz    $vf14, $vf12, $vf13 \n\
+    //    sqc2        $vf14, 0(%0)        \n\
+    //    ": :"r"(v), "r"(v0), "r"(v1)
+    //);
 }
 
 // Line 412
 static inline void Vu0CopyMatrix(sceVu0FMATRIX m0, sceVu0FMATRIX m1)
 {
-    asm volatile("             \n\
-        lqc2    vf12, 0x00(%1) \n\
-        lqc2    vf13, 0x10(%1) \n\
-        lqc2    vf14, 0x20(%1) \n\
-        lqc2    vf15, 0x30(%1) \n\
-        sqc2    vf12, 0x00(%0) \n\
-        sqc2    vf13, 0x10(%0) \n\
-        sqc2    vf14, 0x20(%0) \n\
-        sqc2    vf15, 0x30(%0) \n\
-        ": :"r"(&m0[0][0]), "r"(&m1[0][0])
-    );
+    //asm volatile("             \n\
+    //    lqc2    vf12, 0x00(%1) \n\
+    //    lqc2    vf13, 0x10(%1) \n\
+    //    lqc2    vf14, 0x20(%1) \n\
+    //    lqc2    vf15, 0x30(%1) \n\
+    //    sqc2    vf12, 0x00(%0) \n\
+    //    sqc2    vf13, 0x10(%0) \n\
+    //    sqc2    vf14, 0x20(%0) \n\
+    //    sqc2    vf15, 0x30(%0) \n\
+    //    ": :"r"(&m0[0][0]), "r"(&m1[0][0])
+    //);
 }
 
 // Line 438
 static inline void Vu0LoadMatrix(sceVu0FMATRIX m0){
-    asm volatile("            \n\
-        lqc2    vf4, 0x00(%0) \n\
-        lqc2    vf5, 0x10(%0) \n\
-        lqc2    vf6, 0x20(%0) \n\
-        lqc2    vf7, 0x30(%0) \n\
-        ": :"r"(m0)
-    );
+    //asm volatile("            \n\
+    //    lqc2    vf4, 0x00(%0) \n\
+    //    lqc2    vf5, 0x10(%0) \n\
+    //    lqc2    vf6, 0x20(%0) \n\
+    //    lqc2    vf7, 0x30(%0) \n\
+    //    ": :"r"(m0)
+    //);
 }
 
 // Line 448
 static inline void Vu0ApplyVectorInline(sceVu0FVECTOR v0, sceVu0FVECTOR v1)
 {
-    asm volatile("                          \n\
-        lqc2            vf13, 0x0(%1)       \n\
-        vmulax.xyzw     ACC,  vf4,    vf13x \n\
-        vmadday.xyzw    ACC,  vf5,    vf13y \n\
-        vmaddaz.xyzw    ACC,  vf6,    vf13z \n\
-        vmaddw.xyzw     vf12, vf7,    vf0w  \n\
-        sqc2            vf12, 0x0(%0)       \n\
-        ": :"r"(v0), "r"(v1)
-    );
+    //asm volatile("                          \n\
+    //    lqc2            vf13, 0x0(%1)       \n\
+    //    vmulax.xyzw     ACC,  vf4,    vf13x \n\
+    //    vmadday.xyzw    ACC,  vf5,    vf13y \n\
+    //    vmaddaz.xyzw    ACC,  vf6,    vf13z \n\
+    //    vmaddw.xyzw     vf12, vf7,    vf0w  \n\
+    //    sqc2            vf12, 0x0(%0)       \n\
+    //    ": :"r"(v0), "r"(v1)
+    //);
 }
 
 // Line 463
 static inline float inline_asm__libsg_g_line_463(float *v0, float*v1)
 {
-    float ret;
+    float ret = 0.5f;
 
-    asm volatile("                        \n\
-        lqc2        $vf12, 0(%1)          \n\
-        lqc2        $vf13, 0(%2)          \n\
-        vmul.xyz    $vf12, $vf12, $vf13   \n\
-        vaddy.x     $vf12, $vf12, $vf12y  \n\
-        vaddz.x     $vf12, $vf12, $vf12z  \n\
-        qmfc2       %0,    $vf12          \n\
-        ":"=r"(ret):"r"(v0),"r"(v1)
-    );
+    //asm volatile("                        \n\
+    //    lqc2        $vf12, 0(%1)          \n\
+    //    lqc2        $vf13, 0(%2)          \n\
+    //    vmul.xyz    $vf12, $vf12, $vf13   \n\
+    //    vaddy.x     $vf12, $vf12, $vf12y  \n\
+    //    vaddz.x     $vf12, $vf12, $vf12z  \n\
+    //    qmfc2       %0,    $vf12          \n\
+    //    ":"=r"(ret):"r"(v0),"r"(v1)
+    //);
 
     return ret;
 }
@@ -424,13 +439,13 @@ static inline float inline_asm__libsg_g_line_463(float *v0, float*v1)
 // Line 478
 static inline void Vu0MulVectorX(sceVu0FVECTOR v0, sceVu0FVECTOR v1, float sc)
 {
-    asm volatile("                       \n\
-        qmtc2        %1,    $vf13        \n\
-        lqc2         $vf12, 0(%2)        \n\
-        vmulx.xyz    $vf12, $vf12,$vf13x \n\
-        sqc2         $vf12, 0(%0)        \n\
-        ": :"r"(v0), "r"(sc), "r"(v1)
-    );
+    //asm volatile("                       \n\
+    //    qmtc2        %1,    $vf13        \n\
+    //    lqc2         $vf12, 0(%2)        \n\
+    //    vmulx.xyz    $vf12, $vf12,$vf13x \n\
+    //    sqc2         $vf12, 0(%0)        \n\
+    //    ": :"r"(v0), "r"(sc), "r"(v1)
+    //);
 }
 
 // Line 494

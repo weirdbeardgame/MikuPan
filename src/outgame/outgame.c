@@ -15,7 +15,10 @@
 #include "outgame/btl_mode/btl_menu.h"
 #include "graphics/graph2d/message.h"
 // #include "graphics/graph2d/g2d_main.h" // gra2dInitST() should be undeclared
+#include <stdio.h>
+
 #include "graphics/graph2d/effect_sub.h"
+#include "graphics/graph2d/g2d_main.h"
 #include "graphics/graph3d/load3d.h"
 
 static int rsc_menu_csr = 0;

@@ -31,106 +31,106 @@ static float mzmin;
 #define SCRATCHPAD ((u_char *)0x70000000)
 
 static inline void inline_asm__mirror_c_line_38(sceVu0FMATRIX m0) {
-    asm volatile("\n\
-        lqc2    $vf25, 0(%0)       \n\
-        lqc2    $vf26, 0x10(%0)    \n\
-        lqc2    $vf27, 0x20(%0)    \n\
-        lqc2    $vf28, 0x30(%0)    \n\
-        ": :"r"(m0)
-    );
+    //asm volatile("\n\
+    //    lqc2    $vf25, 0(%0)       \n\
+    //    lqc2    $vf26, 0x10(%0)    \n\
+    //    lqc2    $vf27, 0x20(%0)    \n\
+    //    lqc2    $vf28, 0x30(%0)    \n\
+    //    ": :"r"(m0)
+    //);
 }
 
 static inline void inline_asm__mirror_c_line_47(sceVu0FVECTOR v0, sceVu0FVECTOR v1) {
-    asm volatile("                            \n\
-        lqc2            $vf13, 0(%1)          \n\
-        vmulax.xyzw     ACC,   $vf25, $vf13x  \n\
-        vmadday.xyzw    ACC,   $vf26, $vf13y  \n\
-        vmaddaz.xyzw    ACC,   $vf27, $vf13z  \n\
-        vmaddw.xyzw     $vf12, $vf28, $vf0w   \n\
-        sqc2            $vf12, 0(%0)          \n\
-        ": :"r"(v0),"r"(v1)
-    );
+    //asm volatile("                            \n\
+    //    lqc2            $vf13, 0(%1)          \n\
+    //    vmulax.xyzw     ACC,   $vf25, $vf13x  \n\
+    //    vmadday.xyzw    ACC,   $vf26, $vf13y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf27, $vf13z  \n\
+    //    vmaddw.xyzw     $vf12, $vf28, $vf0w   \n\
+    //    sqc2            $vf12, 0(%0)          \n\
+    //    ": :"r"(v0),"r"(v1)
+    //);
 }
 
 static inline void inline_asm__mirror_c_line_62(MNODE *nm, sceVu0FVECTOR vp) {
-    asm volatile("                            \n\
-        lqc2            $vf13, 0(%1)          \n\
-        vmulax.xyzw     ACC,   $vf25, $vf13x  \n\
-        vmadday.xyzw    ACC,   $vf26, $vf13y  \n\
-        vmaddaz.xyzw    ACC,   $vf27, $vf13z  \n\
-        vmaddw.xyzw     $vf12, $vf28, $vf0w   \n\
-        sqc2            $vf13, 0(%0)          \n\
-        sqc2            $vf12, 0x10(%0)       \n\
-        ": :"r"(nm),"r"(vp)
-    );
+    //asm volatile("                            \n\
+    //    lqc2            $vf13, 0(%1)          \n\
+    //    vmulax.xyzw     ACC,   $vf25, $vf13x  \n\
+    //    vmadday.xyzw    ACC,   $vf26, $vf13y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf27, $vf13z  \n\
+    //    vmaddw.xyzw     $vf12, $vf28, $vf0w   \n\
+    //    sqc2            $vf13, 0(%0)          \n\
+    //    sqc2            $vf12, 0x10(%0)       \n\
+    //    ": :"r"(nm),"r"(vp)
+    //);
 }
 
 static int MirrorLineClip(float *v0, float *v1)
 {
-    int ret;
+    int ret = 1;
 
-    asm volatile("                     \n\
-        lqc2          $vf13, 0(%1)     \n\
-        lqc2          $vf14, 0(%2)     \n\
-        vclipw.xyz    $vf13, $vf13w    \n\
-        vclipw.xyz    $vf14, $vf14w    \n\
-        vnop                           \n\
-        vnop                           \n\
-        vnop                           \n\
-        vnop                           \n\
-        vnop                           \n\
-        cfc2          %0,    $vi18     \n\
-        ":"=r"(ret):"r"(v0),"r"(v1)
-    );
+    //asm volatile("                     \n\
+    //    lqc2          $vf13, 0(%1)     \n\
+    //    lqc2          $vf14, 0(%2)     \n\
+    //    vclipw.xyz    $vf13, $vf13w    \n\
+    //    vclipw.xyz    $vf14, $vf14w    \n\
+    //    vnop                           \n\
+    //    vnop                           \n\
+    //    vnop                           \n\
+    //    vnop                           \n\
+    //    vnop                           \n\
+    //    cfc2          %0,    $vi18     \n\
+    //    ":"=r"(ret):"r"(v0),"r"(v1)
+    //);
 
     return ret;
 }
 
 static inline void inline_asm__mirror_c_line_96(sceVu0FVECTOR v0) {
-    asm volatile("                     \n\
-        lqc2          $vf13, 0(%0)     \n\
-        vclipw.xyz    $vf13, $vf13w    \n\
-        ": :"r"(v0)
-    );
+    //asm volatile("                     \n\
+    //    lqc2          $vf13, 0(%0)     \n\
+    //    vclipw.xyz    $vf13, $vf13w    \n\
+    //    ": :"r"(v0)
+    //);
 }
 
 static int GetClipValue()
 {
-    int ret;
+    int ret = 1;
 
-    asm volatile("           \n\
-        vnop                 \n\
-        vnop                 \n\
-        vnop                 \n\
-        vnop                 \n\
-        vnop                 \n\
-        cfc2    %0, $vi18    \n\
-        ":"=r"(ret)
-    );
+    //asm volatile("           \n\
+    //    vnop                 \n\
+    //    vnop                 \n\
+    //    vnop                 \n\
+    //    vnop                 \n\
+    //    vnop                 \n\
+    //    cfc2    %0, $vi18    \n\
+    //    ":"=r"(ret)
+    //);
 
     return ret;
 }
 
 static inline void inline_asm__mirror_c_line_120(qword base, sceVu0FVECTOR vp) {
-    asm volatile("\n\
-        lqc2            $vf12, 0(%1)             \n\
-        vmulax.xyzw     ACC,   $vf8,     $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf9,     $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf10,    $vf12z  \n\
-        vmaddw.xyzw     $vf14, $vf11,    $vf0w   \n\
-        vdiv            Q,     $vf0w,    $vf14w  \n\
-        vmulax.xyzw     ACC,   $vf4,     $vf12x  \n\
-        vmadday.xyzw    ACC,   $vf5,     $vf12y  \n\
-        vmaddaz.xyzw    ACC,   $vf6,     $vf12z  \n\
-        vmaddw.xyzw     $vf13, $vf7,     $vf12w  \n\
-        vwaitq                                   \n\
-        vmulq.xyz       $vf14, $vf14,    Q       \n\
-        vftoi4.xyz      $vf31, $vf14             \n\
-        sqc2            $vf13, 0x10(%0)          \n\
-        sqc2            $vf31, 0(%0)             \n\
-        sqc2            $vf14, 0x20(%0)          \n\
-        ": :"r"(base),"r"(vp)
-    );
+    //asm volatile("\n\
+    //    lqc2            $vf12, 0(%1)             \n\
+    //    vmulax.xyzw     ACC,   $vf8,     $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf9,     $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf10,    $vf12z  \n\
+    //    vmaddw.xyzw     $vf14, $vf11,    $vf0w   \n\
+    //    vdiv            Q,     $vf0w,    $vf14w  \n\
+    //    vmulax.xyzw     ACC,   $vf4,     $vf12x  \n\
+    //    vmadday.xyzw    ACC,   $vf5,     $vf12y  \n\
+    //    vmaddaz.xyzw    ACC,   $vf6,     $vf12z  \n\
+    //    vmaddw.xyzw     $vf13, $vf7,     $vf12w  \n\
+    //    vwaitq                                   \n\
+    //    vmulq.xyz       $vf14, $vf14,    Q       \n\
+    //    vftoi4.xyz      $vf31, $vf14             \n\
+    //    sqc2            $vf13, 0x10(%0)          \n\
+    //    sqc2            $vf31, 0(%0)             \n\
+    //    sqc2            $vf14, 0x20(%0)          \n\
+    //    ": :"r"(base),"r"(vp)
+    //);
 }
 
 int CheckMirrorModel(void *sgd_top)
@@ -235,25 +235,25 @@ void SliceMirrorPolygon(MFlipNode *fn, ClipData *cldata)
 
 static void CalcOuterProduct(float *out, int *p0)
 {
-    asm volatile("                              \n\
-        lqc2           $vf12, 0(%1)             \n\
-        lqc2           $vf13, 0x30(%1)          \n\
-        lqc2           $vf14, 0x60(%1)          \n\
-        vitof4.xy      $vf12, $vf12             \n\
-        vmove.zw       $vf12, $vf0              \n\
-        vitof4.xy      $vf13, $vf13             \n\
-        vmove.zw       $vf13, $vf0              \n\
-        vitof4.xy      $vf14, $vf14             \n\
-        vmove.zw       $vf14, $vf0              \n\
-        vsub.xyzw      $vf12, $vf12,    $vf13   \n\
-        vsub.xyzw      $vf13, $vf13,    $vf14   \n\
-        vopmula.xyz    ACC,   $vf12,    $vf13   \n\
-        vopmsub.xyz    $vf12, $vf13,    $vf12   \n\
-        lqc2           $vf13, 0(%0)             \n\
-        vmulz.xyz      $vf12, $vf12,    $vf13z  \n\
-        sqc2           $vf12, 0(%0)             \n\
-        ": :"r"(out),"r"(p0)
-    );
+    //asm volatile("                              \n\
+    //    lqc2           $vf12, 0(%1)             \n\
+    //    lqc2           $vf13, 0x30(%1)          \n\
+    //    lqc2           $vf14, 0x60(%1)          \n\
+    //    vitof4.xy      $vf12, $vf12             \n\
+    //    vmove.zw       $vf12, $vf0              \n\
+    //    vitof4.xy      $vf13, $vf13             \n\
+    //    vmove.zw       $vf13, $vf0              \n\
+    //    vitof4.xy      $vf14, $vf14             \n\
+    //    vmove.zw       $vf14, $vf0              \n\
+    //    vsub.xyzw      $vf12, $vf12,    $vf13   \n\
+    //    vsub.xyzw      $vf13, $vf13,    $vf14   \n\
+    //    vopmula.xyz    ACC,   $vf12,    $vf13   \n\
+    //    vopmsub.xyz    $vf12, $vf13,    $vf12   \n\
+    //    lqc2           $vf13, 0(%0)             \n\
+    //    vmulz.xyz      $vf12, $vf12,    $vf13z  \n\
+    //    sqc2           $vf12, 0(%0)             \n\
+    //    ": :"r"(out),"r"(p0)
+    //);
 }
 
 void CalcScreenMirror(sceVu0FVECTOR vp0, sceVu0FVECTOR vp1, sceVu0FVECTOR vp2, float sgn)
@@ -620,7 +620,7 @@ int PreMirrorPrim(SgCAMERA *camera, u_int *prim)
 
     if (prim == NULL)
     {
-        return;
+        return 0;
     }
 
     while (prim[0] != NULL)
@@ -674,17 +674,17 @@ void MirrorBufferFlush(int tlen)
 }
 
 static inline void inline_asm__mirror_c_line_639(sceVu0FVECTOR v0, sceVu0FVECTOR v1, sceVu0FVECTOR v2, sceVu0FVECTOR v3) {
-    asm volatile("                          \n\
-        lqc2           $vf12, 0(%1)         \n\
-        lqc2           $vf13, 0(%2)         \n\
-        lqc2           $vf14, 0(%3)         \n\
-        vsub.xyz       $vf12, $vf13, $vf12  \n\
-        vsub.xyz       $vf13, $vf14, $vf13  \n\
-        vopmula.xyz    ACC,   $vf12, $vf13  \n\
-        vopmsub.xyz    $vf12, $vf13, $vf12  \n\
-        sqc2           $vf12, 0(%0)         \n\
-        ": :"r"(v0),"r"(v1),"r"(v2),"r"(v3)
-    );
+    //asm volatile("                          \n\
+    //    lqc2           $vf12, 0(%1)         \n\
+    //    lqc2           $vf13, 0(%2)         \n\
+    //    lqc2           $vf14, 0(%3)         \n\
+    //    vsub.xyz       $vf12, $vf13, $vf12  \n\
+    //    vsub.xyz       $vf13, $vf14, $vf13  \n\
+    //    vopmula.xyz    ACC,   $vf12, $vf13  \n\
+    //    vopmsub.xyz    $vf12, $vf13, $vf12  \n\
+    //    sqc2           $vf12, 0(%0)         \n\
+    //    ": :"r"(v0),"r"(v1),"r"(v2),"r"(v3)
+    //);
 }
 
 void CalcMirrorMatrix(SgCAMERA *camera)

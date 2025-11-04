@@ -1,6 +1,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+/// Replacing it dummy value to avoid manually delete all of those declarations
+#define INCLUDE_ASM(...)
+
 typedef char s8;
 typedef short s16;
 typedef int s32;
