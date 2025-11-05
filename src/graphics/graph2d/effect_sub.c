@@ -9,6 +9,7 @@
 #include "sce/libvu0.h"
 
 // #include "os/pad.h"
+#include "common/memory_addresses.h"
 #include "os/system.h"
 #include "main/glob.h"
 #include "ingame/ig_init.h"
@@ -46,7 +47,7 @@ static u_long128 *bufz;
 
 void InitEffectSub()
 {
-    buf = (u_long128 *)0x01E90000;
+    buf = (u_long128 *)EFFECT_ADDRESS;
     buf2 = (u_long128 *)0x01F1C000;
     bufz = (u_long128 *)0x05000000;
     vib1_time = 0;
@@ -3153,7 +3154,7 @@ int SetTecmoLogo()
     break;
     }
     
-    SetSprFile3(0x1e90000, 0);
+    SetSprFile3(EFFECT_ADDRESS, 0);
     CopySprDToSpr(&ds, logotex);
     
     ds.zbuf = 0x10100008c;

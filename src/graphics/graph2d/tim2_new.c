@@ -2,8 +2,10 @@
 #include "typedefs.h"
 #include "tim2_new.h"
 
+#include <stdint.h>
 #include <stdio.h>
 
+#include "common/memory_addresses.h"
 #include "main/glob.h"
 #include "graphics/graph2d/tim2.h"
 #include "graphics/graph3d/sgdma.h"
@@ -16,8 +18,6 @@ u_int *tm2_end_pkt = NULL;
 static Q_WORDDATA fnt_pkt[512];
 static Q_WORDDATA g2d_end_pkt[2];
 static Q_WORDDATA g2d_top_pkt[2];
-
-#define VU0_ADDRESS 0x11000000
 
 #define UNCACHED(p) ((char *)((u_int)p | 0x20000000))
 
@@ -200,10 +200,9 @@ u_int* ChainPK2Direct(u_int *pkt_addr, u_int *tm2_addr)
 {
     int i;
     int texnum;
-    int addr;
     int *offtop;
 
-    addr = (int)tm2_addr;
+    int64_t addr = (int64_t)tm2_addr;
 
     texnum = ((int *)addr)[0];
     offtop = &((int *)addr)[4];
@@ -218,21 +217,23 @@ u_int* ChainPK2Direct(u_int *pkt_addr, u_int *tm2_addr)
 
 void MakeFontTexSendPacket()
 {
-    u_int *pkt_addr;
     SPRITE_DATA dummy;
-    int i;
-    int texnum;
-    int addr;
-    int *offtop;
 
-    addr = 0x1e30000;
+    /// When uninitialized the value will be 0, otherwise this value will be the
+    /// value of a pk2 header which indicates the num of textures within the
+    int64_t addr = FontTextAddress;
 
-    texnum = ((int *)addr)[0];
-    offtop = &((int *)addr)[4];
+    if (addr == 0)
+    {
+        return;
+    }
 
-    pkt_addr = (u_int *)fnt_pkt;
+    int texnum = ((int*)addr)[0];
+    int* offtop = &((int*)addr)[4];
 
-    for (i = 0; i < texnum; i++)
+    u_int* pkt_addr = (u_int*)fnt_pkt;
+
+    for (int i = 0; i < texnum; i++)
     {
         LoadTIM2Sub(&dummy, (char *)(addr + offtop[i]), 0, 0);
     }
@@ -308,7 +309,7 @@ void MakeTim2Direct3(u_int *tim2_addr, int tbp, int offset)
 
     nloop = tph->ImageSize / 16;
 
-    img_addr = (u_int *)((int)tph + tph->HeaderSize);
+    img_addr = (u_int *)((int64_t)tph + tph->HeaderSize);
 
     sgtx0 = *(sceGsTex0*)&tph->GsTex0;
 
@@ -343,7 +344,7 @@ void MakeTim2Direct3(u_int *tim2_addr, int tbp, int offset)
     qwc = (ndpkt - qwtop) - 1;
 
     pbuf[ndpkt].ui32[0] = nloop | DMAref;
-    pbuf[ndpkt].ui32[1] = (u_int)img_addr;
+    pbuf[ndpkt].ui32[1] = (int64_t)img_addr;
     pbuf[ndpkt].ui32[2] = 0;
     pbuf[ndpkt++].ui32[3] = nloop | DMAcall;
 
@@ -383,7 +384,7 @@ void MakeClutDirect3(u_int *tim2_addr, int cbp, int offset)
 
     nloop = tph->ClutSize / 16;
 
-    img_addr = (u_int *)((int)tph + (tph->HeaderSize + tph->ImageSize));
+    img_addr = (u_int *)((int64_t)tph + (tph->HeaderSize + tph->ImageSize));
 
     sgtx0 = *(sceGsTex0*)&tph->GsTex0;
 
@@ -412,6 +413,7 @@ void MakeClutDirect3(u_int *tim2_addr, int cbp, int offset)
         int rrh = tph->ClutColors / 16;
         pbuf[ndpkt].ul64[0] = SCE_GS_SET_TRXREG(16, rrh);
     }
+
     pbuf[ndpkt++].ul64[1] = SCE_GS_TRXREG;
 
     pbuf[ndpkt].ul64[0] = SCE_GS_SET_TRXDIR(0);
@@ -433,12 +435,12 @@ void MakeClutDirect3(u_int *tim2_addr, int cbp, int offset)
     pbuf[qwtop].ui32[3] = qwc | DMAcall;
 }
 
-void MakeTim2ClutDirect3(u_int tm2_addr, int tbp, int cbp, int offset)
+void MakeTim2ClutDirect3(int64_t tm2_addr, int tbp, int cbp, int offset)
 {
     int i;
     int texnum;
     int *offtop;
-    int addr;
+    int64_t addr;
 
     Reserve2DPacket_Load();
 
@@ -447,7 +449,7 @@ void MakeTim2ClutDirect3(u_int tm2_addr, int tbp, int cbp, int offset)
     pbuf[ndpkt].ui32[2] = 0;
     pbuf[ndpkt++].ui32[3] = VU0_ADDRESS;
 
-    addr = (int)tm2_addr;
+    addr = tm2_addr;
 
     texnum = ((int *)addr)[0];
     offtop = &((int *)addr)[4];
@@ -464,12 +466,12 @@ void MakeTim2ClutDirect3(u_int tm2_addr, int tbp, int cbp, int offset)
     pbuf[ndpkt++].ui32[3] = VU0_ADDRESS;
 }
 
-void MakeTim2ClutDirect4(u_int tm2_addr, int num, int tbp, int cbp, int offset)
+void MakeTim2ClutDirect4(int64_t tm2_addr, int num, int tbp, int cbp, int offset)
 {
     int i;
     int texnum;
     int *offtop;
-    int addr;
+    int64_t addr;
 
     Reserve2DPacket_Load();
 
@@ -498,7 +500,7 @@ void MakeTim2ClutDirect4(u_int tm2_addr, int num, int tbp, int cbp, int offset)
     pbuf[ndpkt++].ui32[3] = VU0_ADDRESS;
 }
 
-void MakeTim2SendPacket(u_int tm2_addr, int offset)
+void MakeTim2SendPacket(int64_t tm2_addr, int offset)
 {
     Reserve2DPacket_Load();
 
@@ -516,9 +518,9 @@ void MakeTim2SendPacket(u_int tm2_addr, int offset)
     pbuf[ndpkt++].ui32[3] = VU0_ADDRESS;
 }
 
-void MakeTim2SendPacket_3Dpkt(u_int tm2_addr, int offset)
+void MakeTim2SendPacket_3Dpkt(int64_t tm2_addr, int offset)
 {
-    AppendDmaTagCall((u_int)&pbuf[ndpkt]);
+    AppendDmaTagCall((int64_t)&pbuf[ndpkt]);
 
     pbuf[ndpkt].ui32[0] = DMAcnt;
     pbuf[ndpkt].ui32[1] = 0;
@@ -534,7 +536,7 @@ void MakeTim2SendPacket_3Dpkt(u_int tm2_addr, int offset)
     pbuf[ndpkt++].ui32[3] = VU0_ADDRESS;
 
     AppendDmaTagNextRet(&ndpkt[pbuf-1]);
-    SetG2DTopPkt((u_int)&pbuf[ndpkt]);
+    SetG2DTopPkt((int64_t)&pbuf[ndpkt]);
     FlushModel(0);
 }
 
@@ -550,7 +552,7 @@ void Reserve2DPacket_Load()
     draw_pri[ndpri++][1] = ndpkt;
 }
 
-void SetG2DTopPkt(u_int addr)
+void SetG2DTopPkt(int64_t addr)
 {
     g2d_top_pkt[mes_swap].ui32[0] = DMAnext;
     g2d_top_pkt[mes_swap].ui32[1] = addr & 0xfffffff;

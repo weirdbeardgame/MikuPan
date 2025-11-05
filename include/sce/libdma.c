@@ -1,5 +1,7 @@
 #include "libdma.h"
 
+#include <stdlib.h>
+
 int sceDmaReset(int mode)
 {
 }
@@ -14,6 +16,7 @@ int sceDmaPutEnv(sceDmaEnv* env)
 
 sceDmaChan* sceDmaGetChan(int id)
 {
+   return malloc(sizeof(sceDmaChan));
 }
 
 void sceDmaSend(sceDmaChan* d, void* tag)

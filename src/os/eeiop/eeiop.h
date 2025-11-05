@@ -1,6 +1,8 @@
 #ifndef OS_EEIOP_EEIOP_H
 #define OS_EEIOP_EEIOP_H
 
+#include <stdint.h>
+
 #include "typedefs.h"
 #include "sce/sifrpc.h"
 
@@ -44,13 +46,13 @@ typedef struct {
 
 typedef struct {
 	int cmd_no;
-	int data1;
-	int data2;
-	int data3;
-	int data4;
-	int data5;
-	int data6;
-	int data7;
+	int64_t data1;
+	int64_t data2;
+	int64_t data3;
+	int64_t data4;
+	int64_t data5;
+	int64_t data6;
+	int64_t data7;
 } IOP_COMMAND;
 
 typedef struct {
@@ -65,7 +67,7 @@ extern IOP_STAT rcv_stat;
 void EiInit();
 int EiMain();
 void SetIopCmdSm(int cmd_no, int data1, int data2, int data3);
-void SetIopCmdLg(int cmd_no, int data1, int data2, int data3, int data4, int data5, int data6, int data7);
+void SetIopCmdLg(int cmd_no, int64_t data1, int64_t data2, int64_t data3, int64_t data4, int64_t data5, int64_t data6, int64_t data7);
 int checkIOP();
 IOP_STAT* GetIopStatP();
 

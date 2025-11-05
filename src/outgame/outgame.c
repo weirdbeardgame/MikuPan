@@ -17,6 +17,7 @@
 // #include "graphics/graph2d/g2d_main.h" // gra2dInitST() should be undeclared
 #include <stdio.h>
 
+#include "common/memory_addresses.h"
 #include "graphics/graph2d/effect_sub.h"
 #include "graphics/graph2d/g2d_main.h"
 #include "graphics/graph3d/load3d.h"
@@ -27,7 +28,7 @@ static int rsc_no[2] = {0, 0};
 static u_int load_size;
 
 #define LOAD_ADDRESS (u_int *)0x04610000
-#define REQ_ADDRESS_1 (u_int *)0x01e90000
+#define REQ_ADDRESS_1 (u_int *)EFFECT_ADDRESS
 #define REQ_ADDRESS_2 (u_int *)0x007f8000
 
 void OutGameCtrl(void)
@@ -36,7 +37,7 @@ void OutGameCtrl(void)
     switch(outgame_wrk.mode)
     {
         case OUTGAME_MODE_INIT:
-            init_load_id = LoadReq(LOGO_PK2, (u_int)REQ_ADDRESS_1);
+            init_load_id = LoadReq(LOGO_PK2, &EFFECT_ADDRESS);
             OutGameModeChange(OUTGAME_MODE_WAIT);
         break;
         case OUTGAME_MODE_WAIT:

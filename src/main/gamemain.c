@@ -3,6 +3,7 @@
 #include "enums.h"
 #include "gamemain.h"
 
+#include "common/memory_addresses.h"
 #include "main/glob.h"
 #include "outgame/title.h"
 #include "outgame/outgame.h"
@@ -161,9 +162,9 @@ int GameInitLoad()
         sys_wrk.load_mode = 1;
     case INGAME_INIT_LOAD_MENU:
 #ifdef BUILD_EU_VERSION
-        init_load_id = LoadReqLanguage(IG_MSG_E_OBJ, 0x84a000);
+        init_load_id = LoadReqLanguage(IG_MSG_E_OBJ, IG_MSG_OBJ_ADDRESS);
 #else
-        init_load_id = LoadReq(IG_MSG_OBJ, 0x84a000);
+        init_load_id = LoadReq(IG_MSG_OBJ, &IG_MSG_OBJ_ADDRESS);
 #endif
         sys_wrk.load_mode = INGAME_INIT_WAIT_MENU;
     break;
@@ -177,9 +178,9 @@ int GameInitLoad()
 #ifdef BUILD_EU_VERSION
         init_load_id = LoadReqLanguage(FNT001_E_PK2, 0x1e30000);
 #else
-        init_load_id = LoadReq(FNT001_PK2, 0x1e30000);
+        init_load_id = LoadReq(FNT001_PK2, &FontTextAddress);
 #endif
-        init_load_id = LoadReq(EFF001_PK2, 0x1e90000);
+        init_load_id = LoadReq(EFF001_PK2, &EFFECT_ADDRESS);
         sys_wrk.load_mode = INGAME_INIT_WAIT_EFCT;
     break;
     case INGAME_INIT_WAIT_EFCT:
@@ -188,7 +189,7 @@ int GameInitLoad()
             return 0;
         }
         MakeFontTexSendPacket();
-        SetETIM2File(0x1e90000);
+        SetETIM2File(EFFECT_ADDRESS);
         sys_wrk.load_mode = INGAME_INIT_LOAD_CAME;
     case INGAME_INIT_LOAD_CAME:
 #ifdef BUILD_EU_VERSION

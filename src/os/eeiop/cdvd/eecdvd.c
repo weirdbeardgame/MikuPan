@@ -1,9 +1,11 @@
 #include "common.h"
 #include "typedefs.h"
 #include "eecdvd.h"
+#include <stdint.h>
 #include "main/glob.h"
 #include "os/eeiop/eeiop.h"
 #include "enums.h"
+#include "common/memory_addresses.h"
 
 typedef struct {
     u_char start_pos;
@@ -60,7 +62,7 @@ static void CdvdInitResetIop()
     SetIopCmdSm(IC_CDVD_INIT, 1, 0, 0);
 }
 
-int LoadReq(int file_no, u_int addr)
+int LoadReq(int file_no, uint64_t addr)
 {
     IMG_ARRANGEMENT *img_arng;
     
@@ -69,7 +71,7 @@ int LoadReq(int file_no, u_int addr)
     return LoadReqNSector(file_no, img_arng->start, img_arng->size, addr);
 }
 
-u_int LoadReqGetAddr(int file_no, u_int addr, int *id)
+u_int LoadReqGetAddr(int file_no, uint64_t addr, int *id)
 {
     IMG_ARRANGEMENT *img_arng;
     u_int ret;
@@ -103,31 +105,35 @@ int LoadReqSe(int file_no, u_char se_type)
     return ret;
 }
 
-int LoadReqNSector(int file_no, int sector, int size, int addr)
+int LoadReqNSector(int file_no, int sector, int size, int64_t addr)
 {
     int ret;
     
     ret = GetFreeId();
+
+    void* file_ptr = malloc(size);
+
+   *((int64_t*)addr) = (int64_t)file_ptr;
     
     if (ret != -1)
     {
-        SetIopCmdLg(IC_CDVD_LOAD_SECT, 0, sector, size, addr, 0, ret, 0);
+        SetIopCmdLg(IC_CDVD_LOAD_SECT, file_no, sector, size, file_ptr, 0, ret, 0);
     }
     
     return ret;
 }
 
-int LoadReqNFno(int file_no, int addr)
+int LoadReqNFno(int file_no, int64_t addr)
 {
     return -1;
 }
 
-int LoadReqBFno(int file_no, int addr)
+int LoadReqBFno(int file_no, int64_t addr)
 {
     return -1;
 }
 
-u_int LoadReqBFnoGetAddr(int file_no, int addr)
+u_int LoadReqBFnoGetAddr(int file_no, int64_t addr)
 {
     return 0;
 }
@@ -240,10 +246,18 @@ static int GetFreeId()
     return ret;
 }
 
+unsigned char* LoadImgHdFile();
 IMG_ARRANGEMENT *GetImgArrangementP(int file_no)
 {
+    /// Done~!
     /// TODO: 0x12f0000 is the DVD address for IMG_HD.BIN, needs to have loaded before access
-    return (IMG_ARRANGEMENT *)(file_no * 8 + 0x12f0000);
+    /// We cannot directly access the file on PC, need to load it first
+    if (ImgHdAddress == NULL)
+    {
+        ImgHdAddress = LoadImgHdFile();
+    }
+
+    return &((IMG_ARRANGEMENT*)ImgHdAddress)[file_no];
 }
 
 #ifdef BUILD_EU_VERSION

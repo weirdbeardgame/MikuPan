@@ -218,10 +218,10 @@ void vfunc()
     
     StopPerformanceCounter();
     
-    if (count < *REG_RCNT1_COUNT)
-    {
-        count = *REG_RCNT1_COUNT;
-    }
+    //if (count < *REG_RCNT1_COUNT)
+    //{
+    //    count = *REG_RCNT1_COUNT;
+    //}
     
     if (count > 0xdc || (fr & 0xff) == 0)
     {
@@ -236,8 +236,8 @@ void vfunc()
     }
     
     dfro = down_fr;
-    *REG_RCNT0_COUNT = 0;
-    *REG_RCNT1_COUNT = 0;
+    //*REG_RCNT0_COUNT = 0;
+    //*REG_RCNT1_COUNT = 0;
     
     if (sys_wrk.count & 1)
     {
@@ -259,7 +259,7 @@ void vfunc()
     PadSyncCallback();
     
     stop_put_draw_env = 0;
-    *REG_RCNT1_COUNT = 0;
+    //*REG_RCNT1_COUNT = 0;
     
     StartPerformanceCounter();
 }

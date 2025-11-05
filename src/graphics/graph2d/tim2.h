@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_GRAPH2D_TIM2_H
 #define GRAPHICS_GRAPH2D_TIM2_H
 
+#include <stdint.h>
+
 #include "typedefs.h"
 
 #include "sce/libgraph.h"
@@ -167,26 +169,26 @@ u_int Tim2LoadClut(TIM2_PICTUREHEADER *ph, u_int cbp);
 int Tim2TakeSnapshot(sceGsDispEnv *d0, sceGsDispEnv *d1, char *pszFname);
 void Tim2LoadTexture(int psm, u_int tbp, int tbw, int w, int h, u_long128 *pImage);
 u_long LoadTIM2Sub(SPRITE_DATA *sno, char *buf, int no, u_int offset);
-u_long GetTex0Reg(u_int addr, int no, u_int offset);
-u_long GetTex0RegTM(u_int addr, u_int offset);
+u_long GetTex0Reg(int64_t addr, int no, u_int offset);
+u_long GetTex0RegTM(int64_t addr, u_int offset);
 void InitTIM2Files();
 void SortEffectPacket();
 void SortMessagePacket();
 void DmaSync_Vif1();
 void DrawOne2D_P2(Q_WORDDATA *packet_buf);
 void DrawAll2D_P2();
-void* DrawAllMes_P2(u_int ret_addr);
+void* DrawAllMes_P2(int64_t ret_addr);
 void DrawOne2D(Q_WORDDATA *packet_buf);
 void DrawOne2D2a(Q_WORDDATA *packet_buf);
 void DrawOne2D2b();
 void DrawAll2D();
 void DrawAllMes();
-void LoadSprFileToMainD(int no, int addr);
-void SetSprFile(u_int addr);
-void SetSprFile2(u_int addr, u_int offset);
-void SetSprFile3(u_int addr, u_int offset);
-void SetETIM2File(int addr);
-void SetFTIM2File(int addr);
+void LoadSprFileToMainD(int no, int64_t addr);
+void SetSprFile(int64_t addr);
+void SetSprFile2(int64_t addr, u_int offset);
+void SetSprFile3(int64_t addr, u_int offset);
+void SetETIM2File(int64_t addr);
+void SetFTIM2File(int64_t addr);
 void LoadTIM2File();
 void SetScissor(int pri, int x, int y, int w, int h);
 void ResetScissor(int pri);

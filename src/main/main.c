@@ -40,10 +40,10 @@ int main()
             CheckDMATrans();
             sceGsSyncPath(0, 0);
             vfunc();
-            DrawAll2DMes_P2();
-            FlushModel(1);
-            ClearTextureCache();
-            SeCtrlMain();
+            //DrawAll2DMes_P2();
+            //FlushModel(1);
+            //ClearTextureCache();
+            //SeCtrlMain();
         } while (!SoftResetChk());
     } while (1); // TODO: Change this check to be able to close the window
 }
@@ -104,18 +104,19 @@ void CallSoftReset()
 
 int SoftResetChk()
 {
-    if (
-        *key_now[8] && *key_now[9] && *key_now[10] &&
-        *key_now[11] && *key_now[12] && *key_now[13]
-    )
-    {
-        // Re-enabled for debug purposes
-        sys_wrk.sreset_count = 1;
-    }
-    else
-    {
-        sys_wrk.sreset_count = 0;
-    }
+    /// TODO: Re-enable once pad is implemented
+    //if (
+    //    *key_now[8] && *key_now[9] && *key_now[10] &&
+    //    *key_now[11] && *key_now[12] && *key_now[13]
+    //)
+    //{
+    //    // Re-enabled for debug purposes
+    //    sys_wrk.sreset_count = 1;
+    //}
+    //else
+    //{
+    //    sys_wrk.sreset_count = 0;
+    //}
     
     if (sys_wrk.sreset_ng != 0)
     {

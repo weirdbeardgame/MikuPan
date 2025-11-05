@@ -2,6 +2,7 @@
 #include "typedefs.h"
 #include "sgdma.h"
 
+#include <stdint.h>
 #include <stdio.h>
 
 #include "ee/kernel.h"
@@ -60,10 +61,10 @@ void ClearDMATrans()
 
 void CheckDMATrans()
 {
-    if (*REG_VIF1_STAT & 0x3400)
-    {
-        ClearDMATrans();
-    }
+    //if (*REG_VIF1_STAT & 0x3400)
+    //{
+    //    ClearDMATrans();
+    //}
 }
 
 void CheckDmaSync()
@@ -138,7 +139,7 @@ void FlushModel(int signal)
     }
 }
 
-void AppendDmaTag(u_int addr, int size)
+void AppendDmaTag(int64_t addr, int size)
 {
     SgSourceChainTag *ptag;
 
@@ -167,7 +168,7 @@ void AppendDmaBuffer(int size)
     vu1tag_num++;
 }
 
-void AppendDmaTagCall(u_int next_tag_addr)
+void AppendDmaTagCall(int64_t next_tag_addr)
 {
     SgSourceChainTag *ptag;
 

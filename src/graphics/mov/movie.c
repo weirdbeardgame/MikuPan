@@ -343,7 +343,7 @@ int PlayMpegEvent()
             SgInit3D();
             sceGsSyncPath(0, 0);
 
-            //vfunc();
+            vfunc();
 
             if (scene_bg_color == 0)
             {

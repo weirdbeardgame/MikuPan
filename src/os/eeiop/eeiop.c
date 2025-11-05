@@ -58,7 +58,7 @@ void SetIopCmdSm(int cmd_no, int data1, int data2, int data3)
     SetIopCmd(&cmd);
 }
 
-void SetIopCmdLg(int cmd_no, int data1, int data2, int data3, int data4, int data5, int data6, int data7)
+void SetIopCmdLg(int cmd_no, int64_t data1, int64_t data2, int64_t data3, int64_t data4, int64_t data5, int64_t data6, int64_t data7)
 {
     IOP_COMMAND cmd;
     
@@ -148,7 +148,9 @@ static int EiSendCmd()
         
         if (ei_sys.cmd_num != 0)
         {
-            ret = sceSifCallRpc(&ei_sys.gcd, 1, 1, send_cmd, ei_sys.cmd_num * 32, &rcv_stat, 0x180, NULL, NULL);
+            ret = sceSifCallRpc(&ei_sys.gcd, 1, 1,
+                send_cmd, ei_sys.cmd_num * sizeof(IOP_COMMAND),
+                &rcv_stat, 0x180, NULL, NULL);
         }
         else
         {

@@ -5,6 +5,7 @@
 //#include <stdlib.h>
 #include <string.h>
 
+#include "common/memory_addresses.h"
 #include "sce/libvu0.h"
 #include "sce/libdma.h"
 #include "sce/sifdev.h"
@@ -44,7 +45,7 @@
 #define GS_X_COORD(x) ((2048 - (SCR_WIDTH / 2) + x) * 16)
 #define GS_Y_COORD(y) ((2048 - (SCR_HEIGHT / 2) + y) * 16)
 
-#define UNCACHED(ptr)          ((void*)((u_int)(ptr) | 0x20000000))
+#define UNCACHED(ptr)          ((void*)((u_int)(ptr) | CachedBuffer))
 #define UNCACHED_ACCEL(ptr)    ((void*)((u_int)(ptr) | 0x30000000))
 
 extern unsigned int dma /* __attribute__((section(".vutext"))) */;
@@ -853,8 +854,9 @@ void gra3dInitFirst()
     runit_mtx[1][1] = 25.0f;
     runit_mtx[2][2] = 25.0f;
 
+    /// TODO : Correctly assign the VUVN buffers here
     SgSetPacketBuffer(UNCACHED(0x42fa00), 0x17830, UNCACHED_ACCEL(tag_buffer), 0x1800);
-    SgSetVNBuffer((sceVu0FVECTOR *)0x420000, 4000);
+    SgSetVNBuffer((sceVu0FVECTOR *)VNBufferAddress, 4000);
 
     SgInit3D();
     objInit();

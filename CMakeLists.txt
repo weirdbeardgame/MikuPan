@@ -5,6 +5,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=x86-64 -Wno-implicit-function-declara
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64 -Wno-implicit-function-declaration -Wno-int-conversion")
 
 add_executable(MikuPan
+        "src/common/file_loading.cpp"
         "src/common/ul_math.c"
         "src/common/utility.c"
         "src/edit/test_2d.c"
@@ -184,10 +185,11 @@ add_executable(MikuPan
         "include/sce/devvu0.c"
         "include/sce/libmc.c"
         "include/sce/mpeg/libmpeg.c"
-        src/graphics/scene/scene_dat.c
-        src/mc/mc.c
-        src/graphics/graph3d/vu_program.c
-        src/graphics/graph3d/vu_program.h
+        "src/graphics/scene/scene_dat.c"
+        "src/mc/mc.c"
+        "src/graphics/graph3d/vu_program.c"
+        "src/common/memory_addresses.c"
+
 )
 
 target_include_directories(MikuPan PRIVATE "include/" "src" "resources/")

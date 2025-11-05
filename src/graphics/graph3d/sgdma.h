@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_GRAPH3D_SGDMA_H
 #define GRAPHICS_GRAPH3D_SGDMA_H
 
+#include <stdint.h>
+
 #include "typedefs.h"
 
 #include "ingame/map/furn_dat.h"
@@ -13,9 +15,9 @@ void ClearDMATrans();
 void CheckDMATrans();
 void CheckDmaSync();
 void FlushModel(int signal);
-void AppendDmaTag(u_int addr, int size);
+void AppendDmaTag(int64_t addr, int size);
 void AppendDmaBuffer(int size);
-void AppendDmaTagCall(u_int next_tag_addr);
+void AppendDmaTagCall(int64_t next_tag_addr);
 void AppendDmaTagNextRet(void *tag_addr);
 void AppendDmaBufferFromEndAddress(qword *end_adr);
 void ClearTextureCache();

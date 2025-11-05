@@ -2,6 +2,7 @@
 #include "typedefs.h"
 #include "tim2.h"
 
+#include "common/memory_addresses.h"
 #include "ee/kernel.h"
 #include "ee/eekernel.h"
 #include "sce/libdma.h"
@@ -40,8 +41,6 @@ static sceDmaChan *DmaVif;
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 224
-
-#define PBUF_ADDRESS 0x720000
 
 static int Tim2CalcBufWidth(int psm, int w);
 static int Tim2CalcBufSize(int psm, int w, int h);
@@ -1289,7 +1288,7 @@ u_long LoadTIM2Sub(SPRITE_DATA *sno, char *buf, int no, u_int offset)
     return *(u_long *)&sno->g_GsTex0;
 }
 
-u_long GetTex0Reg(u_int addr, int no, u_int offset)
+u_long GetTex0Reg(int64_t addr, int no, u_int offset)
 {
     u_long ret;
     TIM2_PICTUREHEADER *ph;
@@ -1314,7 +1313,7 @@ u_long GetTex0Reg(u_int addr, int no, u_int offset)
     return ret;
 }
 
-u_long GetTex0RegTM(u_int addr, u_int offset)
+u_long GetTex0RegTM(int64_t addr, u_int offset)
 {
     u_long ret;
     TIM2_PICTUREHEADER *ph;
@@ -1345,6 +1344,9 @@ void InitTIM2Files()
     DmaVif = sceDmaGetChan(1);
 
     InitTIM2Addr();
+
+    /// TODO : CHECK THE ACTUAL PACKET BUFFER SIZE, ALLOCATING 1MB FOR NOW
+    PBUF_ADDRESS = malloc(1024 * 1024);
 
     pbuf = (Q_WORDDATA *)PBUF_ADDRESS;
     mpbuf = mpbufw[0];
@@ -1564,7 +1566,7 @@ void DrawAll2D_P2()
     ndpkt = 0;
 }
 
-void* DrawAllMes_P2(u_int ret_addr)
+void* DrawAllMes_P2(int64_t ret_addr)
 {
     int i;
     int m;
@@ -1607,7 +1609,7 @@ void* DrawAllMes_P2(u_int ret_addr)
         mpbuf[n].ui32[3] = s | DMAcall;
         mpbuf[n].ui32[2] = 0;
 
-        ret = (void *)((u_int)&mpbuf[draw_mpri[0][1]] & 0x0fffffff);
+        ret = (void *)((int64_t)&mpbuf[draw_mpri[0][1]] & 0x0fffffff);
     }
     else
     {
@@ -1649,27 +1651,27 @@ void DrawAllMes()
     DrawOne2D_P2((Q_WORDDATA *)DrawAllMes_P2(0));
 }
 
-void LoadSprFileToMainD(int no, int addr)
+void LoadSprFileToMainD(int no, int64_t addr)
 {
     return;
 }
 
-void SetSprFile(u_int addr)
+void SetSprFile(int64_t addr)
 {
     SetSprFile2(addr, 0);
 }
 
-void SetSprFile2(u_int addr, u_int offset)
+void SetSprFile2(int64_t addr, u_int offset)
 {
     MakeTim2ClutDirect3(addr, -1, -1, offset);
 }
 
-void SetSprFile3(u_int addr, u_int offset)
+void SetSprFile3(int64_t addr, u_int offset)
 {
     MakeTim2ClutDirect3(addr, -1, -1, offset);
 }
 
-void SetETIM2File(int addr)
+void SetETIM2File(int64_t addr)
 {
     int i;
     int texnum;
@@ -1685,7 +1687,7 @@ void SetETIM2File(int addr)
     }
 }
 
-void SetFTIM2File(int addr)
+void SetFTIM2File(int64_t addr)
 {
     CallFontTexSendPacket();
 }
