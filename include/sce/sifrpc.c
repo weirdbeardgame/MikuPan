@@ -1,6 +1,6 @@
 #include "sifrpc.h"
 
-#include <stdlib.h>
+//#include <stdlib.h>
 
 void sceSifInitRpc(unsigned int mode)
 {
