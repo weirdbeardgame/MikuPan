@@ -5,7 +5,7 @@ void InitMoveBox(MOVE_BOX* mb)
 {
 }
 
-void MoveCtrl()
+void MoveCtrl(MOVE_BOX *mb)
 {
 }
 

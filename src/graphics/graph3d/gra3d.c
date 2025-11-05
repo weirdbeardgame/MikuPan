@@ -2,7 +2,7 @@
 #include "typedefs.h"
 #include "gra3d.h"
 
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <string.h>
 
 #include "sce/libvu0.h"

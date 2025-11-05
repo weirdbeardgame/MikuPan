@@ -5,6 +5,8 @@
 
 #include "sce/libvu0.h"
 
+#include <math.h>
+
 void GetSquare(sceVu0FVECTOR *v0, sceVu0FVECTOR *v1) 
 {
     (*v1)[0] = (*v0)[0] * (*v0)[0]; // x*x

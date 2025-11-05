@@ -241,7 +241,7 @@ void SeCmdAjstVolChng()
     return;
 }
 
-int SeCmdFdIn(int sw_no, u_short vol_tgt, short int vol_inc)
+void SeCmdFdIn(int sw_no, u_short vol_tgt, short int vol_inc)
 {
     return;
 }
@@ -294,7 +294,7 @@ int SeCmdSetPitch(int sw_no, u_short pitch)
     SetIopCmdSm(IC_SE_PITCH, sw_no, pitch, 0);
 }
 
-u_short SeCmdGetDataPitch(int se_req_no)
+void SeCmdGetDataPitch(int se_req_no)
 {
     return;
 }

@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 4.0.2)
 project(MikuPan)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=x86-64")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=x86-64 -Wno-implicit-function-declaration -Wno-int-conversion")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64 -Wno-implicit-function-declaration -Wno-int-conversion")
 
 add_executable(MikuPan
         "src/common/ul_math.c"
@@ -191,3 +191,4 @@ add_executable(MikuPan
 )
 
 target_include_directories(MikuPan PRIVATE "include/" "src" "resources/")
+target_link_libraries(MikuPan PRIVATE m) # Link Math.h
