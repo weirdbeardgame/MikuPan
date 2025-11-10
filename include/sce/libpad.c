@@ -1,4 +1,7 @@
 #include "libpad.h"
+#include "sdl_controls.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "os/pad.h"
 
@@ -6,68 +9,51 @@
 
 #include <stddef.h>
 
-SDL_Gamepad *gamepad = NULL;
 
 int scePadPortOpen(int port, int slot, void* addr)
 {
-    if (gamepad != NULL && !SDL_GamepadConnected(gamepad))
-    {
-        SDL_CloseGamepad(gamepad);
-        return 0;
-    }
-
-    if (gamepad != NULL || !SDL_HasGamepad())
-    {
-        return 0;
-    }
-
-    int num_gamepad = 0;
-    SDL_JoystickID *joysticks_id = SDL_GetGamepads(&num_gamepad);
-
-    if (joysticks_id == NULL)
-    {
-        return 0;
-    }
-
-    gamepad = SDL_OpenGamepad(joysticks_id[0]);
-    return 1;
+    return OpenController(port);
 }
 
 int scePadInit(int mode)
 {
-    return 1;
+    return InitGamepad();
 }
 
 int scePadGetState(int port, int slot)
 {
-    if (gamepad == NULL)
-    {
-        return scePadStateDiscon;
-    }
-
-    return scePadStateStable;
+    return IsConnected();
 }
 
-int scePadRead(int port, int slot, unsigned char* rdata)
+// reads controller data and writes it to a buffer in rdata (must be at least 32 bytes large).
+// returns buffer size (32) or 0 on error.
+int scePadRead(int port, int slot, unsigned char *rdata)
 {
-    for (int i = 1; i < 32; i++)
-    {
-        rdata[i] = 0xFF;
-    }
+    memset(rdata, 0xFF, 32);
+    
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_NORTH); // Triangle
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_SOUTH); // Cross
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_EAST); // Circle
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_WEST); // Sqare
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_START);
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_BACK); // Select
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER); // L1
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER); // R1
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_LEFT_STICK); // L3
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_RIGHT_STICK); // R3
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_DPAD_UP);
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+    HandleButton(rdata, SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+    HandleJoystick(rdata, SDL_GAMEPAD_AXIS_LEFT_TRIGGER); // L2
+    HandleJoystick(rdata, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER); // R2
+    
+    HandleJoystick(rdata, SDL_GAMEPAD_AXIS_LEFTX);
+    HandleJoystick(rdata, SDL_GAMEPAD_AXIS_LEFTY);
+    HandleJoystick(rdata, SDL_GAMEPAD_AXIS_RIGHTX);
+    HandleJoystick(rdata, SDL_GAMEPAD_AXIS_RIGHTY);
 
-    u_short* data = (u_short*)rdata;
-    rdata[0] = 0;
-
-    data[1] ^= SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_NORTH)      ? sce_pad[0] : 0; // Verified
-    data[1] ^= SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_SOUTH)      ? sce_pad[1] : 0; // Verified
-    data[1] ^= SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_WEST)       ? sce_pad[2] : 0; // Verified
-    data[1] ^= SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_EAST)       ? sce_pad[3] : 0; // Verified
-    data[1] ^= SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP)    ? sce_pad[4] : 0; // Verified
-    data[1] ^= SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN)  ? sce_pad[5] : 0; // Verified
-    data[1] ^= SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT)  ? sce_pad[6] : 0; // Verified
-    data[1] ^= SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT) ? sce_pad[7] : 0; // Verified
-
-    return 1;
+    return 32;
 }
 
 /// 4: STANDARD CONTROLLER (Dualshock)

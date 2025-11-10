@@ -5,6 +5,10 @@
 
 #include "graphics/graph2d/message.h"
 
+typedef struct { // 0x8
+  /* 0x0 */ u_short on_cnt[4];
+} ANA_PAD;
+
 extern STR_DAT ig_menu_str;
 extern int get_time_once;
 extern SPRT_DAT sozai;

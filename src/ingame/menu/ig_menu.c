@@ -3,6 +3,8 @@
 
 /* data 33d8c8 */ STR_DAT ig_menu_str;
 
+static ANA_PAD ana_pad;
+
 void NewgameMenuInit()
 {
 }

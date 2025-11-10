@@ -342,7 +342,11 @@ int PadReadFunc(PAD_STRUCT *psp, int p_id)
         {
             pad[p_id].cnt[i] = 0;
         }
+
+        printf("Cnt: %u\n", pad[p_id].cnt[i]);
+
     }
+    
     
     if ((psp->id & 0xf0) == 0x70)
     {

@@ -22,6 +22,7 @@
 #include "graphics/graph3d/gra3d.h"
 #include "os/eeiop/adpcm/ea_cmd.h"
 #include "rendering/sdl_renderer.h"
+#include "../include/sce/sdl_controls.h"
 // #include "os/eeiop/adpcm/ea_cmd.h"
 
 int sceGsSyncPath(int mode, u_short timeout);
@@ -79,6 +80,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     }
 
     ProcessEventImGui(event);
+
+    GetControllerEvent(event);
 
     return SDL_APP_CONTINUE;
 }

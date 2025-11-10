@@ -20,7 +20,7 @@ SDL_AppResult MikuPan_Init()
 {
     SDL_SetAppMetadata("MikuPan", "1.0", "mikupan");
 
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
