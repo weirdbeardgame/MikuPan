@@ -29,9 +29,16 @@ void NewFrameImGuiWindow()
 
 void DrawImGuiWindow()
 {
-    //ImGui::Begin("Hello, world!");
-    //ImGui::Text("Welcome to Dear ImGui with SDL3!");
-    //ImGui::End();
+    // You can choose to make the window static or toggle it via a bool
+    ImGui::Begin("Performance");
+
+    // ImGui provides a ready-made function for FPS:
+    ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
+    // You can also show frame time in ms:
+    ImGui::Text("Frame time: %.3f ms/frame", 1000.0f / ImGui::GetIO().Framerate);
+
+    ImGui::End();
 }
 
 void ShutDownImGuiWindow()

@@ -21,6 +21,7 @@
 #include "graphics/graph3d/sgdma.h"
 #include "graphics/graph3d/sglib.h"
 #include "graphics/graph3d/libsg.h"
+#include "gs/gs_server_c.h"
 #include "rendering/sdl_renderer.h"
 
 typedef struct {
@@ -1577,6 +1578,25 @@ void SetTexDirectS2(int pri, SPRITE_DATA *sd, DRAW_ENV *de, int type)
         Change.CSA = 0;
         Change.CLD = 0;
     }
+
+    unsigned char* img = DownloadGsTexture(&sd->g_GsTex0);
+
+    DISP_SPRT s;
+    s.tex0 = *(u_long*)&sd->g_GsTex0;
+    s.r = sd->r;
+    s.g = sd->g;
+    s.b = sd->b;
+    s.alpha = sd->alpha;
+
+    s.x = mx + 320;
+    s.y = my + 224;
+    s.u = 40;
+    s.v = 32;
+    s.w = sd->size_w;
+    s.h = sd->size_h;
+    SDL_Render2DTexture(&s, img);
+
+    return;
     Reserve2DPacket(pri);
     
     /// pbuf[ndpkt].ul128 = (u_long128)0;

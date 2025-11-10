@@ -1,13 +1,14 @@
 #include "common.h"
+#include "mc_at.h"
 
-INCLUDE_ASM(const s32, "mc/mc_at", McAtLoadChk);
+char McAtLoadChk(u_char type)
+{
+}
 
-INCLUDE_ASM(const s32, "mc/mc_at", McAtSaveChk);
+char McAtSaveChk()
+{
+}
 
-INCLUDE_ASM(const s32, "mc/mc_at", McAtAlbmChk);
-
-INCLUDE_ASM(const s32, "mc/mc_at", McAtLoadMainLoop);
-
-INCLUDE_ASM(const s32, "mc/mc_at", McAtSaveMainLoop);
-
-INCLUDE_ASM(const s32, "mc/mc_at", McAtAlbmMainLoop);
+char McAtAlbmChk()
+{
+}

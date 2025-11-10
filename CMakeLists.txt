@@ -193,6 +193,7 @@ set(MIKUPAN_SOURCES "src/common/file_loading.cpp"
         "include/sce/mpeg/libmpeg.c"
         "src/graphics/scene/scene_dat.c"
         "src/mc/mc.c"
+        "src/mc/mc_at.c"
         "src/graphics/graph3d/vu_program.c"
         "src/common/memory_addresses.c"
         src/graphics/ui/imgui_window.cpp

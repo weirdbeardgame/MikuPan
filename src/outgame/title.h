@@ -12,12 +12,29 @@ typedef struct {
 	u_char load_side;
 } TITLE_WRK;
 
+typedef struct { // 0x4
+    /* 0x0 */ u_short timer;
+    /* 0x2 */ u_char mode;
+    /* 0x3 */ u_char no_disp;
+} TTL_DSP_WRK;
+
+typedef struct { // 0x10
+    /* 0x0 */ float cnt;
+    /* 0x4 */ float alp;
+    /* 0x8 */ float spd;
+    /* 0xc */ u_char alpmx;
+    /* 0xd */ u_char colmx;
+    /* 0xe */ u_short type;
+} OUT_DITHER_STR;
+
 #include "outgame/mode_slct.h"
 
 // extern SPRT_DAT title_sprt[11];
 // extern SPRT_DAT font_sprt[20];
 extern int opening_movie_type;
 extern TITLE_WRK title_wrk;
+/* sbss 357be8 */ extern /*static*/ TTL_DSP_WRK ttl_dsp;
+/* bss 402e40 */ extern /*static*/ OUT_DITHER_STR out_dither;
 
 void TitleCtrl();
 void TitleWaitMode();
@@ -32,6 +49,7 @@ void LoadGameInit();
 void InitOutDither();
 void MakeOutDither();
 void DispOutDither();
+int AlbmDesignLoad(u_char side, u_char type);
 
 #ifdef BUILD_EU_VERSION
 void InitTecmotLogo();

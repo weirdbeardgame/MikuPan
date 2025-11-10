@@ -77,7 +77,7 @@ void SDL_Render2DTexture(DISP_SPRT* sprite, unsigned char* image)
     dst_rect.w = sprite->w;
     dst_rect.h = sprite->h;
 
-    //SDL_SetTextureAlphaMod(texture, (char)(255.0f * (sprite->alpha / 128.0f)));
+    SDL_SetTextureAlphaMod(texture, (char)(255.0f * (sprite->alpha / 128.0f)));
     SDL_SetTextureColorMod(texture, sprite->r, sprite->g, sprite->b);
     SDL_RenderTexture(renderer, texture, &src_rect, &dst_rect);
 }

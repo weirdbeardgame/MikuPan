@@ -39,6 +39,10 @@ void NewFrameImGuiWindow();
 void ProcessEventImGui(SDL_Event *event);
 /// CPP Extern Functions ///
 
+
+const int TARGET_FPS = 60;
+const double TARGET_FRAME_TIME = 1000.0 / TARGET_FPS; // milliseconds per frame
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     SDL_AppResult result = InitSDL();
@@ -66,6 +70,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
+    uint64_t frameStart = SDL_GetTicks();
     NewFrameImGuiWindow();
 
     SDL_Clear();
@@ -76,10 +81,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         {
             EiMain();
             GameMain();
+
             CheckDMATrans();
             sceGsSyncPath(0, 0);
             vfunc();
-            //DrawAll2DMes_P2();
+            DrawAll2DMes_P2();
             //FlushModel(1);
             //ClearTextureCache();
             //SeCtrlMain();
@@ -94,6 +100,12 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     RenderImGuiWindow(renderer);
 
     SDL_RenderPresent(renderer);
+
+    uint64_t frameEnd = SDL_GetTicks();
+    double frameTime = (double)(frameEnd - frameStart);
+
+    if (frameTime < TARGET_FRAME_TIME)
+        SDL_Delay((Uint32)(TARGET_FRAME_TIME - frameTime));
 
     return SDL_APP_CONTINUE;
 }
@@ -160,18 +172,18 @@ void CallSoftReset()
 int SoftResetChk()
 {
     /// TODO: Re-enable once pad is implemented
-    //if (
-    //    *key_now[8] && *key_now[9] && *key_now[10] &&
-    //    *key_now[11] && *key_now[12] && *key_now[13]
-    //)
-    //{
-    //    // Re-enabled for debug purposes
-    //    sys_wrk.sreset_count = 1;
-    //}
-    //else
-    //{
-    //    sys_wrk.sreset_count = 0;
-    //}
+    if (
+        *key_now[8] && *key_now[9] && *key_now[10] &&
+        *key_now[11] && *key_now[12] && *key_now[13]
+    )
+    {
+        // Re-enabled for debug purposes
+        sys_wrk.sreset_count = 1;
+    }
+    else
+    {
+        sys_wrk.sreset_count = 0;
+    }
     
     if (sys_wrk.sreset_ng != 0)
     {

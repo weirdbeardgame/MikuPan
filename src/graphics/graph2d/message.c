@@ -701,6 +701,9 @@ static void SetFontPacketHeader(int n, int type, u_char alp)
 
     /// mpbuf[nmdpkt].ul128 = (u_long128)0;
 
+    /// TODO: Check why mpbuf makes the program crash
+    return;
+
     mpbuf[nmdpkt].ul128[0] = 0;
     mpbuf[nmdpkt].ul128[1] = 0;
     mpbuf[nmdpkt].ul128[2] = 0;
@@ -829,6 +832,7 @@ static void SetFont(int pri, int type, int no, int x, int y, u_char r, u_char g,
     unsigned char* image = DownloadGsTexture(&fntdat[type].tex0);
     SDL_Render2DTexture(&s, image);
 
+    return;
     mpbuf[nmdpkt].ui32[0] = r;
     mpbuf[nmdpkt].ui32[1] = g;
     mpbuf[nmdpkt].ui32[2] = b;

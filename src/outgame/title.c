@@ -1,15 +1,976 @@
 #include "common.h"
 #include "title.h"
 
+#include "enums.h"
+#include "memory_album.h"
+#include "outgame.h"
+#include "common/memory_addresses.h"
+#include "graphics/graph2d/tim2.h"
+#include "graphics/graph3d/sgdma.h"
+#include "graphics/mov/movie.h"
+#include "main/gamemain.h"
+#include "main/glob.h"
+#include "mc/mc_at.h"
+#include "mc/mc_main.h"
+#include "os/eeiop/eese.h"
+#include "os/eeiop/adpcm/ea_cmd.h"
+#include "os/eeiop/adpcm/ea_ctrl.h"
+#include "os/eeiop/adpcm/ea_dat.h"
+#include "os/eeiop/cdvd/eecdvd.h"
+
+#include <stdio.h>
+#include <string.h>
+
 /* sdata 3576a0 */ int opening_movie_type;
 /* data 343070 */ TITLE_WRK title_wrk;
+TTL_DSP_WRK ttl_dsp;
+OUT_DITHER_STR out_dither = {0};
 
-void TitleCtrl()
+#define PI 3.1415927f
+#define DEG2RAD(x) ((float)(x)*PI/180.0f)
+
+SPRT_DAT font_sprt[20] = {
+    {
+        .tex0 = 2307304836316669836,
+        .u = 0,
+        .v = 0,
+        .w = 128,
+        .h = 48,
+        .x = 206,
+        .y = 287,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 128,
+        .v = 0,
+        .w = 128,
+        .h = 48,
+        .x = 257,
+        .y = 357,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 256,
+        .v = 0,
+        .w = 128,
+        .h = 48,
+        .x = 257,
+        .y = 357,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 384,
+        .v = 0,
+        .w = 128,
+        .h = 48,
+        .x = 196,
+        .y = 287,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 384,
+        .v = 0,
+        .w = 128,
+        .h = 48,
+        .x = 303,
+        .y = 287,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 384,
+        .v = 0,
+        .w = 128,
+        .h = 48,
+        .x = 306,
+        .y = 287,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 0,
+        .v = 48,
+        .w = 144,
+        .h = 48,
+        .x = 299,
+        .y = 287,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 144,
+        .v = 48,
+        .w = 144,
+        .h = 48,
+        .x = 244,
+        .y = 287,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 288,
+        .v = 48,
+        .w = 144,
+        .h = 48,
+        .x = 217,
+        .y = 287,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 0,
+        .v = 96,
+        .w = 160,
+        .h = 48,
+        .x = 240,
+        .y = 287,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 160,
+        .v = 96,
+        .w = 160,
+        .h = 48,
+        .x = 241,
+        .y = 357,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 360,
+        .v = 96,
+        .w = 40,
+        .h = 48,
+        .x = 218,
+        .y = 358,
+        .pri = 36864,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 360,
+        .v = 96,
+        .w = 40,
+        .h = 48,
+        .x = 385,
+        .y = 358,
+        .pri = 36864,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 320,
+        .v = 96,
+        .w = 40,
+        .h = 48,
+        .x = 234,
+        .y = 358,
+        .pri = 28672,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 320,
+        .v = 96,
+        .w = 40,
+        .h = 48,
+        .x = 368,
+        .y = 358,
+        .pri = 28672,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 0,
+        .v = 144,
+        .w = 240,
+        .h = 48,
+        .x = 200,
+        .y = 321,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 240,
+        .v = 144,
+        .w = 240,
+        .h = 48,
+        .x = 200,
+        .y = 287,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307304836316669836,
+        .u = 0,
+        .v = 192,
+        .w = 458,
+        .h = 64,
+        .x = 91,
+        .y = 315,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307314180957448592,
+        .u = 1,
+        .v = 1,
+        .w = 126,
+        .h = 48,
+        .x = 33,
+        .y = 23,
+        .pri = 20480,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307314180957448592,
+        .u = 1,
+        .v = 51,
+        .w = 10,
+        .h = 48,
+        .x = 159,
+        .y = 23,
+        .pri = 20480,
+        .alpha = 128,
+    },
+};
+
+
+SPRT_DAT title_sprt[11] = {
+    {
+        .tex0 = 2307144857374827264,
+        .u = 0,
+        .v = 0,
+        .w = 512,
+        .h = 256,
+        .x = 0,
+        .y = 0,
+        .pri = 40960,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307154202015606020,
+        .u = 0,
+        .v = 0,
+        .w = 128,
+        .h = 128,
+        .x = 512,
+        .y = 0,
+        .pri = 40960,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307163547864442184,
+        .u = 0,
+        .v = 0,
+        .w = 128,
+        .h = 128,
+        .x = 512,
+        .y = 128,
+        .pri = 40960,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307181689873442188,
+        .u = 0,
+        .v = 0,
+        .w = 256,
+        .h = 128,
+        .x = 0,
+        .y = 256,
+        .pri = 40960,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307199831815300624,
+        .u = 0,
+        .v = 0,
+        .w = 256,
+        .h = 128,
+        .x = 256,
+        .y = 256,
+        .pri = 40960,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307209177596995220,
+        .u = 0,
+        .v = 0,
+        .w = 128,
+        .h = 128,
+        .x = 512,
+        .y = 256,
+        .pri = 40960,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307214124325578456,
+        .u = 0,
+        .v = 0,
+        .w = 128,
+        .h = 64,
+        .x = 0,
+        .y = 384,
+        .pri = 40960,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307219072127903484,
+        .u = 0,
+        .v = 0,
+        .w = 128,
+        .h = 64,
+        .x = 128,
+        .y = 384,
+        .pri = 40960,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307224019930228512,
+        .u = 0,
+        .v = 0,
+        .w = 128,
+        .h = 64,
+        .x = 256,
+        .y = 384,
+        .pri = 40960,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307228967732553540,
+        .u = 0,
+        .v = 0,
+        .w = 128,
+        .h = 64,
+        .x = 384,
+        .y = 384,
+        .pri = 40960,
+        .alpha = 128,
+    },
+    {
+        .tex0 = 2307233915534878568,
+        .u = 0,
+        .v = 0,
+        .w = 128,
+        .h = 64,
+        .x = 512,
+        .y = 384,
+        .pri = 40960,
+        .alpha = 128,
+    },
+};
+
+
+
+/* 00212ca8 00001218 */ void TitleCtrl()
 {
+	/* sbss 357bc8 */ static u_int mc_pnum1;
+	/* sbss 357bcc */ static u_int mc_pnum2;
+	/* sbss 357bd0 */ static u_int mc_atyp1;
+	/* sbss 357bd4 */ static u_int mc_atyp2;
+	/* sbss 357bd8 */ static u_int mc_slot1;
+	/* sbss 357bdc */ static u_int mc_slot2;
+	/* sbss 357be0 */ static u_int mc_file1;
+	/* sbss 357be4 */ static u_int mc_file2;
+	/* sdata 3576a4 */static int title_cnt;
+
+    switch(title_wrk.mode)
+    {
+    case TITLE_INIT:
+        ttl_dsp = (TTL_DSP_WRK){0};
+
+        title_wrk.load_id = LoadReq(TITLE_PK2, &SPRITE_ADDRESS);
+
+        InitOutDither();
+        MakeOutDither();
+
+        title_wrk.mode = TITLE_WAIT;
+    break;
+
+    case TITLE_WAIT:
+        if (IsLoadEnd(title_wrk.load_id) == 0)
+        {
+            break;
+        }
+
+        SeStopAll();
+
+        title_wrk.csr = 0;
+        ttl_dsp.timer = 0;
+        title_wrk.mode = TITLE_TITLE_WAIT;
+        title_cnt = 0;
+    case TITLE_TITLE_WAIT:
+        title_wrk.mode = TITLE_TITLE_WAIT2;
+
+        EAdpcmFadeOut(0x3c);
+    case TITLE_TITLE_WAIT2:
+        SetSprFile(SPRITE_ADDRESS);
+
+        TitleWaitMode();
+        DispOutDither();
+
+        if (IsEndAdpcmFadeOut() != 0)
+        {
+            EAdpcmCmdPlay(0, 1, AO000_TITLE_STR, 0, GetAdpcmVol(AO000_TITLE_STR), 0x280, 0xfff, 0);
+
+            title_wrk.mode = TITLE_TITLE;
+            ttl_dsp.timer = 0;
+        }
+    break;
+    case TITLE_TITLE:
+        title_cnt++;
+
+        SetSprFile(SPRITE_ADDRESS);
+        TitleWaitMode();
+        DispOutDither();
+
+        if (title_cnt >= 60*46 && title_wrk.mode != TITLE_TITLE_SEL_INIT)
+        {
+            title_wrk.mode = TITLE_MOVIE_STEP1;
+            EAdpcmFadeOut(0x3c);
+        }
+    break;
+    case TITLE_MOVIE_STEP1:
+        if (IsEndAdpcmFadeOut() != 0)
+        {
+            title_cnt = 60*3;
+            title_wrk.mode = TITLE_MOVIE_STEP2;
+        }
+    break;
+    case TITLE_MOVIE_STEP2:
+        if (title_cnt != 0)
+        {
+            if (--title_cnt != 0)
+            {
+                break;
+            }
+        }
+
+        if (opening_movie_type != 0)
+        {
+            MoviePlay(SCENE_NO_9_20_0);
+        }
+        else
+        {
+            MoviePlay(SCENE_NO_9_10_0);
+        }
+
+        opening_movie_type = opening_movie_type == 0;
+        title_wrk.mode = TITLE_INIT;
+    break;
+    case TITLE_INIT_FROM_IN_BGMREQ:
+        if (IsEndAdpcmFadeOut() != 0)
+        {
+            EAdpcmCmdPlay(0, 1, AO000_TITLE_STR, 0, GetAdpcmVol(AO000_TITLE_STR), 0x280, 0xfff, 0);
+
+            title_wrk.mode = TITLE_INIT_FROM_IN;
+        }
+    break;
+    case TITLE_INIT_FROM_IN:
+        title_wrk.load_id = LoadReq(TITLE_PK2, &SPRITE_ADDRESS);
+
+        title_wrk.mode = TITLE_WAIT_FROM_IN;
+    break;
+    case TITLE_WAIT_FROM_IN:
+        if (IsLoadEnd(title_wrk.load_id) == 0)
+        {
+            break;
+        }
+
+        SeStopAll();
+
+        title_wrk.csr = 0;
+        title_wrk.mode = TITLE_TITLE_SEL;
+    case TITLE_TITLE_SEL_BGMREQ:
+        if (IsEndAdpcmFadeOut() != 0)
+        {
+            EAdpcmCmdPlay(0, 1, AO000_TITLE_STR, 0, GetAdpcmVol(AO000_TITLE_STR), 0x280, 0xfff, 0);
+
+            title_wrk.mode = TITLE_TITLE_SEL_INIT;
+        }
+    break;
+    case TITLE_TITLE_SEL_INIT:
+        title_wrk.csr = 1;
+        title_wrk.mode = TITLE_TITLE_SEL;
+    case TITLE_TITLE_SEL:
+        SetSprFile(SPRITE_ADDRESS);
+
+        if (ttl_dsp.mode != 0)
+        {
+            TitleStartSlctYW(0, 0x80);
+        }
+        else
+        {
+            SetFTIM2File(TIM2_ADDRESS);
+            TitleStartSlct();
+        }
+
+        DispOutDither();
+    break;
+    case TITLE_LOAD_PRE:
+        if (IsLoadEnd(title_wrk.load_id) != 0)
+        {
+            sys_wrk.load = 1;
+            title_wrk.mode = TITLE_MEMCA_LOAD_WAIT;
+            title_wrk.sub_mode = 0;
+        }
+    break;
+    case TITLE_MEMCA_LOAD_WAIT:
+        if (IsEndAdpcmFadeOut() != 0)
+        {
+            EAdpcmCmdPlay(0, 1, AB018_STR, 0, GetAdpcmVol(AB018_STR), 0x280, 0xfff, 0);
+
+            title_wrk.mode = TITLE_MEMCA_LOAD;
+        }
+    break;
+    case TITLE_MEMCA_LOAD:
+        if (title_wrk.sub_mode == 0)
+        {
+            mcInit(1, (u_int *)MC_WORK_ADDRESS, 0);
+            title_wrk.sub_mode = 7;
+        }
+
+        SetSprFile(SPRITE_ADDR_4);
+        SetSprFile(SPRITE_ADDR_2);
+        SetSprFile(SPRITE_ADDR_3);
+
+        switch (McAtLoadChk(1))
+        {
+            case 0:
+                // do nothing ...
+            break;
+            case 1:
+                ingame_wrk.stts &= (0x80 | 0x40 | 0x10 | 0x8 | 0x4 | 0x2 | 0x1);
+
+                InitialDmaBuffer();
+
+                if (ingame_wrk.clear_count != 0)
+                {
+                    ModeSlctInit(0, 0);
+
+                    OutGameModeChange(OUTGAME_MODE_MODESEL);
+                }
+                else
+                {
+                    EAdpcmFadeOut(0x3c);
+
+                    LoadGameInit();
+
+                    ingame_wrk.game = 0;
+
+                    GameModeChange(GAME_MODE_INIT);
+                }
+            break;
+            case 2:
+                EAdpcmFadeOut(0x3c);
+
+                title_wrk.mode = TITLE_TITLE_SEL_BGMREQ;
+
+                ingame_wrk.stts &= (0x80 | 0x40 | 0x10 | 0x8 | 0x4 | 0x2 | 0x1);
+
+                InitialDmaBuffer();
+            break;
+        }
+    break;
+    case TITLE_MODE_SEL_BGMREQ:
+        if (IsEndAdpcmFadeOut() != 0)
+        {
+            EAdpcmCmdPlay(0, 1, AO000_TITLE_STR, 0, GetAdpcmVol(AO000_TITLE_STR), 0x280, 0xfff, 0);
+
+            title_wrk.mode = TITLE_MODE_SEL;
+        }
+    break;
+    case TITLE_MODE_SEL:
+        SetSprFile(SPRITE_ADDRESS);
+
+        if (ttl_dsp.mode != 0)
+        {
+            TitleSelectModeYW(0, 0x80);
+        }
+        else
+        {
+            SetFTIM2File(TIM2_ADDRESS);
+            TitleSelectMode();
+        }
+
+        DispOutDither();
+    break;
+    case TITLE_DIFF_SEL:
+        TitleSelectDifficultyYW();
+    break;
+    case TITLE_ALBM_LOAD_PRE:
+        if (IsLoadEnd(title_wrk.load_id) != 0)
+        {
+            sys_wrk.load = 1;
+
+            mc_pnum2 = mc_pnum1 = 0xff;
+            mc_atyp2 = mc_atyp1 = 0xff;
+            mc_slot2 = mc_slot1 = 0xff;
+            mc_file2 = mc_file1 = 0xff;
+
+            mcInit(5, (u_int *)MC_WORK_ADDRESS, 0);
+
+            title_wrk.mode = TITLE_ALBM_LOAD0;
+        }
+    break;
+    case TITLE_ALBM_LOAD0:
+        if (IsEndAdpcmFadeOut() != 0)
+        {
+            EAdpcmCmdPlay(0, 1, AB018_STR, 0, GetAdpcmVol(AB018_STR), 0x280, 0xfff, 0);
+
+            title_wrk.mode = TITLE_ALBM_LOAD1;
+        }
+    break;
+    case TITLE_ALBM_LOAD1:
+        SetSprFile(SPRITE_ADDR_4);
+        SetSprFile(SPRITE_ADDR_2);
+        SetSprFile(SPRITE_ADDR_3);
+
+        switch (McAtLoadChk(2))
+        {
+        case 0:
+            // do nothing ...
+        break;
+        case 1:
+            //album_save_dat[0] = mc_album_save;
+            mc_pnum1 = mc_photo_num;
+            //mc_atyp1 = mc_album_type;
+            mc_slot1 = mc_ctrl.port + 1;
+            mc_file1 = mc_ctrl.sel_file + 1;
+
+            memcpy((void *)0xE80000, (void *)0x5a0000, 0x180000);
+
+            mcInit(6, (u_int *)MC_WORK_ADDRESS, 0);
+
+            title_wrk.mode = TITLE_ALBM_LOAD2;
+        break;
+        case 3:
+            printf("ここに来るわけがない！\n");
+        break;
+        case 2:
+            EAdpcmFadeOut(0x3c);
+
+            title_wrk.mode = TITLE_TITLE_SEL_BGMREQ;
+        break;
+        }
+    break;
+    case TITLE_ALBM_LOAD2:
+        SetSprFile(SPRITE_ADDR_2);
+        SetSprFile(SPRITE_ADDR_3);
+
+        switch (McAtLoadChk(2))
+        {
+        case 0:
+            // do nothing ...
+        break;
+        case 1:
+            //album_save_dat[1] = mc_album_save;
+
+            mc_pnum2 = mc_photo_num;
+            //mc_atyp2 = mc_album_type;
+            mc_slot2 = mc_ctrl.port + 1;
+            //mc_file2 = mc_ctrl.sel_file + 1;
+
+            memcpy((void *)0x1000000, (void *)0x5a0000, 0x180000);
+
+            MemAlbmInit(1, mc_pnum1, mc_pnum2, mc_atyp1, mc_atyp2, mc_slot1, mc_slot2, mc_file1, mc_file2 & 0xff);
+
+            title_wrk.load_id = LoadReq(PL_ALBM_FSM_PK2, SPRITE_ADDR_1);
+            title_wrk.load_id = LoadReq(PL_ALBM_PK2, SPRITE_ADDR_2);
+            title_wrk.load_id = AlbmDesignLoad(0, mc_atyp1);
+            title_wrk.load_id = AlbmDesignLoad(1, mc_atyp2);
+
+            title_wrk.mode = TITLE_ALBM_MAIN_PRE;
+        break;
+        case 3:
+            mc_pnum2 = 0;
+            mc_atyp2 = 5;
+            mc_slot2 = 0;
+            //mc_file2 = 0;
+
+            memcpy((void *)0x1000000, (void *)0x5a0000, 0x180000);
+
+            //MemAlbmInit(1, mc_pnum1, mc_pnum2, mc_atyp1, mc_atyp2, mc_slot1, mc_slot2, mc_file1, mc_file2 & 0xff);
+            NewAlbumInit(1);
+
+            title_wrk.load_id = LoadReq(PL_ALBM_FSM_PK2, SPRITE_ADDR_1);
+            title_wrk.load_id = LoadReq(PL_ALBM_PK2, SPRITE_ADDR_2);
+            title_wrk.load_id = AlbmDesignLoad(0, mc_atyp1);
+            title_wrk.load_id = AlbmDesignLoad(1, mc_atyp2);
+
+            title_wrk.mode = TITLE_ALBM_MAIN_PRE;
+        break;
+        case 2:
+            EAdpcmFadeOut(0x3c);
+
+            title_wrk.mode = TITLE_TITLE_SEL_BGMREQ;
+        break;
+        }
+    break;
+    case TITLE_ALBM_MAIN_PRE:
+        if (IsLoadEnd(title_wrk.load_id) != 0)
+        {
+            title_wrk.mode = TITLE_ALBM_MAIN;
+        }
+    break;
+    case TITLE_ALBM_MAIN:
+        SetSprFile(SPRITE_ADDR_1);
+        SetSprFile(SPRITE_ADDR_2);
+
+        switch(SweetMemories(1, 0x80))
+        {
+        case 0:
+            // do nothing ...
+        break;
+        case 1:
+            memcpy((void *)0x5a0000, (void *)0xe80000, 0x180000);
+
+            mcInit(2, (u_int *)MC_WORK_ADDRESS, 0);
+
+            title_wrk.load_side = 0;
+
+            title_wrk.load_id = LoadReq(PL_PSVP_PK2, SPRITE_ADDR_4);
+            title_wrk.load_id = LoadReq(PL_SAVE_PK2, SPRITE_ADDR_2);
+            title_wrk.load_id = LoadReq(PL_ALBM_SAVE_PK2, SPRITE_ADDR_3);
+
+            title_wrk.mode = TITLE_ALBM_SAVE_PRE;
+        break;
+        case 2:
+            memcpy((void *)0x5a0000, (void *)0x1000000, 0x180000);
+
+            mcInit(2, (u_int *)MC_WORK_ADDRESS, 0);
+
+            title_wrk.load_side = 1;
+
+            title_wrk.load_id = LoadReq(PL_PSVP_PK2, SPRITE_ADDR_4);
+            title_wrk.load_id = LoadReq(PL_SAVE_PK2, SPRITE_ADDR_2);
+            title_wrk.load_id = LoadReq(PL_ALBM_SAVE_PK2, SPRITE_ADDR_3);
+
+            title_wrk.mode = TITLE_ALBM_SAVE_PRE;
+        break;
+        case 3:
+            title_wrk.load_id = LoadReq(PL_PSVP_PK2, SPRITE_ADDR_4);
+            title_wrk.load_id = LoadReq(PL_SAVE_PK2, SPRITE_ADDR_2);
+            title_wrk.load_id = LoadReq(PL_ALBM_SAVE_PK2, SPRITE_ADDR_3);
+
+            title_wrk.load_side = 0;
+
+            mcInit(5, (u_int *)MC_WORK_ADDRESS, 0);
+
+            title_wrk.mode = TITLE_ALBM_LOAD_MODE_PRE;
+        break;
+        case 4:
+            title_wrk.load_id = LoadReq(PL_PSVP_PK2, SPRITE_ADDR_4);
+            title_wrk.load_id = LoadReq(PL_SAVE_PK2, SPRITE_ADDR_2);
+            title_wrk.load_id = LoadReq(PL_ALBM_SAVE_PK2, SPRITE_ADDR_3);
+
+            title_wrk.load_side = 1;
+
+            mcInit(5, (u_int *)MC_WORK_ADDRESS, 0);
+
+            title_wrk.mode = TITLE_ALBM_LOAD_MODE_PRE;
+        break;
+        case 5:
+            EAdpcmFadeOut(0x3c);
+
+            title_wrk.mode = TITLE_TITLE_SEL_BGMREQ;
+            title_wrk.csr = 0;
+
+            ingame_wrk.stts &= (0x80 | 0x40 | 0x10 | 0x8 | 0x4 | 0x2 | 0x1);
+
+            InitialDmaBuffer();
+        break;
+        }
+    break;
+    case TITLE_ALBM_LOAD_MODE_PRE:
+        if (IsLoadEnd(title_wrk.load_id) != 0)
+        {
+            title_wrk.mode = TITLE_ALBM_LOAD_MODE;
+        }
+    break;
+    case TITLE_ALBM_LOAD_MODE:
+        SetSprFile(SPRITE_ADDR_4);
+        SetSprFile(SPRITE_ADDR_2);
+        SetSprFile(SPRITE_ADDR_3);
+
+        switch (McAtLoadChk(2))
+        {
+        case 0:
+            // do nothing ...
+        break;
+        case 3:
+        case 1:
+            if (title_wrk.load_side == 0)
+            {
+                memcpy((void *)0xe80000, (void *)0x5a0000, 0x180000);
+
+                mc_pnum1 = mc_photo_num;
+                //mc_atyp1 = mc_album_type;
+                mc_slot1 = mc_ctrl.port + 1;
+                mc_file1 = mc_ctrl.sel_file + 1;
+
+                //album_save_dat[0] = mc_album_save;
+
+                MemAlbmInit2(0, mc_pnum1, mc_atyp1, mc_slot1, mc_file1);
+            }
+            else
+            {
+                memcpy((void *)0x1000000, (void *)0x5a0000, 0x180000);
+
+                mc_pnum2 = mc_photo_num;
+                //mc_atyp2 = mc_album_type;
+                mc_slot2 = mc_ctrl.port + 1;
+                //mc_file2 = mc_ctrl.sel_file + 1;
+
+                //album_save_dat[1] = mc_album_save;
+
+                //MemAlbmInit2(1, mc_pnum2, mc_atyp2, mc_slot2, mc_file2);
+            }
+
+            title_wrk.load_id = AlbmDesignLoad(0, mc_atyp1);
+            title_wrk.load_id = AlbmDesignLoad(1, mc_atyp2);
+            title_wrk.load_id = LoadReq(PL_ALBM_PK2, SPRITE_ADDR_2);
+
+            title_wrk.mode = TITLE_ALBM_MAIN_PRE;
+        break;
+        case 2:
+            MemAlbmInit3();
+            AlbmDesignLoad(0, mc_atyp1);
+            AlbmDesignLoad(1, mc_atyp2);
+
+            title_wrk.load_id = LoadReq(PL_ALBM_PK2, SPRITE_ADDR_2);
+
+            title_wrk.mode = TITLE_ALBM_MAIN_PRE;
+        break;
+        }
+    break;
+    case TITLE_ALBM_SAVE_PRE:
+        if (IsLoadEnd(title_wrk.load_id) != 0)
+        {
+            title_wrk.mode = TITLE_ALBM_SAVE;
+        }
+    break;
+    case TITLE_ALBM_SAVE:
+        SetSprFile(SPRITE_ADDR_4);
+        SetSprFile(SPRITE_ADDR_2);
+        SetSprFile(SPRITE_ADDR_3);
+
+        switch (McAtAlbmChk())
+        {
+        case 0:
+            // do nothing ...
+        break;
+        case 1:
+            if (title_wrk.load_side == 0)
+            {
+                mc_pnum1 = mc_photo_num;
+                //mc_atyp1 = mc_album_type;
+                mc_slot1 = mc_ctrl.port + 1;
+                mc_file1 = mc_ctrl.sel_file + 1;
+
+                MemAlbmInit2(0, mc_pnum1, mc_atyp1, mc_slot1, mc_file1);
+            }
+            else
+            {
+                mc_pnum2 = mc_photo_num;
+                //mc_atyp2 = mc_album_type;
+                mc_slot2 = mc_ctrl.port + 1;
+                //mc_file2 = mc_ctrl.sel_file + 1;
+
+                //MemAlbmInit2(1, mc_pnum2, mc_atyp2, mc_slot2, mc_file2);
+            }
+
+            AlbmDesignLoad(0, mc_atyp1);
+            AlbmDesignLoad(1, mc_atyp2);
+
+            title_wrk.load_id = LoadReq(PL_ALBM_PK2, SPRITE_ADDR_2);
+
+            title_wrk.mode = TITLE_ALBM_MAIN_PRE;
+        break;
+        case 2:
+            MemAlbmInit3();
+
+            AlbmDesignLoad(0, mc_atyp1);
+            AlbmDesignLoad(1, mc_atyp2);
+
+            title_wrk.load_id = LoadReq(PL_ALBM_PK2, SPRITE_ADDR_2);
+
+            title_wrk.mode = TITLE_ALBM_MAIN_PRE;
+        break;
+        }
+    break;
+    case TITLE_MODE_SELECT:
+        ModeSlctLoop();
+    break;
+    }
+
+    if (ttl_dsp.timer < 60*2)
+    {
+        ttl_dsp.timer++;
+    }
+    else
+    {
+        ttl_dsp.timer = 0;
+    }
 }
 
 void TitleWaitMode()
 {
+    /* s0 16 */ int i;
+    /* f20 58 */ float alp;
+    /* 0x0(sp) */ DISP_SPRT ds;
+    int f;
+
+    for (i = 0; i < 11; i++)
+    {
+        CopySprDToSpr(&ds, &title_sprt[i]);
+        DispSprD(&ds);
+    }
+
+    if (title_wrk.mode == TITLE_TITLE_WAIT)
+    {
+        return;
+    }
+
+    f = ttl_dsp.timer % 120;
+    alp = (SgSinf(f / 120.0f * (3.1415927f * 2)) + 1.0f) * 64.0f;
+
+    CopySprDToSpr(&ds, &font_sprt[17]);
+
+    ds.alphar = SCE_GS_SET_ALPHA_1(SCE_GS_ALPHA_CS, SCE_GS_ALPHA_ZERO, SCE_GS_ALPHA_AS, SCE_GS_ALPHA_CD, 0);
+    ds.alpha = alp;
+    ds.tex1 = SCE_GS_SET_TEX1_1(1, 0, SCE_GS_LINEAR, SCE_GS_LINEAR_MIPMAP_LINEAR, 0, 0, 0);
+
+    DispSprD(&ds);
+
+    ttl_dsp.mode = 0;
+
+    if (*key_now[5] == 1 || *key_now[12] == 1)
+    {
+        ttl_dsp.mode = 1;
+
+        title_wrk.mode = TITLE_TITLE_SEL_INIT;
+        title_wrk.csr = 0;
+
+        SeStartFix(1, 0, 0x1000, 0x1000, 0);
+    }
 }
 
 void TitleStartSlct()
@@ -54,4 +1015,141 @@ void MakeOutDither()
 
 void DispOutDither()
 {
+    	/* 0x0(sp) */ SPRITE_DATA sd2 = {
+        .g_GsTex0 = {
+              .TBP0 = 0x37FC,
+              .TBW = 0x2,
+              .PSM = 0x13,
+              .TW = 0x7,
+              .TH = 0x7,
+              .TCC = 0x1,
+              .TFX = 0x0,
+              .CBP = 0x383C,
+              .CPSM = 0x0,
+              .CSM = 0x0,
+              .CSA = 0x0,
+              .CLD = 0x1,
+        },
+           .g_nTexSizeW = 0x80,
+           .g_nTexSizeH = 0x80,
+           .g_bMipmapLv = 0,
+           .g_GsMiptbp1 = 0,
+           .g_GsMiptbp2 = 0,
+           .pos_x = -320.5f,
+           .pos_y = -224.5f,
+           .pos_z = 0xFFFFF000,
+           .size_w = 640.0f,
+           .size_h = 448.0f,
+           .scale_w = 1.0f,
+           .scale_h = 1.0f,
+           .clamp_u = 0,
+           .clamp_v = 0,
+           .rot_center = 0,
+           .angle = 0.0f,
+           .r = 0x80,
+           .g = 0x80,
+           .b = 0x80,
+           .alpha = 0x80,
+           .mask = 0x0,
+    };
+	/* 0x60(sp) */ DRAW_ENV de2 = {
+        .tex1 = SCE_GS_SET_TEX1_1(1, 0, SCE_GS_LINEAR, SCE_GS_LINEAR_MIPMAP_LINEAR, 0, 0, 0),
+        .alpha = SCE_GS_SET_ALPHA_1(SCE_GS_ALPHA_CS, SCE_GS_ALPHA_CD, SCE_GS_ALPHA_AS, SCE_GS_ALPHA_CD, 0),
+        .zbuf = SCE_GS_SET_ZBUF_1(0x8c, SCE_GS_PSMCT24, 1),
+        .test = SCE_GS_SET_TEST_1(1, SCE_GS_ALPHA_GEQUAL, 0, SCE_GS_AFAIL_KEEP, 0, 0, 1, SCE_GS_DEPTH_GREATER),
+        .clamp = SCE_GS_SET_CLAMP_1(SCE_GS_REPEAT, SCE_GS_REPEAT, 0, 0, 0, 0),
+        .prim = SCE_GIF_SET_TAG(1, SCE_GS_TRUE, SCE_GS_TRUE, SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 1, 0, 1, 0, 1, 0, 0), SCE_GIF_PACKED, 5)
+    };
+
+    switch(out_dither.type)
+    {
+    case 1:
+        de2.alpha = 0x44;
+    break;
+    case 2:
+        de2.alpha = 0x48;
+    break;
+    case 3:
+        de2.alpha = 0x41;
+    break;
+    case 4:
+        sd2.r = 0x80;
+        sd2.g = 0x0;
+        sd2.b = 0x80;
+        de2.alpha = 0x41;
+    break;
+    case 5:
+        sd2.r = 0x80;
+        sd2.g = 0x80;
+        sd2.b = 0x0;
+        de2.alpha = 0x41;
+    break;
+    case 6:
+        de2.alpha = 0x49;
+    break;
+    case 7:
+        de2.alpha = 0x42;
+    break;
+    }
+
+    sd2.clamp_u = SCE_GS_SET_CLAMP_1(SCE_GS_REPEAT, SCE_GS_REPEAT, 0, 0, 40, 0);
+    sd2.clamp_v = SCE_GS_SET_CLAMP_1(SCE_GS_REPEAT, SCE_GS_REPEAT, 0, 0, 32, 0);
+    sd2.alpha = (SgSinf(DEG2RAD(out_dither.cnt)) + 1.0f) * out_dither.alp;
+    SetTexDirectS2(-2, &sd2, &de2, 0);
+
+    sd2.clamp_u = SCE_GS_SET_CLAMP_1(SCE_GS_REPEAT, SCE_GS_REPEAT, 64, 0, 44, 0);
+    sd2.clamp_v = SCE_GS_SET_CLAMP_1(SCE_GS_REPEAT, SCE_GS_REPEAT, 0, 0, 32, 0);
+    sd2.alpha = (SgSinf(DEG2RAD(out_dither.cnt + 120.0f)) + 1.0f) * out_dither.alp;
+    SetTexDirectS2(-2, &sd2, &de2, 0);
+
+    sd2.clamp_u = SCE_GS_SET_CLAMP_1(SCE_GS_REPEAT, SCE_GS_REPEAT, 0, 0, 40, 0);
+    sd2.clamp_v = SCE_GS_SET_CLAMP_1(SCE_GS_REPEAT, SCE_GS_REPEAT, 64, 0, 36, 0);
+    sd2.alpha = (SgSinf(DEG2RAD(out_dither.cnt + 240.0f)) + 1.0f) * out_dither.alp;
+    SetTexDirectS2(-2, &sd2, &de2, 0);
+
+    out_dither.cnt += 8.0f;
+    out_dither.spd = 8.0f;
+}
+
+int AlbmDesignLoad(u_char side, u_char type)
+{
+    /* a2 6 */ u_int addr;
+    /* v0 2 */ int load_id;
+
+    if (side == 0)
+    {
+        addr = 0x1d88100;
+    }
+
+    else if (side == 1)
+    {
+        addr = 0x1dc8570;
+    }
+
+    switch(type)
+    {
+        case 0:
+            load_id = LoadReq(PL_ALBM_BW_PK2, addr);
+            break;
+        case 1:
+            load_id = LoadReq(PL_ALBM_BP_PK2, addr);
+            break;
+        case 2:
+            load_id = LoadReq(PL_ALBM_BR_PK2, addr);
+            break;
+        case 3:
+            load_id = LoadReq(PL_ALBM_BG_PK2, addr);
+            break;
+        case 4:
+            load_id = LoadReq(PL_ALBM_BB_PK2, addr);
+            break;
+        case 5:
+            load_id = LoadReq(PL_ALBM_BO_PK2, addr);
+            break;
+        default:
+            load_id = -1;
+            break;
+    }
+
+    return load_id;
 }

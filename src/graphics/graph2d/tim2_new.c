@@ -764,7 +764,9 @@ void DrawAll2DMes_P2()
     int mch;
     int mpk;
 
-    DrawPerformanceCounter();
+    ndpkt = 0;
+    return;
+    //DrawPerformanceCounter();
 
     if (ndpri > 0)
     {

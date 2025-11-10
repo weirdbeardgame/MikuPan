@@ -5,6 +5,7 @@
 #include "graphics/graph2d/tim2.h"
 
 // extern u_int *tm2_end_pkt;
+extern Q_WORDDATA mpbufw[2][8192];
 
 u_int* MakeTim2Direct2(u_int *pkt_addr, u_int *tim2_addr, int tbp);
 u_int* MakeClutDirect2(u_int *pkt_addr, u_int *tim2_addr, int cbp);
