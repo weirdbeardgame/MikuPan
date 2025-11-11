@@ -26,6 +26,7 @@ void sceGsSetHalfOffset(sceGsDrawEnv1* draw, short centerx, short centery, short
 
 int sceGsSyncV(int mode)
 {
+    return 1;
 }
 
 int sceGsSwapDBuff(sceGsDBuff* db, int id)

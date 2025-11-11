@@ -1,0 +1,6 @@
+#ifndef MIKUPAN_IMGUI_WINDOW_C_H
+#define MIKUPAN_IMGUI_WINDOW_C_H
+
+float GetFrameRate();
+
+#endif //MIKUPAN_IMGUI_WINDOW_C_H

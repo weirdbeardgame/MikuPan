@@ -2,6 +2,7 @@
 
 #include "SDL3/SDL_init.h"
 #include "SDL3/SDL_log.h"
+#include "gs/texture_manager_c.h"
 
 #define PS2_RESOLUTION_X_FLOAT 640.0f
 #define PS2_RESOLUTION_X_INT 640
@@ -54,13 +55,25 @@ void SDL_Render2DTexture(DISP_SPRT* sprite, unsigned char* image)
     int texture_width = 1<<tex0.TW;
     int texture_height = 1<<tex0.TH;
 
-    SDL_Surface *surface = SDL_CreateSurfaceFrom(
+    if (!IsFirstUploadDone())
+    {
+        return;
+    }
+
+    SDL_Texture* texture = (SDL_Texture*)GetSDLTexture(tex0.TBP0);
+
+    if (texture == NULL)
+    {
+        SDL_Surface *surface = SDL_CreateSurfaceFrom(
         texture_width, texture_height,
-        SDL_PIXELFORMAT_RGBA8888, image,
+        SDL_PIXELFORMAT_ABGR8888, image,
         texture_width * 4);
 
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_DestroySurface(surface);
+        texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_DestroySurface(surface);
+
+        AddSDLTexture(tex0.TBP0, (void*)texture);
+    }
 
     SDL_FRect dst_rect;
     SDL_FRect src_rect;

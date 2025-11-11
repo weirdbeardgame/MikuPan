@@ -189,6 +189,8 @@ void GsUpload(sceGsLoadImage* image_load, unsigned char* image)
 {
     spdlog::info("GS upload request for DBP {:#x} DPSM {} ", (unsigned long long)image_load->bitbltbuf.DBP, (unsigned long long)image_load->bitbltbuf.DPSM);
 
+    FirstUploadDone();
+
     switch ((PixelStorageFormat)image_load->bitbltbuf.DPSM)
     {
         case PSMCT32:
@@ -226,6 +228,11 @@ void GsUpload(sceGsLoadImage* image_load, unsigned char* image)
 
 unsigned char* DownloadGsTexture(sceGsTex0* tex0)
 {
+    if (!IsFirstUploadDone())
+    {
+        return nullptr;
+    }
+
     std::vector<uint8_t> img;
     int width = (1<<tex0->TW);
     int height = (1<<tex0->TH);

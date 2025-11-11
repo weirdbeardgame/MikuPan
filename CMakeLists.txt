@@ -204,7 +204,8 @@ set(MIKUPAN_SOURCES "src/common/file_loading.cpp"
         src/gs/texture_manager.cpp
         src/gs/texture_manager.h
         src/gs/gs_server_c.h
-        src/gs/texture_manager_c.h)
+        src/gs/texture_manager_c.h
+        src/graphics/ui/imgui_window_c.h)
 
 add_executable(MikuPan ${MIKUPAN_SOURCES})
 

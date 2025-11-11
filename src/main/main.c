@@ -31,6 +31,7 @@ int sceGsSyncPath(int mode, u_short timeout);
 #include <SDL3/SDL_main.h>
 
 /// CPP Extern Functions ///
+#include "graphics/ui/imgui_window_c.h"
 void InitImGuiWindow(SDL_Window *window, SDL_Renderer *renderer);
 void ShutDownImGuiWindow();
 void RenderImGuiWindow(SDL_Renderer *renderer);
@@ -38,7 +39,6 @@ void DrawImGuiWindow();
 void NewFrameImGuiWindow();
 void ProcessEventImGui(SDL_Event *event);
 /// CPP Extern Functions ///
-
 
 const int TARGET_FPS = 60;
 const double TARGET_FRAME_TIME = 1000.0 / TARGET_FPS; // milliseconds per frame
@@ -81,12 +81,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         {
             EiMain();
             GameMain();
-
             CheckDMATrans();
             sceGsSyncPath(0, 0);
             vfunc();
             DrawAll2DMes_P2();
-
             //FlushModel(1);
             //ClearTextureCache();
             //SeCtrlMain();
@@ -96,6 +94,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     {
         InitGameFirst();
     }
+
+    gra2dDrawDbgMenu();
+    SetString2(0x10, 0.0f, 420.0f, 1, 0x80, 0x80, 0x80, "FPS %d", (int)GetFrameRate());
 
     DrawImGuiWindow();
     RenderImGuiWindow(renderer);
@@ -136,36 +137,36 @@ void CallSoftReset()
     int lcount;
 
     lcount = 0;
-    
+
     SeStopAll();
     InitSe();
     SetIopCmdSm(1, 0, 0, 0);
     EAdpcmCmdStop(0, 0, 0);
-    
+
     sys_wrk.reset = 0;
-    
+
     SetSysBackColor(0, 0, 0);
-    
+
     scene_bg_color = 0;
-    
+
     while (1)
     {
         EiMain();
-        
+
         if (EAGetRetStat() == 1 || EAGetRetStat() == 2)
         {
             EAdpcmCmdInit(1);
             break;
         }
-        
+
         lcount++;
-        
+
         if (lcount > 30)
         {
             EAdpcmCmdStop(0, 0, 0);
             lcount = 0;
         }
-        
+
         vfunc();
     }
 }

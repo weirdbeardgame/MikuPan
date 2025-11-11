@@ -700,7 +700,6 @@ static void SetFontPacketHeader(int n, int type, u_char alp)
     }
 
     /// mpbuf[nmdpkt].ul128 = (u_long128)0;
-    MakeFontTexSendPacket();
 
     /// TODO: Check why mpbuf makes the program crash
     return;

@@ -290,7 +290,7 @@ int PadReadFunc(PAD_STRUCT *psp, int p_id)
     
     psp->old = psp->now;
     
-    if (scePadRead(psp->port,psp->slot, (u_char *)r_data) == 0)
+    if (scePadRead(psp->port, psp->slot, (u_char *)r_data) == 0)
     {
         psp->now = 0;
         return 0;

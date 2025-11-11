@@ -430,9 +430,6 @@ SPRT_DAT title_sprt[11] = {
         TitleWaitMode();
         DispOutDither();
 
-            SetString2(0x10, 48.0f, 364.0f, 1, 0x80, 0x80, 0x80, "HELLO WORLD");
-            gra2dDrawDbgMenu();
-
         if (IsEndAdpcmFadeOut() != 0)
         {
             EAdpcmCmdPlay(0, 1, AO000_TITLE_STR, 0, GetAdpcmVol(AO000_TITLE_STR), 0x280, 0xfff, 0);

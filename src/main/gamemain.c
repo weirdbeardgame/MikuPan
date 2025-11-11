@@ -159,7 +159,7 @@ int GameInitLoad()
     switch (sys_wrk.load_mode)
     {
     case INGAME_INIT_LOAD_START:
-        sys_wrk.load_mode = 1;
+        sys_wrk.load_mode = INGAME_INIT_LOAD_MENU;
     case INGAME_INIT_LOAD_MENU:
 #ifdef BUILD_EU_VERSION
         init_load_id = LoadReqLanguage(IG_MSG_E_OBJ, IG_MSG_OBJ_ADDRESS);

@@ -3,10 +3,14 @@
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_video.h"
 
-extern "C" void InitImGuiWindow(SDL_Window *window, SDL_Renderer *renderer);
-extern "C" void RenderImGuiWindow(SDL_Renderer *renderer);
-extern "C" void NewFrameImGuiWindow();
-extern "C" void DrawImGuiWindow();
-extern "C" void ShutDownImGuiWindow();
-extern "C" void ProcessEventImGui(SDL_Event *event);
+extern "C"
+{
+    void InitImGuiWindow(SDL_Window *window, SDL_Renderer *renderer);
+    void RenderImGuiWindow(SDL_Renderer *renderer);
+    void NewFrameImGuiWindow();
+    void DrawImGuiWindow();
+    void ShutDownImGuiWindow();
+    void ProcessEventImGui(SDL_Event *event);
+    float GetFrameRate();
+}
 #endif //MIKUPAN_IMGUI_WINDOW_H
