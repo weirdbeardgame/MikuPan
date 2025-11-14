@@ -620,7 +620,7 @@ void InGameMain()
     
     if (dbg_wrk.mode_on == 2)
     {
-        GameModeChange(3);
+        GameModeChange(GAME_MODE_INGAME);
         SetTargetVolSeMenuFade(0xfff);
         SetTargetVolAdpcmMenuFade(0xfff);
         EAdpcmFadeOutGameEnd(0x1e);

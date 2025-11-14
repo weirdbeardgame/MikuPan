@@ -26,6 +26,17 @@ int init_load_id = 0;
 int init_load_adr = 0;
 int init_load_size = 0;
 
+int GameInit()
+{
+    if (GameInitLoad())
+    {
+        gra3dInit();
+        return 1;
+    }
+
+    return 0;
+}
+
 void GameMain()
 {
 #ifdef BUILD_EU_VERSION
@@ -133,25 +144,10 @@ void GameMain()
             mcEnd();
         }
     break;
-    case GAME_MODE_OUTGAME:
-        OutGameCtrl();
-    break;
-    case GAME_MODE_INGAME:
-        InGameCtrl();
-    break;
+    case GAME_MODE_OUTGAME: OutGameCtrl(); break;
+    case GAME_MODE_INGAME: InGameCtrl(); break;
     }
 #endif
-}
-
-int GameInit()
-{
-    if (GameInitLoad())
-    {
-        gra3dInit();
-        return 1;
-  }
-    
-  return 0;
 }
 
 int GameInitLoad()

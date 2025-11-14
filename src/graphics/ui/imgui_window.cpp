@@ -60,7 +60,7 @@ void DrawImGuiWindow()
         ImGui::EndMainMenuBar();
     }
 
-    if (dbg_wrk.mode_on)
+    if (dbg_wrk.mode_on == 1)
     {
         gra2dDrawDbgMenu();
     }
