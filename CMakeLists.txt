@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 4.0.2)
 project(MikuPan LANGUAGES C CXX)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=x86-64 -Wno-implicit-function-declaration -Wno-int-conversion")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64 -Wno-implicit-function-declaration -Wno-int-conversion")
+if (NOT MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=x86-64 -Wno-implicit-function-declaration -Wno-int-conversion")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64 -Wno-implicit-function-declaration -Wno-int-conversion")
+endif()
+
 set(CMAKE_EXE_LINKER_FLAGS "-static")
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)

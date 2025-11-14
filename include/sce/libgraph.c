@@ -2,6 +2,9 @@
 
 #include "gs/gs_server_c.h"
 
+#include <stddef.h>
+#include <stdlib.h>
+
 void sceGsSetDefDBuff(sceGsDBuff* dp, short psm, short w, short h, short ztest, short zpsm, short clear)
 {
 }
@@ -20,6 +23,7 @@ void sceGsPutDispEnv(sceGsDispEnv* disp)
 
 int sceGsPutDrawEnv(sceGifTag* giftag)
 {
+    return 1;
 }
 
 void sceGsSetHalfOffset(sceGsDrawEnv1* draw, short centerx, short centery, short halfoff)
@@ -33,18 +37,22 @@ int sceGsSyncV(int mode)
 
 int sceGsSwapDBuff(sceGsDBuff* db, int id)
 {
+    return 1;
 }
 
 int sceGsSetDefStoreImage(sceGsStoreImage* sp, short sbp, short sbw, short spsm, short x, short y, short w, short h)
 {
+    return 1;
 }
 
 int sceGsExecStoreImage(sceGsStoreImage* sp, u_long128* dstaddr)
 {
+    return 1;
 }
 
 int sceGsSyncPath(int mode, u_short timeout)
 {
+    return 1;
 }
 
 int sceGsSetDefLoadImage(sceGsLoadImage* lp, short dbp, short dbw, short dpsm, short x, short y, short w, short h)
@@ -74,6 +82,8 @@ int sceGsSetDefLoadImage(sceGsLoadImage* lp, short dbp, short dbw, short dpsm, s
     /// Setting up the TRXDIR tag
     lp->trxdir.XDR = 0;
     lp->trxdiraddr = SCE_GS_TRXDIR;
+
+    return 1;
 }
 
 int sceGsExecLoadImage(sceGsLoadImage* lp, u_long128* srcaddr)
@@ -89,12 +99,22 @@ int sceGsExecLoadImage(sceGsLoadImage* lp, u_long128* srcaddr)
     tex0.CSA = 0;
     tex0.TW = lp->trxreg.RRW;
     tex0.TH = lp->trxreg.RRH;
+
+    return 1;
 }
 
 int sceGsSetDefDrawEnv(sceGsDrawEnv1* draw, short psm, short w, short h, short ztest, short zpsm)
 {
+    return 1;
 }
 
+sceGsGParam* gs_param = NULL;
 sceGsGParam* sceGsGetGParam()
 {
+    if (gs_param == NULL)
+    {
+        gs_param = (sceGsGParam*)malloc(sizeof(sceGsGParam));
+    }
+
+    return gs_param;
 }

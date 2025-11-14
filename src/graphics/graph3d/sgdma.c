@@ -189,7 +189,7 @@ void AppendDmaTagCall(int64_t next_tag_addr)
 void AppendDmaTagNextRet(void *tag_addr)
 {
     ((int *)tag_addr)[0] = 0x20000000;
-    *(uint64_t*)&((int *)tag_addr)[1] = ((uint64_t)&cachetag[vu1tag_num]);
+    *(uint64_t*)&((int *)tag_addr)[1] = (uint64_t)&cachetag[vu1tag_num];
 }
 
 void AppendDmaBufferFromEndAddress(qword *end_adr)

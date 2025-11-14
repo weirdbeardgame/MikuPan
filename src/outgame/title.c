@@ -5,6 +5,7 @@
 #include "memory_album.h"
 #include "outgame.h"
 #include "btl_mode/btl_menu.h"
+#include "common/logging_c.h"
 #include "common/memory_addresses.h"
 #include "ee/kernel.h"
 #include "graphics/graph2d/effect_obj.h"
@@ -652,9 +653,7 @@ SPRT_DAT title_sprt[11] = {
 
         switch (McAtLoadChk(2))
         {
-        case 0:
-            // do nothing ...
-        break;
+        case 0: break;
         case 1:
             //album_save_dat[0] = mc_album_save;
             mc_pnum1 = mc_photo_num;
@@ -667,15 +666,13 @@ SPRT_DAT title_sprt[11] = {
             mcInit(6, (u_int *)MC_WORK_ADDRESS, 0);
 
             title_wrk.mode = TITLE_ALBM_LOAD2;
-        break;
-        case 3:
-            printf("ここに来るわけがない！\n");
-        break;
+            break;
+        case 3: info_log("ここに来るわけがない！ (code shouldnt have reached here!)"); break;
         case 2:
             EAdpcmFadeOut(0x3c);
 
             title_wrk.mode = TITLE_TITLE_SEL_BGMREQ;
-        break;
+            break;
         }
     break;
     case TITLE_ALBM_LOAD2:

@@ -773,14 +773,21 @@ void DrawAll2DMes_P2()
 
     DrawPerformanceCounter();
 
+
+    /// Section for sorting effects packets
     if (ndpri > 0)
     {
         for (i = 0; i < ndpri-1; i++)
         {
+            /// Packet index for start of DMA info
             n = draw_pri[i][1];
+
+            /// End packet?
             m = draw_pri[i+1][1];
 
             s = pbuf[n].us16[0];
+
+            ReadAllPackets(&pbuf[n]);
 
             if (pbuf[n].uc8[3] == 0x70) // upper part of 0x70000000 (DMAend) ??
             {
@@ -862,15 +869,8 @@ void DrawAll2DMes_P2()
 
     if (ndpkt > 0x3000)
     {
-        printf("2D-PacketBuffer Half Over\n");
+        info_log("2D-PacketBuffer Half Over");
     }
-
-    for (i = 0; i < ndpkt; i++)
-    {
-        //ReadPacket(&pbuf[i]);
-    }
-
-    ReadAllPackets(pbuf);
 
     ndpri = 0;
     ndpkt = 0;
@@ -895,10 +895,10 @@ void DrawAll2DMes_P2()
     if (dbg_wrk.oth_pkt_num_sw == 1)
     {
         SetPanel2(0x20, 44.0f, 360.0f, 580.0f, 396.0f, 0, 0x0, 0x0, 0x0, 0x80);
-        SetString2(0x10, 48.0f, 364.0f, 1, 0x80, 0x80, 0x80, "2D Chain  Num : %4d", nch);
-        SetString2(0x10, 48.0f, 380.0f, 1, 0x80, 0x80, 0x80, "2D Packet Num : %4d", npk);
-        SetString2(0x10, 320.0f, 364.0f, 1, 0x80, 0x80, 0x80, "Mes Chain  Num : %4d", mch);
-        SetString2(0x10, 320.0f, 380.0f, 1, 0x80, 0x80, 0x80, "Mes Packet Num : %4d", mpk);
+        SetString2(0x10, 48.0f, 364.0f, 1, 0x80, 0x80, 0x80, "2D Chain  Num : %4d", nch /* ndpri */);
+        SetString2(0x10, 48.0f, 380.0f, 1, 0x80, 0x80, 0x80, "2D Packet Num : %4d", npk /* ndpkt */);
+        SetString2(0x10, 320.0f, 364.0f, 1, 0x80, 0x80, 0x80, "Mes Chain  Num : %4d", mch /* nmdpri */);
+        SetString2(0x10, 320.0f, 380.0f, 1, 0x80, 0x80, 0x80, "Mes Packet Num : %4d", mpk /* nmdpkt */);
     }
 }
 

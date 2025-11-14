@@ -94,7 +94,6 @@ void OutGameCtrl(void)
             ModeSlctLoop();
         break;
   }
-  return;
 }
 
 void OutGameModeChange(u_char mode)

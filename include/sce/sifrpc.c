@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "enums.h"
+#include "common/logging_c.h"
 #include "os/eeiop/eeiop.h"
 
 void sceSifInitRpc(unsigned int mode)
@@ -49,11 +50,11 @@ int sceSifCallRpc(sceSifClientData* client, unsigned int rpc_number, unsigned in
 
         for (int i = 0; i < total_cmd; i++)
         {
-            printf("IOP server received command number: %d\n", send_cmd[i].cmd_no);
+            info_log("IOP server received command number: %d", send_cmd[i].cmd_no);
 
             switch (send_cmd[i].cmd_no)
             {
-            default: printf("Error: Command %d not yet implemented!\n", send_cmd[i].cmd_no); break;
+            default: info_log("Error: Command %d not yet implemented!", send_cmd[i].cmd_no); break;
             case IC_CDVD_INIT:  break;
             case IC_CDVD_LOAD_SECT:
                     /// Indicates file load

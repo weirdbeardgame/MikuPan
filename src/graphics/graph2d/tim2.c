@@ -24,21 +24,36 @@ typedef struct {
     u_int offset[0];
 } PK2_HEAD;
 
+/// Packets indexing for rendering effects
 u_int draw_pri[4096][2] = {0};
+
+/// Message Packets Buffer interlace
 Q_WORDDATA mpbufw[2][8192] = {0};
+
+/// Packets for rendering messages
 int draw_mpri[1024][2] = {0};
+
+/// Packets Buffer
+Q_WORDDATA *pbuf = NULL;
+
+/// Current Message Packets Buffer
+Q_WORDDATA *mpbuf = NULL;
 
 u_char g_bInterlace = 0;
 int ndpkt = 0;
 int ndpri = 0;
-int nmdpkt = 0;
-int nmdpri = 0;
-int mes_swap = 0;
-Q_WORDDATA *pbuf = NULL;
-Q_WORDDATA *mpbuf = NULL;
 
-static u_int next_tex_addr;
-static u_int next_clut_addr;
+/// Number of message packets
+int nmdpkt = 0;
+
+/// Number of message direct primitives
+int nmdpri = 0;
+
+/// Which buffer offset for interlacing
+int mes_swap = 0;
+
+static uint64_t next_tex_addr;
+static uint64_t next_clut_addr;
 static sceDmaChan *DmaGif;
 static sceDmaChan *DmaVif;
 
@@ -1565,6 +1580,11 @@ void DrawAll2D_P2()
     ndpkt = 0;
 }
 
+/**
+ * Draws all messages packets
+ * @param ret_addr
+ * @return
+ */
 void* DrawAllMes_P2(int64_t ret_addr)
 {
     int i;
@@ -1575,35 +1595,39 @@ void* DrawAllMes_P2(int64_t ret_addr)
 
     SortMessagePacket();
 
+    /// If not there packets never get sent back and no text renders
+    //MakeFontTexSendPacket();
+
     if (nmdpri >= 1)
     {
         for (i = 0; i < nmdpri - 1; i++)
         {
-                n = draw_mpri[i][1];
-                m = draw_mpri[i+1][1];
+            n = draw_mpri[i][1];
+            m = draw_mpri[i+1][1];
 
-                s = mpbuf[n].us16[0];
+            ReadAllPackets(&mpbuf[n]);
 
-                mpbuf[n].uc8[3] = 0x20;
-                *(uint64_t*)& mpbuf[n].ui32[1] = (uint64_t)&mpbuf[m];
-                //mpbuf[n].ui32[1] = (u_int)&mpbuf[m] & 0x0fffffff;
-                //mpbuf[n].ui32[2] = 0;
-                mpbuf[n].ui32[3] = s | DMAcall;
+            s = mpbuf[n].us16[0];
+            mpbuf[n].uc8[3] = 0x20;
+            *(uint64_t*)& mpbuf[n].ui32[1] = (uint64_t)&mpbuf[m];
+            mpbuf[n].ui32[3] = s | DMAcall;
         }
 
         n = draw_mpri[nmdpri-1][1];
 
         s = mpbuf[n].us16[0];
 
+        ReadAllPackets(&mpbuf[n]);
+
+        /// Sets the final message packet
         if (ret_addr != 0)
         {
             mpbuf[n].uc8[3] = 0x20;
-            *(uint64_t*)& mpbuf[n].ui32[1] = (uint64_t)ret_addr;
-            //mpbuf[n].ui32[1] = ret_addr & 0xfffffff;
+            *(uint64_t*)&mpbuf[n].ui32[1] = (uint64_t)ret_addr;
         }
         else
         {
-            mpbuf[n].uc8[3] = 0x70;
+            mpbuf[n].uc8[3] = 0x70 /* DMAend */;
             mpbuf[n].ui32[1] = 0;
         }
 

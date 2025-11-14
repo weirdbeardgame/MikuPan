@@ -1,6 +1,13 @@
 #ifndef TYPEDEFS_H 
 #define TYPEDEFS_H
 
+#ifdef _MSC_VER
+#define ATTRIBUTE_ALIGNED(x, decl) __declspec(align(x)) decl
+#else
+#define ATTRIBUTE_ALIGNED(x, decl) decl __attribute__((aligned(x)))
+#endif
+
+
 #define __u_char_defined
 
 typedef long s_long;
@@ -14,18 +21,17 @@ typedef int s_long128[4];
 
 /// TODO: CHECK FOR PROPER IMPLEMENTATION OF MODE TI
 typedef unsigned int u_long128 __attribute__ ((mode (TI)));
-//typedef unsigned int u_long128[4];
 
 typedef unsigned long long u_long;
 typedef unsigned short u_short;
 typedef unsigned char u_char;
 typedef unsigned int u_int;
 
-typedef long long int dword[2] __attribute__ ((aligned(16)));;
-typedef int qword[4] __attribute__ ((aligned(16)));
-typedef int sceVu0IVECTOR[4] __attribute__((aligned (16)));
-typedef float sceVu0FVECTOR[4] __attribute__((aligned (16)));
-typedef float sceVu0FMATRIX[4][4] __attribute__((aligned (16)));
+typedef long long int dword[2] ;
+ATTRIBUTE_ALIGNED(16, typedef int qword[4]);
+ATTRIBUTE_ALIGNED(16, typedef int sceVu0IVECTOR[4]);
+ATTRIBUTE_ALIGNED(16, typedef float sceVu0FVECTOR[4]);
+ATTRIBUTE_ALIGNED(16, typedef float sceVu0FMATRIX[4][4]);
 
 typedef union {
 	int ui32;
