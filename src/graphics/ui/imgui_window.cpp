@@ -25,9 +25,12 @@ public:
         times_.reserve(max_samples_);
     }
 
-    void update(float dt_sec) {
+    void update(float dt_sec)
+    {
         float ms = dt_sec;
-        if ((int)times_.size() >= max_samples_) {
+
+        if ((int)times_.size() >= max_samples_)
+        {
             times_.erase(times_.begin());
         }
         times_.push_back(ms);
@@ -37,7 +40,8 @@ public:
         }
     }
 
-    void draw(const char* label = "Frame Time", ImVec2 size = ImVec2(0,0)) {
+    void draw(const char* label = "Frame Time", ImVec2 size = ImVec2(0,0))
+    {
         if (times_.empty()) {
             ImGui::TextUnformatted("No frame data yet");
             return;
@@ -46,11 +50,14 @@ public:
         float sum = 0.0f;
         float minv = times_[0];
         float maxv = times_[0];
-        for (float v : times_) {
+
+        for (float v : times_)
+            {
             sum += v;
             if (v < minv) minv = v;
             if (v > maxv) maxv = v;
         }
+
         float avg = sum / (float)times_.size();
         float latest = times_.back();
 
@@ -60,14 +67,15 @@ public:
         float scale = ms_scale_ > 0.0f ? ms_scale_ : std::max(maxv, avg * 1.5f);
         if (scale < 1.0f) scale = 1.0f;
 
-        ImGui::PlotLines("", times_.data(), (int)times_.size(), 0, nullptr, 0.0f, scale, size);
+        ImGui::PlotLines("##plotlines", times_.data(), (int)times_.size(), 0, nullptr, 0.0f, scale, size);
 
         ImGui::Spacing();
         ImGui::Text("Frame time histogram (ms)");
         const int buckets = 16;
         std::vector<int> hist(buckets);
         float step = scale / (float)buckets;
-        for (float v : times_) {
+        for (float v : times_)
+            {
             int b = (int)std::floor(v / step);
             if (b < 0) b = 0;
             if (b >= buckets) b = buckets - 1;
@@ -76,19 +84,38 @@ public:
 
         std::vector<float> histf(buckets);
         int maxcount = 1;
-        for (int i = 0; i < buckets; ++i) { histf[i] = (float)hist[i]; if (hist[i] > maxcount) maxcount = hist[i]; }
+        for (int i = 0; i < buckets; ++i)
+        {
+            histf[i] = (float)hist[i];
+
+            if (hist[i] > maxcount)
+            {
+                maxcount = hist[i];
+            }
+        }
+
         ImGui::PlotLines("##hist", histf.data(), buckets, 0, nullptr, 0.0f, (float)maxcount, ImVec2(0,60));
     }
 
-    void setMaxSamples(int max_samples) {
+    void setMaxSamples(int max_samples)
+    {
         max_samples_ = std::max(8, max_samples);
         times_.reserve(max_samples_);
-        if ((int)times_.size() > max_samples_) times_.erase(times_.begin(), times_.begin() + ((int)times_.size() - max_samples_));
+        if ((int)times_.size() > max_samples_)
+        {
+            times_.erase(times_.begin(), times_.begin() + ((int)times_.size() - max_samples_));
+        }
     }
 
-    void setManualScaleMs(float ms) { ms_scale_ = ms; }
+    void setManualScaleMs(float ms)
+    {
+        ms_scale_ = ms;
+    }
 
-    void clear() { times_.clear(); }
+    void clear()
+    {
+        times_.clear();
+    }
 
 private:
     std::vector<float> times_;
@@ -139,6 +166,7 @@ void DrawImGuiWindow()
         dbg_wrk.mode_on = !dbg_wrk.mode_on;
     }
 
+    g_frame_graph.update(1000.0f / ImGui::GetIO().Framerate);
     //ImGui::ShowDebugLogWindow();
     //ImGui::ShowMetricsWindow();
 
@@ -164,7 +192,7 @@ void DrawImGuiWindow()
     if (show_frame_time_graph)
     {
         ImGui::Begin("Frame Time Graph");
-        g_frame_graph.update(1000.0f / ImGui::GetIO().Framerate);
+
         g_frame_graph.draw("Frame Time", ImVec2(0,100));
         ImGui::End();
     }

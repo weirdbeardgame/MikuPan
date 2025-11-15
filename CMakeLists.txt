@@ -3,7 +3,7 @@ project(MikuPan LANGUAGES C CXX)
 
 if (NOT MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=x86-64 -Wno-implicit-function-declaration -Wno-int-conversion")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64 -Wno-implicit-function-declaration -Wno-int-conversion")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64")
 endif()
 
 if(WIN32)
