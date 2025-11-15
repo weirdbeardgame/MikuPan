@@ -2,6 +2,7 @@
 #include "typedefs.h"
 #include "enums.h"
 #include "eese.h"
+#include "SDL3/SDL_audio.h"
 
 #include "main/glob.h"
 #include "common/ul_math.h"
@@ -27,6 +28,8 @@ typedef struct {
 
 SE_CTRL se_ctrl = {0};
 SE_MENU_FADE sm_fade = {0};
+
+static SDL_AudioStream* stream;
 
 #define SE_WRK_SIZE 24
 #define DEFAULT_VOL_RATE 0x1000
@@ -162,6 +165,10 @@ static void SeInitSeWrkP(SE_WRK *swp)
         swp->pan = DEFAULT_PAN;
         swp->vol_phase = 0;
         swp->menu = 0;
+
+         SDL_AudioSpec spec = { .format = SDL_AUDIO_S16, .channels = 2, .freq = 48000 };
+         stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NULL, NULL);
+
     }
 }
 
@@ -936,6 +943,7 @@ int SeStopAll()
 {
     SeInitSeWrk();
     SetIopCmdSm(8, 0, 0, 0);
+    SDL_ClearAudioStream(stream);
     return 0;
 }
 
@@ -946,6 +954,7 @@ int SeStop(int voice_num)
         SetIopCmdSm(4, voice_num, 0, 0);
     }
     
+
     return 0;
 }
 
