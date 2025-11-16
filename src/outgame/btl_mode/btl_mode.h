@@ -2,6 +2,7 @@
 #define OUTGAME_BTL_MODE_BTL_MODE_H
 
 #include "typedefs.h"
+#include "btl_menu.h"
 
 typedef struct {
 	u_char mode;
@@ -13,12 +14,6 @@ typedef struct {
 	u_short time;
 	u_short count;
 } BTL_MODE_WRK;
-
-typedef struct {
-	u_char rank;
-	u_short best_time;
-	long int best_shot;
-} STAGE_WRK;
 
 // extern int rank_dat[0];
 extern int battle_scr_effct[0];

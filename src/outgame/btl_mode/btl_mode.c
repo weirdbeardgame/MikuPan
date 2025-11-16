@@ -6,7 +6,6 @@
 /* data 3446d8 */ int btlBonus[0];
 /* sdata 3577e8 */ static int sp_load_id;
 /* data 344700 */ BTL_MODE_WRK btl_wrk;
-/* data 344710 */ STAGE_WRK stage_wrk[20];
 /* sdata 3577f0 */ long int msn_high_score;
 /* sdata 3577f8 */ long int msn_total_score;
 /* sdata 357800 */ long int msn_bonus;
