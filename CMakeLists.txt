@@ -3,6 +3,7 @@ project(MikuPan LANGUAGES C CXX)
 
 if (NOT MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration -fno-fast-math -fno-trapping-math -Wno-int-conversion")
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
