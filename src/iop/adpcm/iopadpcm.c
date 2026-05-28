@@ -1,4 +1,5 @@
 #include "iopadpcm.h"
+#include "SDL3/SDL_audio.h"
 #include "SDL3/SDL_timer.h"
 #include "common.h"
 #include "enums.h"
@@ -118,12 +119,6 @@ static void FillStereo(int size, u_char channel, s16 **src_buf, s16 **dec_buf,
 
     int chunks = size / 0x800 / 2;
 
-    // Prevent memleaks by not reading too much into the audio stream.
-    if (SDL_GetAudioStreamQueued(stream) >= size)
-    {
-        return;
-    }
-
     for (int i = 0; i < chunks; i++)
     {
         dst = dec_buf[0];
@@ -153,6 +148,7 @@ static void FillStereo(int size, u_char channel, s16 **src_buf, s16 **dec_buf,
 
         SDL_PutAudioStreamPlanarData(stream, (void *) dec, CHANNELS, 3584);
     }
+    SDL_FlushAudioStream(stream);
 }
 
 void IAdpcmPreLoadEnd(int channel)
@@ -192,8 +188,6 @@ void IAdpcmPlay(ADPCM_CMD *acp)
         IaSetRegPitch(channel);
         IaSetRegAdsr(channel);
         iop_adpcm[channel].stat = ADPCM_STAT_PLAY;
-        FillStereo(now_cmd.size, channel, AdpcmIopBuf, AdpcmSpuBuf,
-                   iop_adpcm[channel].stream);
         SDL_SetAudioStreamFrequencyRatio(iop_adpcm[channel].stream,
                                          (float) acp->pitch / (float) 0x1000);
         SDL_ResumeAudioStreamDevice(iop_adpcm[channel].stream);
@@ -689,6 +683,8 @@ SDLCALL void IAdpcmReadCh0(void *userdata, SDL_AudioStream *stream,
     else
     {
     }
+
+    FillStereo(now_cmd.size, 0, AdpcmIopBuf, AdpcmSpuBuf, iop_adpcm[0].stream);
 
     return;
 }
