@@ -112,9 +112,7 @@ static void FillStereo(int size, u_char channel, s16** src_buf, s16** dec_buf,
 {
     void* dec[2] = {dec_buf[0], dec_buf[1]};
 
-    s32 histL[2] = {}, histR[2] = {};
-
-    s16* src = src_buf[channel];
+    s16* src = src_buf[channel] + iop_adpcm[channel].pos;
     s16* dst;
 
     int chunks = size / 0x800 / 2;
@@ -125,7 +123,8 @@ static void FillStereo(int size, u_char channel, s16** src_buf, s16** dec_buf,
         for (int j = 0; j < 128; j++)
         {
 
-            MikuPan_DecodeAdpcmBlock(dst, src, &histL[0], &histL[1]);
+            MikuPan_DecodeAdpcmBlock(dst, src, &iop_adpcm[channel].histL[0],
+                                     &iop_adpcm[channel].histL[1]);
             dst += 28;
             src += 8;
         }
@@ -138,7 +137,8 @@ static void FillStereo(int size, u_char channel, s16** src_buf, s16** dec_buf,
         for (int j = 0; j < 128; j++)
         {
 
-            MikuPan_DecodeAdpcmBlock(dst, src, &histR[0], &histR[1]);
+            MikuPan_DecodeAdpcmBlock(dst, src, &iop_adpcm[channel].histR[0],
+                                     &iop_adpcm[channel].histR[1]);
             dst += 28;
             src += 8;
         }
@@ -148,7 +148,6 @@ static void FillStereo(int size, u_char channel, s16** src_buf, s16** dec_buf,
 
         SDL_PutAudioStreamPlanarData(stream, (void*) dec, CHANNELS, 3584);
     }
-    SDL_FlushAudioStream(stream);
 }
 
 void IAdpcmPreLoadEnd(int channel)
@@ -692,7 +691,8 @@ SDLCALL void IAdpcmReadCh0(void* userdata, SDL_AudioStream* stream,
     {
     }
 
-    FillStereo(now_cmd.size, 0, AdpcmIopBuf, AdpcmSpuBuf, iop_adpcm[0].stream);
+    FillStereo(additional_amount, 0, AdpcmIopBuf, AdpcmSpuBuf,
+               iop_adpcm[0].stream);
 
     return;
 }

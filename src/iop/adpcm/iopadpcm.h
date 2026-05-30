@@ -78,6 +78,8 @@ typedef struct
     int state_timeout;
     int f_mode;
 
+    s32 histL[2], histR[2];
+
     SDL_AudioStream *stream;
     SDL_Thread *thread;
     void *data;
