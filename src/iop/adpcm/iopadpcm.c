@@ -22,6 +22,7 @@ s16* AdpcmIopBuf[2];
 u_short volL, volR;
 u_short adsr1L, adsr2L;
 u_short adsr1R, adsr2R;
+static int songSize;
 
 SDL_Mutex* cmd_lock;
 
@@ -112,17 +113,19 @@ static void FillStereo(int size, u_char channel, s16** src_buf, s16** dec_buf,
 {
     void* dec[2] = {dec_buf[0], dec_buf[1]};
 
-    s16* src = src_buf[channel] + iop_adpcm[channel].pos;
+    s16* src = src_buf[channel] + iop_adpcm[channel].srcPos;
     s16* dst;
 
-    int chunks = size / 0x800 / 2;
-
+    int chunks = size / 2046 / 2;
+    if (chunks == 0)
+    {
+        chunks = 1;
+    }
     for (int i = 0; i < chunks; i++)
     {
         dst = dec_buf[0];
         for (int j = 0; j < 128; j++)
         {
-
             MikuPan_DecodeAdpcmBlock(dst, src, &iop_adpcm[channel].histL[0],
                                      &iop_adpcm[channel].histL[1]);
             dst += 28;
@@ -148,6 +151,21 @@ static void FillStereo(int size, u_char channel, s16** src_buf, s16** dec_buf,
 
         SDL_PutAudioStreamPlanarData(stream, (void*) dec, CHANNELS, 3584);
     }
+
+    iop_adpcm[channel].srcPos = src - src_buf[channel];
+
+    if (!iop_adpcm[channel].loop_end)
+    {
+        if (iop_adpcm[channel].srcPos >= songSize / sizeof(s16))
+        {
+            iop_adpcm[channel].srcPos = 0;
+        }
+    }
+    else
+    {
+        return;
+    }
+    src = 0x0;
 }
 
 void IAdpcmPreLoadEnd(int channel)
@@ -161,21 +179,14 @@ void IAdpcmPreLoadEnd(int channel)
         iop_adpcm[channel].start +=
             (iop_adpcm[channel].lreq_size + 2047) / 2048;
         iop_adpcm[channel].str_lpos = iop_adpcm[channel].lreq_size;
-        iop_adpcm[channel].str_tpos = 0x2000;
-        iop_adpcm[channel].pos = 0x2000;
+        iop_adpcm[channel].str_tpos = 0;
+        iop_adpcm[channel].pos = 0;
     }
 
     if (iop_adpcm[channel].use)
     {
         iop_adpcm[channel].stat = ADPCM_STAT_PRELOAD_END;
     }
-}
-
-static void AdpcmTransCB()
-{
-    // These values are a guess, but they seem to work.
-    iop_adpcm[0].pos += 1302;
-    iop_adpcm[0].str_tpos += 1302;
 }
 
 void IAdpcmPlay(ADPCM_CMD* acp)
@@ -189,6 +200,9 @@ void IAdpcmPlay(ADPCM_CMD* acp)
         IaSetRegPitch(channel);
         IaSetRegAdsr(channel);
         iop_adpcm[channel].stat = ADPCM_STAT_PLAY;
+
+        songSize = now_cmd.size;
+
         SDL_SetAudioStreamFrequencyRatio(iop_adpcm[channel].stream,
                                          (float) acp->pitch / (float) 0x1000);
         SDL_ResumeAudioStreamDevice(iop_adpcm[channel].stream);
@@ -246,6 +260,13 @@ void IAdpcmStop(ADPCM_CMD* acp)
     }
 
     iop_adpcm[channel].tune_no = 0;
+    iop_adpcm[channel].srcPos = 0;
+
+    iop_adpcm[channel].histL[0] = 0;
+    iop_adpcm[channel].histL[1] = 0;
+
+    iop_adpcm[channel].histR[0] = 0;
+    iop_adpcm[channel].histR[1] = 0;
 }
 
 static void IAdpcmFadeVol(IOP_COMMAND* iop)
@@ -581,7 +602,7 @@ SDLCALL void IAdpcmReadCh0(void* userdata, SDL_AudioStream* stream,
     {
         iop_adpcm[0].count++;
 
-        int chunks = now_cmd.size / 0x800 / 2;
+        int chunks = now_cmd.size / 2046 / 2;
 
         if (additional_amount < 0x1000)
         {
@@ -684,8 +705,8 @@ SDLCALL void IAdpcmReadCh0(void* userdata, SDL_AudioStream* stream,
             }
         }
 
-        iop_adpcm[0].pos += chunks;
-        iop_adpcm[0].str_tpos += chunks;
+        iop_adpcm[0].pos += additional_amount;
+        iop_adpcm[0].str_tpos += additional_amount;
     }
     else
     {

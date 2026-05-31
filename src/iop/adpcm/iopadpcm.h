@@ -80,6 +80,8 @@ typedef struct
 
     s32 histL[2], histR[2];
 
+    u_int srcPos;
+
     SDL_AudioStream *stream;
     SDL_Thread *thread;
     void *data;
