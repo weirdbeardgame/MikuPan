@@ -162,6 +162,11 @@ static void FillStereo(int size, u_char channel, s16** src_buf, s16** dec_buf,
     }
     else
     {
+        iop_adpcm[channel].histL[0] = 0;
+        iop_adpcm[channel].histL[1] = 0;
+        iop_adpcm[channel].histR[0] = 0;
+        iop_adpcm[channel].histR[1] = 0;
+        SDL_ClearAudioStream(iop_adpcm[0].stream);
         return;
     }
     src = 0x0;
@@ -214,7 +219,7 @@ void IAdpcmStop(ADPCM_CMD* acp)
 {
     u_char channel;
 
-    SDL_PauseAudioDevice(audio_dev);
+    SDL_PauseAudioStreamDevice(iop_adpcm[0].stream);
     SDL_ClearAudioStream(iop_adpcm[0].stream);
 
     channel = acp->channel;
@@ -596,15 +601,22 @@ SDLCALL void IAdpcmReadCh0(void* userdata, SDL_AudioStream* stream,
     u_short tmp_tune_no;
     ADPCM_CMD cmd;
     u_char loop_ok;
-    int chunks = now_cmd.size / 2046 / 2;
+    int chunks = now_cmd.size / 0x800 / 2;
 
     if (iop_adpcm[0].stat >= ADPCM_STAT_PRELOAD_TRANS)
     {
         iop_adpcm[0].count++;
 
-        remain_t = iop_adpcm[0].szFile - iop_adpcm[0].str_tpos;
-
-        if (remain_t > 0x1000)
+        if (iop_adpcm[0].szFile - iop_adpcm[0].str_tpos <= 0)
+        {
+            // Attempting to prevent math overflow glitch
+            remain_t = 0;
+        }
+        else
+        {
+            remain_t = iop_adpcm[0].szFile - iop_adpcm[0].str_tpos;
+        }
+        if (remain_t > 0)
         {
             if (iop_adpcm[0].pos == (iop_adpcm[0].dbidi + 1) * 0x20000)
             {
@@ -710,10 +722,10 @@ SDLCALL void IAdpcmReadCh0(void* userdata, SDL_AudioStream* stream,
     {
     }
     iop_adpcm[0].pos += chunks;
-    iop_adpcm[0].str_tpos += chunks;
 
-    FillStereo(additional_amount, 0, AdpcmIopBuf, AdpcmSpuBuf,
-               iop_adpcm[0].stream);
+    FillStereo(total_amount, 0, AdpcmIopBuf, AdpcmSpuBuf, iop_adpcm[0].stream);
+
+    iop_adpcm[0].str_tpos += 1792;
 
     return;
 }
