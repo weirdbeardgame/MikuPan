@@ -169,7 +169,6 @@ static void FillStereo(int size, u_char channel, s16** src_buf, s16** dec_buf,
         SDL_ClearAudioStream(iop_adpcm[0].stream);
         return;
     }
-    src = 0x0;
 }
 
 void IAdpcmPreLoadEnd(int channel)
@@ -616,7 +615,7 @@ SDLCALL void IAdpcmReadCh0(void* userdata, SDL_AudioStream* stream,
         {
             remain_t = iop_adpcm[0].szFile - iop_adpcm[0].str_tpos;
         }
-        if (remain_t > 0)
+        if (remain_t > 0x1000)
         {
             if (iop_adpcm[0].pos == (iop_adpcm[0].dbidi + 1) * 0x20000)
             {
