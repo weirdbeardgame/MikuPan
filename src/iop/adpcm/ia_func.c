@@ -14,16 +14,16 @@
 #include "os/system.h"
 #include "sce/libsd.h"
 
-void GetPosCalc(ADPCM_POS_CALC *calcp);
+void GetPosCalc(ADPCM_POS_CALC* calcp);
 
 static int IAdpcmMakeThread(u_char channel);
 
 void IaInitDev(u_char channel)
 {
     memset(&iop_adpcm[channel], 0, sizeof(IOP_ADPCM));
-    AdpcmIopBuf[channel] = (void *) malloc(266240);
-    AdpcmSpuBuf[0] = (s16 *) malloc(266240);
-    AdpcmSpuBuf[1] = (s16 *) malloc(266240);
+    AdpcmIopBuf[channel] = (void*) malloc(266240);
+    AdpcmSpuBuf[0] = (s16*) malloc(266240);
+    AdpcmSpuBuf[1] = (s16*) malloc(266240);
 }
 
 static int IAdpcmMakeThread(u_char channel)
@@ -104,7 +104,6 @@ void IaSetRegAdsr(u_char channel)
 
 void IaSetRegVol(u_char channel)
 {
-
     volL = iop_adpcm[channel].vol_ll << 1;
     volR = iop_adpcm[channel].vol_rr << 1;
 }
@@ -183,7 +182,7 @@ void IaSetWrkFadeInit(u_char channel)
     iop_adpcm[channel].target_vol = iop_adpcm[channel].vol;
 }
 
-void GetPosCalc(ADPCM_POS_CALC *calcp)
+void GetPosCalc(ADPCM_POS_CALC* calcp)
 {
     if (!iop_mv.mono)
     {
@@ -228,7 +227,7 @@ static void IaSetStopBlock(u_char channel)
     sb_tbl[33] = 7;
     sb_tbl[49] = 7;
     while (sceSdVoiceTrans(channel, 0, sb_tbl,
-                           (u_int *) snd_buf_top[2 * channel + 26], 0x40u)
+                           (u_int*) snd_buf_top[2 * channel + 26], 0x40u)
            < 0)
         ;
     //sceSdVoiceTransStatus(channel, 1);

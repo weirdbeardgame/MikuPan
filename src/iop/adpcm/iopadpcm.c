@@ -136,10 +136,6 @@ static void FillStereo(int size, u_char channel, s16** src_buf, s16** dec_buf,
             src += 8;
         }
 
-        s16 volumeL = mVolL * volL / INT16_MAX;
-
-        dec[0] = MixSamples(3584, dec_buf[0], volumeL);
-
         dst = dec_buf[1];
         for (int j = 0; j < 128; j++)
         {
@@ -149,7 +145,9 @@ static void FillStereo(int size, u_char channel, s16** src_buf, s16** dec_buf,
             src += 8;
         }
 
-        s16 volumeR = mVolR * volR / INT16_MAX;
+        s16 volumeL = mVolL * volL * iop_adpcm[0].vol / INT16_MAX;
+        s16 volumeR = mVolR * volR * iop_adpcm[0].vol / INT16_MAX;
+        dec[0] = MixSamples(3584, dec_buf[0], volumeL);
         dec[1] = MixSamples(3584, dec_buf[1], volumeR);
 
         SDL_PutAudioStreamPlanarData(stream, (void*) dec, CHANNELS, 3584);
