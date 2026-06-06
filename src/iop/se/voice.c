@@ -24,7 +24,7 @@ void VoicesInit()
     memset(iop_stat.sev_stat, 0, 24);
 }
 
-VOICE *GetFreeVoice()
+VOICE* GetFreeVoice()
 {
     for (int i = 0; i < 24; i++)
     {
@@ -36,9 +36,9 @@ VOICE *GetFreeVoice()
     return NULL;
 }
 
-static s16 *MixSamples(int sampleCount, s16 *samples, VOICE v)
+static s16* MixSamples(int sampleCount, s16* samples, VOICE v)
 {
-    s16 *buffer = samples;
+    s16* buffer = samples;
     s16 volume = mVolL * v.volL / INT16_MAX;
 
     for (int i = 0; i < sampleCount; i++)
@@ -53,16 +53,16 @@ static s16 *MixSamples(int sampleCount, s16 *samples, VOICE v)
 
 static void FillMono(int vNo)
 {
-    s16 *src;
+    s16* src;
 
-    VOICE *v = &voices[vNo];
-    s16 *out = v->buffer;
+    VOICE* v = &voices[vNo];
+    s16* out = v->buffer;
 
     int sampleCount = 0;
 
     while (v->isPlaying)
     {
-        src = (s16 *) &spuRam[v->nax];
+        src = (s16*) &spuRam[v->nax];
 
         MikuPan_DecodeAdpcmBlock(out, src, v->histL, v->histR);
         out += 28;
@@ -130,7 +130,7 @@ void Key_On(int vNo)
     spec.freq = 48000;
 
     iop_stat.sev_stat[vNo].status = VOICE_USE;
-    VOICE *v = &voices[vNo];
+    VOICE* v = &voices[vNo];
 
     v->histL[0] = 0;
     v->histL[1] = 0;
@@ -156,7 +156,7 @@ void Key_On(int vNo)
 void Key_Off(int vNo)
 {
     info_log("Key_Off vNo=%d", vNo);
-    VOICE *v = &voices[vNo];
+    VOICE* v = &voices[vNo];
 
     if (v->stream)
     {
@@ -194,8 +194,8 @@ void CloseVoices()
 
 void FillAdpcmHeader(int vNo)
 {
-    VOICE *v = &voices[vNo];
-    u16 *bytes = (u16 *) spuRam;
+    VOICE* v = &voices[vNo];
+    u16* bytes = (u16*) spuRam;
     v->header = bytes[v->nax & ~0x7];
 
     if (v->header & (1 << 10))

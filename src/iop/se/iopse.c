@@ -21,34 +21,34 @@ u_int snd_buf_top[] = {0x5400,   0x5F400,  0x68800,  0x78400,  0x84900,
 // The actual voice data is in Voice.h, Voice.c
 static SE_WRK_SET se_wrk_set[24];
 
-u_int *seBuff;
+u_int* seBuff;
 
 SE_START_POINT se_start_point;
 u_int se_start_flg;
 u_int se_stop_flg;
 
-static SE_VSTAT *GetSeVstat(int sv_no);
-static SE_WRK_SET *GetSeWrkSetP(int v_no);
-static void SeSetSeWrk(SE_WRK_SET *swsp);
+static SE_VSTAT* GetSeVstat(int sv_no);
+static SE_WRK_SET* GetSeWrkSetP(int v_no);
+static void SeSetSeWrk(SE_WRK_SET* swsp);
 static void ISeEndCheck();
 
-static int ISePlay(IOP_COMMAND *icp);
-static void ISeStop(IOP_COMMAND *icp);
-static void ISeVol(IOP_COMMAND *icp);
-static void ISeEfctVol(IOP_COMMAND *icp);
-static void ISePitch(IOP_COMMAND *icp);
-static void ISeAllStop(IOP_COMMAND *icp);
+static int ISePlay(IOP_COMMAND* icp);
+static void ISeStop(IOP_COMMAND* icp);
+static void ISeVol(IOP_COMMAND* icp);
+static void ISeEfctVol(IOP_COMMAND* icp);
+static void ISePitch(IOP_COMMAND* icp);
+static void ISeAllStop(IOP_COMMAND* icp);
 static void ISeQuit();
-static void ISePos(IOP_COMMAND *icp);
+static void ISePos(IOP_COMMAND* icp);
 
-static void IopSoundMasterVolChange(IOP_COMMAND *icp);
-static void IopSoundSteMonoChange(IOP_COMMAND *icp);
+static void IopSoundMasterVolChange(IOP_COMMAND* icp);
+static void IopSoundSteMonoChange(IOP_COMMAND* icp);
 
-static void SeChangeSetDataPlay(SE_WRK_SET *swsp, IOP_COMMAND *icp);
-static void SeChangeSetDataPos(SE_WRK_SET *swsp, IOP_COMMAND *icp);
+static void SeChangeSetDataPlay(SE_WRK_SET* swsp, IOP_COMMAND* icp);
+static void SeChangeSetDataPos(SE_WRK_SET* swsp, IOP_COMMAND* icp);
 
-static void GetPrimAndBufNo(short int *prm_no, u_char *buf_no, int v_no);
-static void SeGenerateVolPich(SE_WRK_SET *swsp, int vol_rate, int pan,
+static void GetPrimAndBufNo(short int* prm_no, u_char* buf_no, int v_no);
+static void SeGenerateVolPich(SE_WRK_SET* swsp, int vol_rate, int pan,
                               int phase);
 
 static int CidAndVnum(int voice_num, int voice_sift);
@@ -57,7 +57,7 @@ static void SeSetMix(int core_id, int v_no, char mix_mode);
 void ISeInit(int mode)
 {
     //sceSdEffectAttr r_attr;
-    SE_WRK_SET *swsp;
+    SE_WRK_SET* swsp;
     int i;
 
     swsp = GetSeWrkSetP(0);
@@ -127,7 +127,7 @@ void ISeMain()
 
 static void ISeEndCheck()
 {
-    SE_VSTAT *svsp;
+    SE_VSTAT* svsp;
     int i;
     int j;
     u_int core_flg[2];
@@ -141,7 +141,9 @@ static void ISeEndCheck()
             if (24 * i + j >= 24 && 24 * i + j < 48)
             {
                 if (((core_flg[i] >> j) & 1) != 0 && svsp->status == 1)
+                {
                     svsp->status = 0;
+                }
                 svsp++;
             }
         }
@@ -152,8 +154,8 @@ static void ISeEndCheck()
 
 static void ISeWrkUpdate()
 {
-    SE_WRK_SET *swsp;
-    SE_VSTAT *svsp;
+    SE_WRK_SET* swsp;
+    SE_VSTAT* svsp;
     int i;
 
     swsp = GetSeWrkSetP(0);
@@ -161,13 +163,15 @@ static void ISeWrkUpdate()
     for (i = 0; i < 24; ++i)
     {
         if (!svsp->status)
+        {
             swsp->prm_no = -1;
+        }
         ++swsp;
         ++svsp;
     }
 }
 
-void ISeCmd(IOP_COMMAND *icp)
+void ISeCmd(IOP_COMMAND* icp)
 {
     ISeWrkUpdate();
 
@@ -209,13 +213,13 @@ void ISeCmd(IOP_COMMAND *icp)
     }
 }
 
-static void IopSoundMasterVolChange(IOP_COMMAND *icp)
+static void IopSoundMasterVolChange(IOP_COMMAND* icp)
 {
     //SeSetMasterVol(icp->data1);
     IaSetMasterVol(icp->data1);
 }
 
-static void IopSoundSteMonoChange(IOP_COMMAND *icp)
+static void IopSoundSteMonoChange(IOP_COMMAND* icp)
 {
     if (icp->data1)
     {
@@ -229,10 +233,10 @@ static void IopSoundSteMonoChange(IOP_COMMAND *icp)
     IaSetSteMono();
 }
 
-static int ISePlay(IOP_COMMAND *icp)
+static int ISePlay(IOP_COMMAND* icp)
 {
     int vn;
-    SE_WRK_SET *swsp;
+    SE_WRK_SET* swsp;
 
     swsp = GetSeWrkSetP(icp->data1);
     SeChangeSetDataPlay(swsp, icp);
@@ -243,9 +247,13 @@ static int ISePlay(IOP_COMMAND *icp)
     {
         sceSdSetSwitch(SD_S_KON | 0, 1 << vn);
         if ((swsp->param->attribute & 0x100) != 0)
+        {
             GetSeVstat(swsp->v_no)->status = 2;
+        }
         else
+        {
             GetSeVstat(swsp->v_no)->status = 1;
+        }
 
         return swsp->v_no;
     }
@@ -253,9 +261,13 @@ static int ISePlay(IOP_COMMAND *icp)
     {
         se_start_flg |= 1 << (vn - 24);
         if ((swsp->param->attribute & 0x100) != 0)
+        {
             GetSeVstat(swsp->v_no)->status = 2;
+        }
         else
+        {
             GetSeVstat(swsp->v_no)->status = 1;
+        }
 
         return swsp->v_no;
     }
@@ -263,9 +275,9 @@ static int ISePlay(IOP_COMMAND *icp)
     return -1;
 }
 
-static void ISeStop(IOP_COMMAND *icp)
+static void ISeStop(IOP_COMMAND* icp)
 {
-    SE_VSTAT *svp;
+    SE_VSTAT* svp;
     int vn;
     int candv;
 
@@ -296,13 +308,12 @@ static void ISeStop(IOP_COMMAND *icp)
         swsp->param = 0;
         se_stop_flg |= 1 << (vn - 24);
         GetSeVstat(swsp->v_no)->status = 0;
-
     }
 }
 
-static void ISeVol(IOP_COMMAND *icp)
+static void ISeVol(IOP_COMMAND* icp)
 {
-    SE_WRK_SET *swsp;
+    SE_WRK_SET* swsp;
     int vn;
     int candv;
 
@@ -319,7 +330,7 @@ static void ISeVol(IOP_COMMAND *icp)
     sceSdSetParam(candv | 0x200, swsp->pitch);
 }
 
-static void ISeEfctVol(IOP_COMMAND *icp)
+static void ISeEfctVol(IOP_COMMAND* icp)
 {
     u_short evol;
 
@@ -328,9 +339,9 @@ static void ISeEfctVol(IOP_COMMAND *icp)
     sceSdSetParam(SD_P_EVOLR | 1, evol);
 }
 
-static void ISePitch(IOP_COMMAND *icp)
+static void ISePitch(IOP_COMMAND* icp)
 {
-    SE_WRK_SET *swsp;
+    SE_WRK_SET* swsp;
     int vn;
     int candv;
 
@@ -346,13 +357,13 @@ static void ISePitch(IOP_COMMAND *icp)
     sceSdSetParam(candv | SD_VP_PITCH, swsp->pitch);
 }
 
-static void ISeAllStop(IOP_COMMAND *icp)
+static void ISeAllStop(IOP_COMMAND* icp)
 {
     int i;
     int candv;
     int vn;
-    SE_WRK_SET *swsp;
-    SE_VSTAT *svp;
+    SE_WRK_SET* swsp;
+    SE_VSTAT* svp;
 
     swsp = GetSeWrkSetP(icp->data1);
     svp = GetSeVstat(swsp->v_no);
@@ -382,9 +393,9 @@ static void ISeQuit()
 {
 }
 
-static void ISePos(IOP_COMMAND *icp)
+static void ISePos(IOP_COMMAND* icp)
 {
-    SE_WRK_SET *swsp;
+    SE_WRK_SET* swsp;
     int candv;
 
     swsp = GetSeWrkSetP(icp->data1);
@@ -395,7 +406,7 @@ static void ISePos(IOP_COMMAND *icp)
     sceSdSetParam(candv | SD_VP_PITCH, swsp->pitch);
 }
 
-static void SeChangeSetDataPlay(SE_WRK_SET *swsp, IOP_COMMAND *icp)
+static void SeChangeSetDataPlay(SE_WRK_SET* swsp, IOP_COMMAND* icp)
 {
     GetPrimAndBufNo(&swsp->prm_no, &swsp->buf_no, icp->data2);
     swsp->v_no = icp->data1;
@@ -411,7 +422,7 @@ static void SeChangeSetDataPlay(SE_WRK_SET *swsp, IOP_COMMAND *icp)
     swsp->vol_r = swsp->tgt_vol_r;
 }
 
-static void SeChangeSetDataPos(SE_WRK_SET *swsp, IOP_COMMAND *icp)
+static void SeChangeSetDataPos(SE_WRK_SET* swsp, IOP_COMMAND* icp)
 {
     GetPrimAndBufNo(&swsp->prm_no, &swsp->buf_no, icp->data2);
     swsp->param = SeGetSeParamTbl(swsp->prm_no);
@@ -421,7 +432,7 @@ static void SeChangeSetDataPos(SE_WRK_SET *swsp, IOP_COMMAND *icp)
     swsp->vol_r = swsp->tgt_vol_r;
 }
 
-static void GetPrimAndBufNo(short int *prm_no, u_char *buf_no, int v_no)
+static void GetPrimAndBufNo(short int* prm_no, u_char* buf_no, int v_no)
 {
     if (v_no >= 0 && v_no < 30)
     {
@@ -643,7 +654,7 @@ void SeSetStartPoint(u_char type, u_int no)
     }
 }
 
-static void SeGenerateVolPich(SE_WRK_SET *swsp, int vol_rate, int pan,
+static void SeGenerateVolPich(SE_WRK_SET* swsp, int vol_rate, int pan,
                               int phase)
 {
     swsp->tgt_vol_l = swsp->tgt_vol_r =
@@ -697,7 +708,7 @@ static void SeGenerateVolPich(SE_WRK_SET *swsp, int vol_rate, int pan,
     }
 }
 
-static SE_VSTAT *GetSeVstat(int sv_no)
+static SE_VSTAT* GetSeVstat(int sv_no)
 {
     if (sv_no >= 0 && sv_no < 24)
     {
@@ -709,7 +720,7 @@ static SE_VSTAT *GetSeVstat(int sv_no)
     }
 }
 
-static SE_WRK_SET *GetSeWrkSetP(int v_no)
+static SE_WRK_SET* GetSeWrkSetP(int v_no)
 {
     if (v_no >= 0 && v_no < 24)
     {
@@ -721,7 +732,7 @@ static SE_WRK_SET *GetSeWrkSetP(int v_no)
     }
 }
 
-static void SeSetSeWrk(SE_WRK_SET *swsp)
+static void SeSetSeWrk(SE_WRK_SET* swsp)
 {
     int num;
     int candv;

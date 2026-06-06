@@ -167,8 +167,8 @@ void IAdpcmPreLoadEnd(int channel)
         iop_adpcm[channel].start +=
             (iop_adpcm[channel].lreq_size + 2047) / 2048;
         iop_adpcm[channel].str_lpos = iop_adpcm[channel].lreq_size;
-        iop_adpcm[channel].str_tpos = 0x2000;
-        iop_adpcm[channel].pos = 0x2000;
+        iop_adpcm[channel].str_tpos = 0;
+        iop_adpcm[channel].pos = 0;
     }
 
     if (iop_adpcm[channel].use)
@@ -595,7 +595,7 @@ SDLCALL void IAdpcmReadCh0(void* userdata, SDL_AudioStream* stream,
 
         if (additional_amount < 0x1000)
         {
-            if (iop_adpcm[0].pos == (iop_adpcm[0].dbidi + 1) * 0x20000)
+            if (iop_adpcm[0].pos == (iop_adpcm[0].dbidi + 1))
             {
                 remain_l = iop_adpcm[0].szFile - iop_adpcm[0].str_lpos;
                 start = iop_adpcm[0].start;
@@ -694,8 +694,8 @@ SDLCALL void IAdpcmReadCh0(void* userdata, SDL_AudioStream* stream,
             }
         }
 
-        iop_adpcm[0].pos += chunks;
-        iop_adpcm[0].str_tpos += chunks;
+        iop_adpcm[0].pos += 2048;
+        iop_adpcm[0].str_tpos += 2048;
     }
     else
     {
