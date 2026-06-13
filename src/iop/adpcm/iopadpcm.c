@@ -8,6 +8,7 @@
 #include "libsd.h"
 #include "loadcore.h"
 #include "memory.h"
+#include "sce/libsd.h"
 #include "thread.h"
 
 IOP_ADPCM iop_adpcm[2];
@@ -397,7 +398,7 @@ void IAdpcmPlay(ADPCM_CMD* acp)
         IaSetRegKon(channel);
         sceSdSetCoreAttr(iop_adpcm[channel].core | 4, 1u);
         iop_adpcm[channel].stat = ADPCM_STAT_PLAY;
-
+        SetSongSize(iop_adpcm[channel].szFile);        
         return;
     }
 }

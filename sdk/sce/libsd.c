@@ -12,6 +12,7 @@
 s16 spuRam[(1024 * 1024 * 2) >> 1];
 s32 mVolL;
 s32 mVolR;
+int songSize;
 SDL_AudioDeviceID audio_dev;
 
 static u_short sd_param_regs[0x10000];
@@ -336,19 +337,7 @@ void MikuPan_SdShutdown(void)
 }
 
 
-s16** DeInterleaveStereo(int sampleCount)
+void SetSongSize(int size)
 {
-    s16* stereoSrc[2];
-
-    stereoSrc[0] = malloc(0x15160 * 10);
-    stereoSrc[1] = malloc(0x15160 * 10);
-
-    for (int i = 0; i < sampleCount; i++)
-    {
-        stereoSrc[0] = spuRam[i];
-        stereoSrc[1] = spuRam[i + 1];
-    }
-
-
-    return stereoSrc;
+    songSize = size;
 }

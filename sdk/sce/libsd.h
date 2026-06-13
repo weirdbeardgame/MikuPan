@@ -63,6 +63,7 @@ typedef struct {
 extern s16 spuRam[(1024 * 1024 * 2) >> 1];
 extern s32 mVolL;
 extern s32 mVolR;
+extern int songSize;
 
 int sceSdInit(int flag);
 void sceSdSetParam(u_short entry, u_short value);
@@ -77,7 +78,7 @@ void sceSdSetEffectAttr(int core, sceSdEffectAttr* attr);
 void sceSdSetTransIntrHandler(int channel, sceSdTransIntrHandler handler, void* common);
 void sceSdSetSpu2IntrHandler(sceSdSpu2IntrHandler handler, void* common);
 
-s16** DeInterleaveStereo(int sampleCount);
+void SetSongSize(int size);
 
 void ClearAudioBuffer(void);
 void MikuPan_SdShutdown(void);

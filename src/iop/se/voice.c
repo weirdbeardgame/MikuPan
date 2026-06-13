@@ -157,11 +157,33 @@ static void StopVoicePlayback(int vNo)
     }
 }
 
-static void FillStereo(int vNo, int size)
+
+void DeInterleaveStereo(int sampleCount, int vNo, s16* dst[2])
+{
+    s16* uninterleavedSrc;
+
+    VOICE *v = &voices[vNo];
+
+    uninterleavedSrc = (s16*) &spuRam[v->nax];
+
+    dst[0] = malloc(0x15160 * 10);
+    dst[1] = malloc(0x15160 * 10);
+
+    for (int i = 0; i < sampleCount; i++)
+    {
+        s16 L = uninterleavedSrc[i];
+        s16 R = uninterleavedSrc[i + 1];
+
+        dst[0][i] = L;
+        dst[1][i] = R;
+    }
+}
+
+static void FillStereo(int vNo)
 {
     VOICE* v = &voices[vNo];
 
-    if (v->stream == NULL || v->buffer == NULL)
+    if (v->stream == NULL || v->buffer == NULL || songSize == 0)
     {
         StopVoicePlayback(vNo);
         return;
@@ -170,10 +192,11 @@ static void FillStereo(int vNo, int size)
     v->bufferStereo[0] = malloc(0x15160 * 10);
     v->bufferStereo[1] = malloc(0x15160 * 10);
 
-    int chunks = VOICE_BUFFER_SAMPLES / 0x800 / 2;
+    int chunks = songSize / 0x800 / 2;
     
-    s16** src = DeInterleaveStereo(chunks);
+    s16* src[2];
     s16* dst;
+    DeInterleaveStereo(chunks, vNo, src);
 
 
     for (int i = 0; i < chunks; i++)
@@ -186,7 +209,7 @@ static void FillStereo(int vNo, int size)
             dst = MixSamples(3584, dst, volumeL);
 
             dst += 28;
-            src += 8;
+            src[0] += 8;
         }
 
         dst = v->bufferStereo[1];
@@ -198,7 +221,7 @@ static void FillStereo(int vNo, int size)
             // dst = MixSamples(3584, dst, volumeR);
 
             dst += 28;
-            src += 8;
+            src[1] += 8;
         }
 
         SDL_PutAudioStreamPlanarData(v->stream, (void*) dst, 2, 3584);

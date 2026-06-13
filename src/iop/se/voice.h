@@ -57,7 +57,7 @@ void FillAdpcmHeader(int vNo);
 void Key_On(int vNo);
 void Key_Off(int vNo);
 void VoiceRun();
-
+void DeInterleaveStereo(int sampleCount, int vNo, s16* dst[2]);
 
 static inline int NumChannels(u_char isMono)
 {
