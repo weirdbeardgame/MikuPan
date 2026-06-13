@@ -13,7 +13,7 @@ bool loopRepeat;
 VOICE voices[VOICE_NUM];
 
 #define VOICE_BUFFER_BYTES (0x15160 * 10)
-#define VOICE_BUFFER_SAMPLES (VOICE_BUFFER_BYTES / (int)sizeof(s16))
+#define VOICE_BUFFER_SAMPLES (VOICE_BUFFER_BYTES / (int) sizeof(s16))
 #define ADPCM_BLOCK_WORDS 8
 #define ADPCM_BLOCK_SAMPLES 28
 /* Keep roughly this much PCM queued per voice. Decoding is paced against the
@@ -21,7 +21,8 @@ VOICE voices[VOICE_NUM];
    the ADPCM music streamer depends on that for its IRQA-paced uploads. */
 #define VOICE_TARGET_QUEUE_BYTES 8192
 /* One SPU buffer half (128 blocks) per fill keeps at most one IRQA crossing
-   per call, so the streamer's IRQ -> upload -> re-arm handshake stays ordered. */
+   per call, so the streamer's IRQ -> upload -> re-arm handshake stays ordered.
+ */
 #define VOICE_MAX_BLOCKS_PER_FILL 128
 
 void VoicesInit()
@@ -29,7 +30,7 @@ void VoicesInit()
     // SPU2 has 24 voices per core.
     for (int i = 0; i < VOICE_NUM; i++)
     {
-        VOICE *v = &voices[i];
+        VOICE* v = &voices[i];
 
         voices[i].vNo = i;
         voices[i].size = 0;
@@ -58,7 +59,7 @@ void VoicesInit()
     memset(iop_stat.sev_stat, 0, sizeof(iop_stat.sev_stat));
 }
 
-VOICE *GetFreeVoice()
+VOICE* GetFreeVoice()
 {
     for (int i = 0; i < 24; i++)
     {
@@ -70,22 +71,21 @@ VOICE *GetFreeVoice()
     return NULL;
 }
 
-static s16 *MixSamples(int sampleCount, s16 *samples, VOICE v)
+static s16* MixSamples(int sampleCount, s16* samples, s32 volume)
 {
-    s16 *buffer = samples;
-    s16 volume = mVolL * v.volL / INT16_MAX;
+    s16* buffer = samples;
 
     for (int i = 0; i < sampleCount; i++)
     {
         s16 sample = samples[i];
         sample = ApplyVolume(sample, volume);
-        //sample = ApplyVolume(sample, v.volL);
+        // sample = ApplyVolume(sample, v.volL);
         buffer[i] = sample;
     }
     return buffer;
 }
 
-static bool EnsureVoiceStream(VOICE *v)
+static bool EnsureVoiceStream(VOICE* v)
 {
     if (v->stream != NULL)
     {
@@ -99,7 +99,7 @@ static bool EnsureVoiceStream(VOICE *v)
 
     SDL_AudioSpec spec;
     SDL_zero(spec);
-    spec.channels = 1;
+    spec.channels = NumChannels(iop_mv.mono);
     spec.format = SDL_AUDIO_S16;
     spec.freq = 48000;
 
@@ -122,9 +122,9 @@ static bool EnsureVoiceStream(VOICE *v)
     return true;
 }
 
-static void UpdateVoiceFrequencyRatio(VOICE *v)
+static void UpdateVoiceFrequencyRatio(VOICE* v)
 {
-    float ratio = v->pitch / (float)0x1000;
+    float ratio = v->pitch / (float) 0x1000;
 
     if (ratio <= 0.0f)
     {
@@ -138,7 +138,8 @@ static void UpdateVoiceFrequencyRatio(VOICE *v)
 
     if (!SDL_SetAudioStreamFrequencyRatio(v->stream, ratio))
     {
-        info_log("Failed to set audio stream frequency ratio: %s", SDL_GetError());
+        info_log("Failed to set audio stream frequency ratio: %s",
+                 SDL_GetError());
         return;
     }
 
@@ -147,7 +148,7 @@ static void UpdateVoiceFrequencyRatio(VOICE *v)
 
 static void StopVoicePlayback(int vNo)
 {
-    VOICE *v = &voices[vNo];
+    VOICE* v = &voices[vNo];
 
     v->isPlaying = false;
     if (vNo >= 24 && vNo < 48)
@@ -156,25 +157,74 @@ static void StopVoicePlayback(int vNo)
     }
 }
 
-static void FillMono(int vNo)
+static void FillStereo(int vNo, int size)
 {
-    s16 *src;
+    VOICE* v = &voices[vNo];
 
-    VOICE *v = &voices[vNo];
     if (v->stream == NULL || v->buffer == NULL)
     {
         StopVoicePlayback(vNo);
         return;
     }
 
-    s16 *out = v->buffer;
+    v->bufferStereo[0] = malloc(0x15160 * 10);
+    v->bufferStereo[1] = malloc(0x15160 * 10);
+
+    int chunks = VOICE_BUFFER_SAMPLES / 0x800 / 2;
+    
+    s16** src = DeInterleaveStereo(chunks);
+    s16* dst;
+
+
+    for (int i = 0; i < chunks; i++)
+    {
+        dst = v->bufferStereo[0];
+        for (int j = 0; j < 128; j++)
+        {
+            MikuPan_DecodeAdpcmBlock(dst, src[0], v->histL[0], &v->histL[1]);
+            s16 volumeL = mVolL * v->volL / INT16_MAX;
+            dst = MixSamples(3584, dst, volumeL);
+
+            dst += 28;
+            src += 8;
+        }
+
+        dst = v->bufferStereo[1];
+        for (int j = 0; j < 128; j++)
+        {
+
+            MikuPan_DecodeAdpcmBlock(dst, src[1], &v->histR[0], &v->histR[1]);
+            s16 volumeR = mVolR * v->volR / INT16_MAX;
+            // dst = MixSamples(3584, dst, volumeR);
+
+            dst += 28;
+            src += 8;
+        }
+
+        SDL_PutAudioStreamPlanarData(v->stream, (void*) dst, 2, 3584);
+    }
+}
+
+static void FillMono(int vNo)
+{
+    s16* src;
+
+    VOICE* v = &voices[vNo];
+    if (v->stream == NULL || v->buffer == NULL)
+    {
+        StopVoicePlayback(vNo);
+        return;
+    }
+
+    s16* out = v->buffer;
 
     int sampleCount = 0;
     int blockCount = 0;
 
-    while (v->isPlaying && blockCount < VOICE_MAX_BLOCKS_PER_FILL &&
-           SDL_GetAudioStreamQueued(v->stream) + sampleCount * (int)sizeof(s16)
-               < VOICE_TARGET_QUEUE_BYTES)
+    while (v->isPlaying && blockCount < VOICE_MAX_BLOCKS_PER_FILL
+           && SDL_GetAudioStreamQueued(v->stream)
+                      + sampleCount * (int) sizeof(s16)
+                  < VOICE_TARGET_QUEUE_BYTES)
     {
         if (sampleCount + ADPCM_BLOCK_SAMPLES > VOICE_BUFFER_SAMPLES)
         {
@@ -190,7 +240,7 @@ static void FillMono(int vNo)
             break;
         }
 
-        src = (s16 *) &spuRam[v->nax];
+        src = (s16*) &spuRam[v->nax];
 
         MikuPan_DecodeAdpcmBlock(out, src, v->histL, v->histR);
         out += ADPCM_BLOCK_SAMPLES;
@@ -218,10 +268,11 @@ static void FillMono(int vNo)
 
     if (sampleCount > 0)
     {
-        MixSamples(sampleCount, v->buffer, *v);
+        s16 volume = mVolL * v->volL / INT16_MAX;
+        MixSamples(sampleCount, v->buffer, volume);
         UpdateVoiceFrequencyRatio(v);
         SDL_PutAudioStreamData(v->stream, v->buffer,
-                               sampleCount * (int)sizeof(s16));
+                               sampleCount * (int) sizeof(s16));
     }
 }
 
@@ -237,7 +288,14 @@ void VoiceRun()
     {
         if (voices[i].isPlaying)
         {
-            FillMono(i);
+            if (iop_mv.mono)
+            {
+                FillMono(i);
+            }
+            else
+            {
+                FillStereo(i);
+            }
         }
     }
 }
@@ -249,7 +307,7 @@ void Key_On(int vNo)
         return;
     }
 
-    VOICE *v = &voices[vNo];
+    VOICE* v = &voices[vNo];
     if (!EnsureVoiceStream(v))
     {
         StopVoicePlayback(vNo);
@@ -285,7 +343,7 @@ void Key_Off(int vNo)
     }
 
     info_log("Key_Off vNo=%d", vNo);
-    VOICE *v = &voices[vNo];
+    VOICE* v = &voices[vNo];
     StopVoicePlayback(vNo);
 
     if (v->stream)
@@ -306,7 +364,7 @@ void CloseVoice(int vNo)
         return;
     }
 
-    VOICE *v = &voices[vNo];
+    VOICE* v = &voices[vNo];
 
     v->isPlaying = false;
     v->size = 0;
@@ -347,8 +405,8 @@ void CloseVoices()
 
 void FillAdpcmHeader(int vNo)
 {
-    VOICE *v = &voices[vNo];
-    u16 *bytes = (u16 *) spuRam;
+    VOICE* v = &voices[vNo];
+    u16* bytes = (u16*) spuRam;
     v->header = bytes[v->nax & ~0x7];
 
     if (v->header & (1 << 10))

@@ -334,3 +334,21 @@ void MikuPan_SdShutdown(void)
     }
     sd_initialized = 0;
 }
+
+
+s16** DeInterleaveStereo(int sampleCount)
+{
+    s16* stereoSrc[2];
+
+    stereoSrc[0] = malloc(0x15160 * 10);
+    stereoSrc[1] = malloc(0x15160 * 10);
+
+    for (int i = 0; i < sampleCount; i++)
+    {
+        stereoSrc[0] = spuRam[i];
+        stereoSrc[1] = spuRam[i + 1];
+    }
+
+
+    return stereoSrc;
+}

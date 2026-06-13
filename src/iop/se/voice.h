@@ -27,13 +27,13 @@ typedef struct
     bool isPlaying;
 
     s16 *buffer;
+    s16 *bufferStereo[2];
     u16 header;
     u_int ssa;// Single Playback Address
     u_int lsa;// Looped Playback Address
     u_int nax;
 
     s32 histL[2], histR[2];
-
 
     u_short volL;
     u_short volR;
@@ -58,6 +58,11 @@ void Key_On(int vNo);
 void Key_Off(int vNo);
 void VoiceRun();
 
+
+static inline int NumChannels(u_char isMono)
+{
+    return isMono ? 1 : 2;
+}
 
 static inline void SetPitch(int vNo, u_short val)
 {

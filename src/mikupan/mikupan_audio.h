@@ -6,7 +6,6 @@
 
 #define SAMPLE_RATE 48000
 #define BIT_RATE 16
-#define CHANNELS 2
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))

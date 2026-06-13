@@ -77,6 +77,8 @@ void sceSdSetEffectAttr(int core, sceSdEffectAttr* attr);
 void sceSdSetTransIntrHandler(int channel, sceSdTransIntrHandler handler, void* common);
 void sceSdSetSpu2IntrHandler(sceSdSpu2IntrHandler handler, void* common);
 
+s16** DeInterleaveStereo(int sampleCount);
+
 void ClearAudioBuffer(void);
 void MikuPan_SdShutdown(void);
 
