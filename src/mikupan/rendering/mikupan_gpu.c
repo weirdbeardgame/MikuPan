@@ -1,8 +1,12 @@
 #include "mikupan_gpu.h"
 
+#include <openxr/openxr.h>
+#include "SDL3/SDL_openxr.h"
+#include "mikupan/mikupan_logging.h"
 #include "mikupan/mikupan_logging_c.h"
 #include "mikupan_pipeline.h"
 #include "mikupan_shader.h"
+
 #include <glad/gl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +15,36 @@
 #define MIKUPAN_GPU_MAX_TEXTURES 8192
 #define MIKUPAN_GPU_MAX_VAOS 4096
 #define MIKUPAN_GPU_MAX_PIPELINES 4096
+
+#define CHECK_CREATE(var, thing)                                               \
+    {                                                                          \
+        if (!(var))                                                            \
+        {                                                                      \
+            info_log("Failed to create %s: %s", thing, SDL_GetError());        \
+            return false;                                                      \
+        }                                                                      \
+    }
+#define XR_CHECK(result, msg)                                                  \
+    do                                                                         \
+    {                                                                          \
+        if (XR_FAILED(result))                                                 \
+        {                                                                      \
+            info_log("OpenXR Error: %s (result=%d)", msg, (int) (result));     \
+            return false;                                                      \
+        }                                                                      \
+    }                                                                          \
+    while (0)
+#define XR_CHECK_QUIT(result, msg)                                             \
+    do                                                                         \
+    {                                                                          \
+        if (XR_FAILED(result))                                                 \
+        {                                                                      \
+            info_log("OpenXR Error: %s (result=%d)", msg, (int) (result));     \
+            quit(2);                                                           \
+            return;                                                            \
+        }                                                                      \
+    }                                                                          \
+    while (0)
 
 typedef struct
 {
@@ -43,10 +77,10 @@ typedef struct
     int used;
     int shader_index;
     /* The pipeline's vertex layout depends only on the vertex-format type, not
-     * on which VAO instance is bound — so the cache keys on pipeline_type. Keying
-     * on the VAO id (as it did before) created a duplicate pipeline for every
-     * mesh-cache entry and leaked them when entries were destroyed (e.g. each
-     * time an enemy model spawned/despawned). */
+     * on which VAO instance is bound — so the cache keys on pipeline_type.
+     * Keying on the VAO id (as it did before) created a duplicate pipeline for
+     * every mesh-cache entry and leaked them when entries were destroyed (e.g.
+     * each time an enemy model spawned/despawned). */
     int pipeline_type;
     unsigned int primitive;
     unsigned int state_hash;
@@ -284,6 +318,39 @@ static MikuPan_MaterialData g_material_data = {
     .uMatSpecular = {0.0f, 0.0f, 0.0f, 1.0f},
     .uMatEmission = {0.0f, 0.0f, 0.0f, 1.0f},
 };
+
+/* ========================================================================
+ * OpenXR Function Pointers (loaded dynamically)
+ * ======================================================================== */
+
+static PFN_xrGetInstanceProcAddr pfn_xrGetInstanceProcAddr = NULL;
+static PFN_xrEnumerateViewConfigurationViews
+    pfn_xrEnumerateViewConfigurationViews = NULL;
+static PFN_xrEnumerateSwapchainImages pfn_xrEnumerateSwapchainImages = NULL;
+static PFN_xrCreateReferenceSpace pfn_xrCreateReferenceSpace = NULL;
+static PFN_xrDestroySpace pfn_xrDestroySpace = NULL;
+static PFN_xrDestroySession pfn_xrDestroySession = NULL;
+static PFN_xrDestroyInstance pfn_xrDestroyInstance = NULL;
+static PFN_xrPollEvent pfn_xrPollEvent = NULL;
+static PFN_xrBeginSession pfn_xrBeginSession = NULL;
+static PFN_xrEndSession pfn_xrEndSession = NULL;
+static PFN_xrWaitFrame pfn_xrWaitFrame = NULL;
+static PFN_xrBeginFrame pfn_xrBeginFrame = NULL;
+static PFN_xrEndFrame pfn_xrEndFrame = NULL;
+static PFN_xrLocateViews pfn_xrLocateViews = NULL;
+static PFN_xrAcquireSwapchainImage pfn_xrAcquireSwapchainImage = NULL;
+static PFN_xrWaitSwapchainImage pfn_xrWaitSwapchainImage = NULL;
+static PFN_xrReleaseSwapchainImage pfn_xrReleaseSwapchainImage = NULL;
+
+/* OpenXR state */
+static XrInstance xr_instance = XR_NULL_HANDLE;
+static XrSystemId xr_system_id = XR_NULL_SYSTEM_ID;
+static XrSession xr_session = XR_NULL_HANDLE;
+static XrSpace xr_local_space = XR_NULL_HANDLE;
+static bool xr_session_running = false;
+static bool xr_should_quit = false;
+
+bool xrEnabled = true;
 
 extern SDL_GPUShader* MikuPan_GetGPUVertexShader(int idx);
 extern SDL_GPUShader* MikuPan_GetGPUFragmentShader(int idx);
@@ -596,25 +663,84 @@ static void CreateFallbackTexture(void)
     SDL_ReleaseGPUTransferBuffer(g_device, transfer);
 }
 
+static bool init_xr_session(void)
+{
+    XrResult result;
+
+    /* Create session */
+    XrSessionCreateInfo session_info = {XR_TYPE_SESSION_CREATE_INFO};
+    result = SDL_CreateGPUXRSession(g_device, &session_info, &xr_session);
+    XR_CHECK(result, "Failed to create XR session");
+
+    /* Create reference space */
+    XrReferenceSpaceCreateInfo space_info = {
+        XR_TYPE_REFERENCE_SPACE_CREATE_INFO};
+    space_info.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
+    space_info.poseInReferenceSpace.orientation.w =
+        1.0f; /* Identity quaternion */
+
+    result =
+        pfn_xrCreateReferenceSpace(xr_session, &space_info, &xr_local_space);
+    XR_CHECK(result, "Failed to create reference space");
+
+    return true;
+}
+
 int MikuPan_GPUInit(SDL_Window* window, int vsync, const char* gpu_driver,
                     int gpu_debug)
 {
     g_window = window;
 
-    const bool debug = gpu_debug ? true : false;
-    const char* requested =
-        (gpu_driver != NULL && gpu_driver[0] != '\0') ? gpu_driver : NULL;
-    g_device =
-        SDL_CreateGPUDevice(MIKUPAN_GPU_SHADER_FORMATS, debug, requested);
-    if (g_device == NULL && requested != NULL)
+    if (xrEnabled)
     {
-        info_log("Could not create SDL_GPU device with driver '%s' (%s), "
-                 "falling back to automatic selection",
-                 requested, SDL_GetError());
-        g_device =
-            SDL_CreateGPUDevice(MIKUPAN_GPU_SHADER_FORMATS, debug, NULL);
+        SDL_OpenXR_LoadLibrary();
+
+        SDL_PropertiesID props = SDL_CreateProperties();
+
+        SDL_SetBooleanProperty(
+            props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_SPIRV_BOOLEAN, true);
+        SDL_SetBooleanProperty(
+            props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_DXIL_BOOLEAN, true);
+        SDL_SetBooleanProperty(
+            props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_MSL_BOOLEAN, true);
+
+        SDL_SetBooleanProperty(
+            props, SDL_PROP_GPU_DEVICE_CREATE_XR_ENABLE_BOOLEAN, true);
+        SDL_SetPointerProperty(props,
+                               SDL_PROP_GPU_DEVICE_CREATE_XR_INSTANCE_POINTER,
+                               &xr_instance);
+        SDL_SetPointerProperty(props,
+                               SDL_PROP_GPU_DEVICE_CREATE_XR_SYSTEM_ID_POINTER,
+                               &xr_system_id);
+        SDL_SetStringProperty(
+            props, SDL_PROP_GPU_DEVICE_CREATE_XR_APPLICATION_NAME_STRING,
+            "MikuPan");
+
+        SDL_SetNumberProperty(
+            props, SDL_PROP_GPU_DEVICE_CREATE_XR_APPLICATION_VERSION_NUMBER, 1);
+
+        g_device = SDL_CreateGPUDeviceWithProperties(props);
+        SDL_DestroyProperties(props);
     }
 
+    else
+    {
+
+        const bool debug = gpu_debug ? true : false;
+        const char* requested =
+            (gpu_driver != NULL && gpu_driver[0] != '\0') ? gpu_driver : NULL;
+        g_device =
+            SDL_CreateGPUDevice(MIKUPAN_GPU_SHADER_FORMATS, debug, requested);
+        if (g_device == NULL && requested != NULL)
+        {
+            info_log(
+                "Could not create SDL_GPU device with driver '%s' (%s), "
+                "falling back to automatic selection",
+                requested, SDL_GetError());
+            g_device =
+                SDL_CreateGPUDevice(MIKUPAN_GPU_SHADER_FORMATS, debug, NULL);
+        }
+    }
     if (g_device == NULL)
     {
         info_log("Error creating SDL_GPU device: %s", SDL_GetError());
@@ -636,6 +762,12 @@ int MikuPan_GPUInit(SDL_Window* window, int vsync, const char* gpu_driver,
     CreateFallbackTexture();
     SetDefaultUniforms();
     SetDefaultRenderState();
+
+    if (xrEnabled)
+    {
+        init_xr_session();
+    }
+
     return 1;
 }
 
@@ -765,8 +897,8 @@ void MikuPan_GPUEndFrame(void)
 
 static void ResolveSceneTexture(int preserve_msaa)
 {
-    if (g_scene_msaa <= 1 || !g_scene_resolve_dirty
-        || g_scene_texture_id == 0 || g_scene_msaa_color_id == 0)
+    if (g_scene_msaa <= 1 || !g_scene_resolve_dirty || g_scene_texture_id == 0
+        || g_scene_msaa_color_id == 0)
     {
         return;
     }
@@ -962,7 +1094,7 @@ void MikuPan_GPUCreateInternalBuffer(int width, int height, int msaa)
     SDL_GPUSampleCount sc = SampleCountFromMSAA(msaa);
     while (sc != SDL_GPU_SAMPLECOUNT_1
            && !SDL_GPUTextureSupportsSampleCount(
-                  g_device, SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM, sc))
+               g_device, SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM, sc))
     {
         sc = (sc == SDL_GPU_SAMPLECOUNT_8)   ? SDL_GPU_SAMPLECOUNT_4
              : (sc == SDL_GPU_SAMPLECOUNT_4) ? SDL_GPU_SAMPLECOUNT_2
@@ -1585,7 +1717,8 @@ static SDL_GPUGraphicsPipeline* GetPipeline(unsigned int primitive)
     }
 
     /* Key on the vertex-format type (shared by all VAOs of that type), not the
-     * VAO instance — otherwise every mesh-cache entry spawns its own pipeline. */
+     * VAO instance — otherwise every mesh-cache entry spawns its own pipeline.
+     */
     int pipeline_type = g_vaos[g_bound_vao].pipeline_type - 1;
 
     unsigned int state_hash = RenderStateHash();
@@ -1640,13 +1773,13 @@ static SDL_GPUGraphicsPipeline* GetPipeline(unsigned int primitive)
     blend.color_blend_op = SDL_GPU_BLENDOP_ADD;
     /* Alpha channel: keep the destination (framebuffer) alpha opaque instead of
      * blending it like a colour. With SRC_ALPHA here, every semi-transparent 2D
-     * sprite drives the framebuffer alpha below 1. D3D12 ignores swapchain alpha
-     * so desktop looks fine, but Android/Vulkan SurfaceFlinger composites the
-     * surface USING that alpha, making all 2D sprites/HUD translucent against
-     * whatever is behind the window. ONE + ONE_MINUS_SRC_ALPHA (and ONE + ONE
-     * for additive) leaves a cleared-to-1 target at alpha 1 everywhere. ImGui's
-     * backend does the same, which is why its overlay stayed correct. RGB
-     * (the visible colour) is unaffected on every backend. */
+     * sprite drives the framebuffer alpha below 1. D3D12 ignores swapchain
+     * alpha so desktop looks fine, but Android/Vulkan SurfaceFlinger composites
+     * the surface USING that alpha, making all 2D sprites/HUD translucent
+     * against whatever is behind the window. ONE + ONE_MINUS_SRC_ALPHA (and ONE
+     * + ONE for additive) leaves a cleared-to-1 target at alpha 1 everywhere.
+     * ImGui's backend does the same, which is why its overlay stayed correct.
+     * RGB (the visible colour) is unaffected on every backend. */
     blend.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
     blend.dst_alpha_blendfactor = g_state.additive_blend
                                       ? SDL_GPU_BLENDFACTOR_ONE
@@ -1734,13 +1867,12 @@ static void BeginTargetPassIfNeeded(void)
     }
 
     SDL_GPUColorTargetInfo color = {0};
-    const int resolving_scene = g_target_resolve != NULL
-                                && g_scene_resolve_requested;
+    const int resolving_scene =
+        g_target_resolve != NULL && g_scene_resolve_requested;
     color.texture = g_target_color;
     color.clear_color = (SDL_FColor) {0.0f, 0.0f, 0.0f, 1.0f};
-    color.load_op = (!resolving_scene && g_target_clear)
-                        ? SDL_GPU_LOADOP_CLEAR
-                        : SDL_GPU_LOADOP_LOAD;
+    color.load_op = (!resolving_scene && g_target_clear) ? SDL_GPU_LOADOP_CLEAR
+                                                         : SDL_GPU_LOADOP_LOAD;
     color.store_op = SDL_GPU_STOREOP_STORE;
     color.cycle = false;
 
@@ -2043,10 +2175,9 @@ void MikuPan_GPUSetTarget(MikuPan_GPUTarget target, int clear)
 
         if (g_swapchain == NULL)
         {
-            if (!SDL_WaitAndAcquireGPUSwapchainTexture(g_cmd, g_window,
-                                                       &g_swapchain,
-                                                       &swapchain_width,
-                                                       &swapchain_height))
+            if (!SDL_WaitAndAcquireGPUSwapchainTexture(
+                    g_cmd, g_window, &g_swapchain, &swapchain_width,
+                    &swapchain_height))
             {
                 info_log("SDL_WaitAndAcquireGPUSwapchainTexture failed: %s",
                          SDL_GetError());
@@ -2057,8 +2188,8 @@ void MikuPan_GPUSetTarget(MikuPan_GPUTarget target, int clear)
         g_target_color = g_swapchain;
         if (swapchain_width > 0 && swapchain_height > 0)
         {
-            g_target_width = (int)swapchain_width;
-            g_target_height = (int)swapchain_height;
+            g_target_width = (int) swapchain_width;
+            g_target_height = (int) swapchain_height;
         }
         else if (g_target_color != NULL)
         {
@@ -2280,7 +2411,8 @@ static void BindDrawState(unsigned int primitive)
         }
     }
 
-    /* Skip the re-bind when both sampler slots are unchanged from the last draw. */
+    /* Skip the re-bind when both sampler slots are unchanged from the last
+     * draw. */
     {
         int changed = !g_sampler_binding_valid;
         for (int i = 0; !changed && i < 2; i++)

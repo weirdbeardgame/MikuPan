@@ -77,6 +77,9 @@ typedef struct MikuPan_GPUUniformBlock
     int uPadFlags[4];
 } MikuPan_GPUUniformBlock;
 
+// Do we have an XR session enabled? For now just set this to true
+extern bool xrEnabled;
+
 /// Create the SDL_GPU device and claim the window. gpu_driver requests an
 /// SDL_GPU backend by name ("vulkan", "direct3d12", ...); NULL or "" lets SDL
 /// pick. Falls back to automatic selection when the named driver fails.
