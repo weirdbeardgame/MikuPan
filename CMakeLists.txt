@@ -34,8 +34,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/MikuPan)
 
-find_package(OpenXR REQUIRED CONFIG)
-
 include(sdl3)
 include(cimgui)
 include(spdlog)
@@ -44,6 +42,7 @@ include(ffmpeg)
 include(xxhash)
 include(inipp)
 include(shadercross)
+add_subdirectory("extern/OpenXR-SDK")
 
 set(MIKUPAN_SOURCES
         resources/shaders/textured_mesh_lighted.frag

@@ -105,6 +105,7 @@ typedef struct
 } GPURenderState;
 
 static SDL_GPUDevice* g_device = NULL;
+static SDL_GPUDevice* g_device_xr = NULL;
 static SDL_Window* g_window = NULL;
 static SDL_GPUCommandBuffer* g_cmd = NULL;
 static SDL_GPURenderPass* g_pass = NULL;
@@ -669,8 +670,13 @@ static bool init_xr_session(void)
 
     /* Create session */
     XrSessionCreateInfo session_info = {XR_TYPE_SESSION_CREATE_INFO};
-    result = SDL_CreateGPUXRSession(g_device, &session_info, &xr_session);
+    result = SDL_CreateGPUXRSession(g_device_xr, &session_info, &xr_session);
     XR_CHECK(result, "Failed to create XR session");
+
+    if (result != XR_SUCCESS) {
+        info_log("XR Session creation failed: %d\n", result);
+        return false;
+    }
 
     /* Create reference space */
     XrReferenceSpaceCreateInfo space_info = {
@@ -693,8 +699,6 @@ int MikuPan_GPUInit(SDL_Window* window, int vsync, const char* gpu_driver,
 
     if (xrEnabled)
     {
-        SDL_OpenXR_LoadLibrary();
-
         SDL_PropertiesID props = SDL_CreateProperties();
 
         SDL_SetBooleanProperty(
@@ -719,7 +723,7 @@ int MikuPan_GPUInit(SDL_Window* window, int vsync, const char* gpu_driver,
         SDL_SetNumberProperty(
             props, SDL_PROP_GPU_DEVICE_CREATE_XR_APPLICATION_VERSION_NUMBER, 1);
 
-        g_device = SDL_CreateGPUDeviceWithProperties(props);
+        g_device_xr = SDL_CreateGPUDeviceWithProperties(props);
         SDL_DestroyProperties(props);
     }
 
@@ -741,13 +745,17 @@ int MikuPan_GPUInit(SDL_Window* window, int vsync, const char* gpu_driver,
                 SDL_CreateGPUDevice(MIKUPAN_GPU_SHADER_FORMATS, debug, NULL);
         }
     }
-    if (g_device == NULL)
+    if (g_device_xr == NULL)
+    {
+        info_log("Headset not initalized: %s", SDL_GetError());
+    }
+    else if (! xrEnabled && g_device == NULL)
     {
         info_log("Error creating SDL_GPU device: %s", SDL_GetError());
         return 0;
     }
 
-    if (!SDL_ClaimWindowForGPUDevice(g_device, g_window))
+    if (!xrEnabled && !SDL_ClaimWindowForGPUDevice(g_device, g_window))
     {
         info_log("Error claiming SDL window for SDL_GPU: %s", SDL_GetError());
         SDL_DestroyGPUDevice(g_device);
