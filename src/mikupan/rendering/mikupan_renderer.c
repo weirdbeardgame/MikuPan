@@ -11,6 +11,7 @@
 #include "mikupan/mikupan_file_c.h"
 #include "mikupan/mikupan_logging_c.h"
 #include "mikupan/mikupan_screenshot.h"
+#include "mikupan/rendering/mikupan_xr.h"
 #include "mikupan/ui/mikupan_ui.h"
 #include "mikupan/ui/mikupan_ui_debug.h"
 #include "mikupan_gpu.h"
@@ -214,6 +215,11 @@ SDL_AppResult MikuPan_Init()
                          mikupan_configuration.renderer.gpu_debug))
     {
         return SDL_APP_FAILURE;
+    }
+
+    if (xrEnabled)
+    {
+        MikuPan_XrInit();
     }
 
     MikuPan_InitUi(mikupan_render.window);

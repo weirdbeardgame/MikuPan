@@ -1,8 +1,5 @@
 #include "mikupan_gpu.h"
 
-#include <openxr/openxr.h>
-#include "SDL3/SDL_openxr.h"
-#include "mikupan/mikupan_logging.h"
 #include "mikupan/mikupan_logging_c.h"
 #include "mikupan_pipeline.h"
 #include "mikupan_shader.h"
@@ -24,27 +21,6 @@
             return false;                                                      \
         }                                                                      \
     }
-#define XR_CHECK(result, msg)                                                  \
-    do                                                                         \
-    {                                                                          \
-        if (XR_FAILED(result))                                                 \
-        {                                                                      \
-            info_log("OpenXR Error: %s (result=%d)", msg, (int) (result));     \
-            return false;                                                      \
-        }                                                                      \
-    }                                                                          \
-    while (0)
-#define XR_CHECK_QUIT(result, msg)                                             \
-    do                                                                         \
-    {                                                                          \
-        if (XR_FAILED(result))                                                 \
-        {                                                                      \
-            info_log("OpenXR Error: %s (result=%d)", msg, (int) (result));     \
-            quit(2);                                                           \
-            return;                                                            \
-        }                                                                      \
-    }                                                                          \
-    while (0)
 
 typedef struct
 {
@@ -318,37 +294,6 @@ static MikuPan_MaterialData g_material_data = {
     .uMatSpecular = {0.0f, 0.0f, 0.0f, 1.0f},
     .uMatEmission = {0.0f, 0.0f, 0.0f, 1.0f},
 };
-
-/* ========================================================================
- * OpenXR Function Pointers (loaded dynamically)
- * ======================================================================== */
-
-static PFN_xrGetInstanceProcAddr pfn_xrGetInstanceProcAddr = NULL;
-static PFN_xrEnumerateViewConfigurationViews
-    pfn_xrEnumerateViewConfigurationViews = NULL;
-static PFN_xrEnumerateSwapchainImages pfn_xrEnumerateSwapchainImages = NULL;
-static PFN_xrCreateReferenceSpace pfn_xrCreateReferenceSpace = NULL;
-static PFN_xrDestroySpace pfn_xrDestroySpace = NULL;
-static PFN_xrDestroySession pfn_xrDestroySession = NULL;
-static PFN_xrDestroyInstance pfn_xrDestroyInstance = NULL;
-static PFN_xrPollEvent pfn_xrPollEvent = NULL;
-static PFN_xrBeginSession pfn_xrBeginSession = NULL;
-static PFN_xrEndSession pfn_xrEndSession = NULL;
-static PFN_xrWaitFrame pfn_xrWaitFrame = NULL;
-static PFN_xrBeginFrame pfn_xrBeginFrame = NULL;
-static PFN_xrEndFrame pfn_xrEndFrame = NULL;
-static PFN_xrLocateViews pfn_xrLocateViews = NULL;
-static PFN_xrAcquireSwapchainImage pfn_xrAcquireSwapchainImage = NULL;
-static PFN_xrWaitSwapchainImage pfn_xrWaitSwapchainImage = NULL;
-static PFN_xrReleaseSwapchainImage pfn_xrReleaseSwapchainImage = NULL;
-
-/* OpenXR state */
-static XrInstance xr_instance = XR_NULL_HANDLE;
-static XrSystemId xr_system_id = XR_NULL_SYSTEM_ID;
-static XrSession xr_session = XR_NULL_HANDLE;
-static XrSpace xr_local_space = XR_NULL_HANDLE;
-static bool xr_session_running = false;
-static bool xr_should_quit = false;
 
 bool xrEnabled = true;
 
@@ -663,207 +608,26 @@ static void CreateFallbackTexture(void)
     SDL_ReleaseGPUTransferBuffer(g_device, transfer);
 }
 
-static bool load_xr_functions(void)
-{
-    pfn_xrGetInstanceProcAddr =
-        (PFN_xrGetInstanceProcAddr) SDL_OpenXR_GetXrGetInstanceProcAddr();
-    if (!pfn_xrGetInstanceProcAddr)
-    {
-        SDL_Log("Failed to get xrGetInstanceProcAddr");
-        return false;
-    }
-
-#define XR_LOAD(fn)                                                            \
-    if (XR_FAILED(pfn_xrGetInstanceProcAddr(xr_instance, #fn,                  \
-                                            (PFN_xrVoidFunction*) &pfn_##fn))) \
-    {                                                                          \
-        SDL_Log("Failed to load " #fn);                                        \
-        return false;                                                          \
-    }
-
-    XR_LOAD(xrEnumerateViewConfigurationViews);
-    XR_LOAD(xrEnumerateSwapchainImages);
-    XR_LOAD(xrCreateReferenceSpace);
-    XR_LOAD(xrDestroySpace);
-    XR_LOAD(xrDestroySession);
-    XR_LOAD(xrDestroyInstance);
-    XR_LOAD(xrPollEvent);
-    XR_LOAD(xrBeginSession);
-    XR_LOAD(xrEndSession);
-    XR_LOAD(xrWaitFrame);
-    XR_LOAD(xrBeginFrame);
-    XR_LOAD(xrEndFrame);
-    XR_LOAD(xrLocateViews);
-    XR_LOAD(xrAcquireSwapchainImage);
-    XR_LOAD(xrWaitSwapchainImage);
-    XR_LOAD(xrReleaseSwapchainImage);
-
-#undef XR_LOAD
-
-    SDL_Log("Loaded all XR functions successfully");
-    return true;
-}
-
-static bool init_xr_session(void)
-{
-    XrResult result;
-
-    /* Create session */
-    XrSessionCreateInfo session_info = {XR_TYPE_SESSION_CREATE_INFO};
-    result = SDL_CreateGPUXRSession(g_device, &session_info, &xr_session);
-    XR_CHECK(result, "Failed to create XR session");
-
-    if (result != XR_SUCCESS) {
-        info_log("XR Session creation failed: %d\n", result);
-        return false;
-    }
-
-    /* Create reference space */
-    XrReferenceSpaceCreateInfo space_info = {
-        XR_TYPE_REFERENCE_SPACE_CREATE_INFO};
-    space_info.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
-    space_info.poseInReferenceSpace.orientation.w =
-        1.0f; /* Identity quaternion */
-
-    result =
-        pfn_xrCreateReferenceSpace(xr_session, &space_info, &xr_local_space);
-    XR_CHECK(result, "Failed to create reference space");
-
-    return true;
-}
-
-void MikuPan_HandleXrEvents(void)
-{
-    XrEventDataBuffer event_buffer = {XR_TYPE_EVENT_DATA_BUFFER};
-
-    while (pfn_xrPollEvent(xr_instance, &event_buffer) == XR_SUCCESS)
-    {
-        switch (event_buffer.type)
-        {
-            case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
-            {
-                XrEventDataSessionStateChanged* state_event =
-                    (XrEventDataSessionStateChanged*) &event_buffer;
-
-                SDL_Log("Session state changed: %d", state_event->state);
-
-                switch (state_event->state)
-                {
-                    case XR_SESSION_STATE_READY:
-                    {
-                        XrSessionBeginInfo begin_info = {
-                            XR_TYPE_SESSION_BEGIN_INFO};
-                        begin_info.primaryViewConfigurationType =
-                            XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
-
-                        XrResult result =
-                            pfn_xrBeginSession(xr_session, &begin_info);
-                        if (XR_SUCCEEDED(result))
-                        {
-                            SDL_Log("XR Session begun!");
-                            xr_session_running = true;
-
-                            /* Create swapchains now that session is ready */
-                            /** if (!create_swapchains())
-                            {
-                                SDL_Log("Failed to create swapchains");
-                                xr_should_quit = true;
-                            }*/
-                        }
-                        break;
-                    }
-                    case XR_SESSION_STATE_STOPPING:
-                        pfn_xrEndSession(xr_session);
-                        xr_session_running = false;
-                        break;
-                    case XR_SESSION_STATE_EXITING:
-                    case XR_SESSION_STATE_LOSS_PENDING:
-                        xr_should_quit = true;
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            }
-            case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
-                xr_should_quit = true;
-                break;
-            default:
-                break;
-        }
-
-        event_buffer.type = XR_TYPE_EVENT_DATA_BUFFER;
-    }
-}
-
 int MikuPan_GPUInit(SDL_Window* window, int vsync, const char* gpu_driver,
                     int gpu_debug)
 {
     g_window = window;
 
-    if (xrEnabled)
+    const bool debug = gpu_debug ? true : false;
+    const char* requested =
+        (gpu_driver != NULL && gpu_driver[0] != '\0') ? gpu_driver : NULL;
+    g_device =
+        SDL_CreateGPUDevice(MIKUPAN_GPU_SHADER_FORMATS, debug, requested);
+    if (g_device == NULL && requested != NULL)
     {
-
-        if (!SDL_OpenXR_LoadLibrary())
-        {
-            info_log("Load Library Failed: %s", SDL_GetError());
-            return 0;
-        }
-
-        SDL_PropertiesID props = SDL_CreateProperties();
-        SDL_SetBooleanProperty(
-            props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_SPIRV_BOOLEAN, true);
-        SDL_SetBooleanProperty(
-            props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_DXIL_BOOLEAN, true);
-        SDL_SetBooleanProperty(
-            props, SDL_PROP_GPU_DEVICE_CREATE_DEBUGMODE_BOOLEAN, true);
-        /* Enable XR - SDL will create the OpenXR instance for us */
-        SDL_SetBooleanProperty(
-            props, SDL_PROP_GPU_DEVICE_CREATE_XR_ENABLE_BOOLEAN, true);
-        SDL_SetPointerProperty(props,
-                               SDL_PROP_GPU_DEVICE_CREATE_XR_INSTANCE_POINTER,
-                               &xr_instance);
-        SDL_SetPointerProperty(props,
-                               SDL_PROP_GPU_DEVICE_CREATE_XR_SYSTEM_ID_POINTER,
-                               &xr_system_id);
-        SDL_SetStringProperty(
-            props, SDL_PROP_GPU_DEVICE_CREATE_XR_APPLICATION_NAME_STRING,
-            "MikuPan");
-
-        SDL_SetNumberProperty(
-            props, SDL_PROP_GPU_DEVICE_CREATE_XR_APPLICATION_VERSION_NUMBER, 1);
-
-        g_device = SDL_CreateGPUDeviceWithProperties(props);
-        SDL_DestroyProperties(props);
-
-
-        if (!load_xr_functions())
-        {
-            info_log("Failed to load XR functions");
-            return 0;
-        }
-
+        info_log(
+            "Could not create SDL_GPU device with driver '%s' (%s), "
+            "falling back to automatic selection",
+            requested, SDL_GetError());
+        g_device = SDL_CreateGPUDevice(MIKUPAN_GPU_SHADER_FORMATS, debug, NULL);
     }
 
-    else
-    {
-
-        const bool debug = gpu_debug ? true : false;
-        const char* requested =
-            (gpu_driver != NULL && gpu_driver[0] != '\0') ? gpu_driver : NULL;
-        g_device =
-            SDL_CreateGPUDevice(MIKUPAN_GPU_SHADER_FORMATS, debug, requested);
-        if (g_device == NULL && requested != NULL)
-        {
-            info_log(
-                "Could not create SDL_GPU device with driver '%s' (%s), "
-                "falling back to automatic selection",
-                requested, SDL_GetError());
-            g_device =
-                SDL_CreateGPUDevice(MIKUPAN_GPU_SHADER_FORMATS, debug, NULL);
-        }
-    }
-    if (! xrEnabled && g_device == NULL)
+    if (g_device == NULL)
     {
         info_log("Error creating SDL_GPU device: %s", SDL_GetError());
         return 0;
@@ -884,11 +648,6 @@ int MikuPan_GPUInit(SDL_Window* window, int vsync, const char* gpu_driver,
     CreateFallbackTexture();
     SetDefaultUniforms();
     SetDefaultRenderState();
-
-    if (xrEnabled)
-    {
-        init_xr_session();
-    }
 
     return 1;
 }
@@ -1687,7 +1446,8 @@ int MikuPan_GPUReadTextureR8(unsigned int texture_id, int size,
      * MikuPan_GPUSetTarget); submitting and swapping g_cmd here would leave
      * MikuPan_GPUEndFrame presenting a desynced swapchain and crash. A separate
      * buffer reads the texture's last-submitted contents (the previous frame's
-     * shadow map), which is fine for a debug probe and leaves the frame intact. */
+     * shadow map), which is fine for a debug probe and leaves the frame intact.
+     */
     SDL_GPUCommandBuffer* cmd = SDL_AcquireGPUCommandBuffer(g_device);
     if (cmd == NULL)
     {

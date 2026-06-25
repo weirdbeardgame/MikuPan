@@ -266,6 +266,8 @@ set(MIKUPAN_SOURCES
         src/mikupan/ui/mikupan_ui.c
         src/mikupan/rendering/mikupan_profiler.c
         src/mikupan/rendering/mikupan_gpu.c
+        src/mikupan/rendering/mikupan_xr.c
+        src/mikupan/rendering/mikupan_xr.h
         src/mikupan/rendering/mikupan_camera.c
         src/mikupan/rendering/mikupan_debug_draw.c
         src/mikupan/rendering/mikupan_lighting.c
