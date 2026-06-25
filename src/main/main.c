@@ -124,7 +124,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     MikuPan_Clear();
 
     MikuPan_FlushTextureCache();
-
+    MikuPan_HandleXrEvents();
     if (!mikupan_game_initialized)
     {
         MikuPan_TryInitializeGame();

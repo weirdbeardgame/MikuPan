@@ -97,6 +97,7 @@ SDL_GPUCommandBuffer *MikuPan_GPUGetCommandBuffer(void);
 SDL_GPURenderPass *MikuPan_GPUGetRenderPass(void);
 SDL_GPUTextureFormat MikuPan_GPUGetSwapchainFormat(void);
 
+void MikuPan_HandleXrEvents(void);
 void MikuPan_GPUBeginFrame(void);
 void MikuPan_GPUEndFrame(void);
 void MikuPan_GPUFlushRenderPass(void);

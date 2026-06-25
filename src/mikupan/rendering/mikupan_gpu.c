@@ -732,6 +732,70 @@ static bool init_xr_session(void)
     return true;
 }
 
+void MikuPan_HandleXrEvents(void)
+{
+    XrEventDataBuffer event_buffer = {XR_TYPE_EVENT_DATA_BUFFER};
+
+    while (pfn_xrPollEvent(xr_instance, &event_buffer) == XR_SUCCESS)
+    {
+        switch (event_buffer.type)
+        {
+            case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+            {
+                XrEventDataSessionStateChanged* state_event =
+                    (XrEventDataSessionStateChanged*) &event_buffer;
+
+                SDL_Log("Session state changed: %d", state_event->state);
+
+                switch (state_event->state)
+                {
+                    case XR_SESSION_STATE_READY:
+                    {
+                        XrSessionBeginInfo begin_info = {
+                            XR_TYPE_SESSION_BEGIN_INFO};
+                        begin_info.primaryViewConfigurationType =
+                            XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
+
+                        XrResult result =
+                            pfn_xrBeginSession(xr_session, &begin_info);
+                        if (XR_SUCCEEDED(result))
+                        {
+                            SDL_Log("XR Session begun!");
+                            xr_session_running = true;
+
+                            /* Create swapchains now that session is ready */
+                            /** if (!create_swapchains())
+                            {
+                                SDL_Log("Failed to create swapchains");
+                                xr_should_quit = true;
+                            }*/
+                        }
+                        break;
+                    }
+                    case XR_SESSION_STATE_STOPPING:
+                        pfn_xrEndSession(xr_session);
+                        xr_session_running = false;
+                        break;
+                    case XR_SESSION_STATE_EXITING:
+                    case XR_SESSION_STATE_LOSS_PENDING:
+                        xr_should_quit = true;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+                xr_should_quit = true;
+                break;
+            default:
+                break;
+        }
+
+        event_buffer.type = XR_TYPE_EVENT_DATA_BUFFER;
+    }
+}
+
 int MikuPan_GPUInit(SDL_Window* window, int vsync, const char* gpu_driver,
                     int gpu_debug)
 {
@@ -836,6 +900,8 @@ void MikuPan_GPUShutdown(void)
         MikuPan_GPUWaitIdle();
         MikuPan_GPUInvalidatePipelines();
         MikuPan_GPUDestroyInternalBuffer();
+
+        SDL_OpenXR_UnloadLibrary();
 
         for (unsigned int i = 1; i < MIKUPAN_GPU_MAX_TEXTURES; i++)
         {
