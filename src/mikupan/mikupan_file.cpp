@@ -606,6 +606,29 @@ extern "C" bool MikuPan_HasRequiredDataFiles(char *missing_file,
     return true;
 }
 
+extern "C" void MikuPan_SetDataFolder(const char* folder)
+{
+    if (folder == NULL)
+    {
+        return;
+    }
+    
+    strncpy(mikupan_configuration.data_folder,
+                 folder,
+                 sizeof(mikupan_configuration.data_folder) - 1);
+    mikupan_configuration
+        .data_folder[sizeof(mikupan_configuration.data_folder) - 1] = '\0';
+
+    if (!MikuPan_SaveConfiguration(nullptr))
+    {
+        spdlog::error("Failed to save selected data folder: {}", folder);
+    }
+    else
+    {
+        spdlog::info("Selected data folder: {}", folder);
+    }
+}
+
 static void SDLCALL MikuPan_MissingDataFolderSelected(
     void *userdata, const char *const *filelist, int filter)
 {
