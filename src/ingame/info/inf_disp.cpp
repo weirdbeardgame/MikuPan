@@ -273,7 +273,7 @@ void InformationDispModeCtrl()
     }
     else
     {
-        new_inf.red_bar = (plyr_wrk.hp * 243) / 500.0f;
+        new_inf.red_bar = (plyr_wrk.hp * 243) / 5.0f;
     }
 }
 
@@ -2318,7 +2318,7 @@ static void ShowMikuPower(short int pos_x, short int pos_y)
 
     alp = (inf_dsp.stts_fade_alp * 128) / 100.0f;
 
-    bar_h1 = 284 * plyr_wrk.hp / 500.0f; // pixel value in range [0, 284]
+    bar_h1 = 284 * plyr_wrk.hp / 5.0f; // pixel value in range [0, 284]
     bar_h2 = 284 - bar_h1; // the rest of the 284 pixels
 
     CmnWindow(32, pos_x, pos_y, alp, 0x80);
@@ -2338,7 +2338,7 @@ static void ShowMikuPower2(short int pos_x, short int pos_y)
 
     PutSpriteYW(LIFEBAR_WAKU_1, LIFEBAR_WAKU_5, pos_x, pos_y, 0.0f, 0x808080, alp, 1.0f, 1.0f, 0, 0xff, 1, 0, 1);
 
-    blu_bar = (plyr_wrk.hp * 243) / 500.0f;
+    blu_bar = (plyr_wrk.hp * 243) / 5.0f;
 
     if (new_inf.blu_bak == blu_bar)
     {
@@ -2393,7 +2393,7 @@ static void ShowMikuPower2(short int pos_x, short int pos_y)
 #endif
     }
 
-    if (plyr_wrk.hp == 500)
+    if (plyr_wrk.hp == 5)
     {
         FlashStarYW(&flsh_life, alp, alp / 2, 120, 0);
 

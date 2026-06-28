@@ -201,13 +201,13 @@ u_char ShortPauseChk()
 
 void PlyrCondChk()
 {
-    if (plyr_wrk.hp > 0 && plyr_wrk.hp <= 50 && plyr_wrk.se_deadly == -1)
+    if (plyr_wrk.hp > 0 && plyr_wrk.hp <= 1 && plyr_wrk.se_deadly == -1)
     {
         plyr_wrk.se_deadly = SeStartFix(SE_PLYR_DEADLY, 0, 0x1000, 0x1000, 0);
     }
     else if (plyr_wrk.se_deadly != -1)
     {
-        if (plyr_wrk.hp > 50)
+        if (plyr_wrk.hp > 1)
         {
             SeFadeFlame(plyr_wrk.se_deadly, 60, 0);
 
@@ -1049,7 +1049,7 @@ void PlyrNAnimeCtrl()
         {
             anime_no = 100;
         }
-        else if (psta & 0x80000 || plyr_wrk.hp < 51)
+        else if (psta & 0x80000 || plyr_wrk.hp < 4)
         {
             anime_no = PANI_DMG_STAND;
         }
@@ -1307,10 +1307,10 @@ void PlyrHPdwonCtrl()
     {
         plyr_wrk.hp += 5;
 
-        if (plyr_wrk.hp >= 500)
+        if (plyr_wrk.hp >= 5)
         {
             plyr_wrk.sta &= ~0x4000;
-            plyr_wrk.hp = 500;
+            plyr_wrk.hp = 5;
         }
     }
 }
@@ -2503,6 +2503,9 @@ u_short PhotoDmgChkSub(ENE_WRK *ew)
     {
         ew->dmg_type = 0;
     }
+
+    /// Half Damage
+    ew->dmg = ew->dmg >> 1;
 
     return ew->dmg;
 }

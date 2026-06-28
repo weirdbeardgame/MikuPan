@@ -4648,7 +4648,7 @@ void SubGameOver(/* 0x11b60(sp) */ u_char alp, /* f20 58 */ float rate)
     
     for (i = 0; i < vnumw*vnumh; i++)
     {
-        if (((i % vnumw) != (pnumw/2) % i)) {} // debug code ??
+        //if (((i % vnumw) != (pnumw/2) % i)) {} // debug code ??
 
         fx = lll[i]; // Line 5171
         fy = SgSinf(mm1[i] - r) * fw * mm2[i]; // Line 5172

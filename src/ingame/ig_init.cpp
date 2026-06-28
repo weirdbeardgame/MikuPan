@@ -61,7 +61,7 @@ void InitPlyr()
 {
     memset(&plyr_wrk, 0, sizeof(PLYR_WRK));
 
-    plyr_wrk.hp = 500;
+    plyr_wrk.hp = 5;
     plyr_wrk.spd = 5.5f;
     plyr_wrk.pr_info.se_foot = 0xff;
     plyr_wrk.dop.room_no = 0xff;
@@ -76,7 +76,7 @@ void InitPlyr2(int film_no)
 {
     memset(&plyr_wrk, 0, sizeof(PLYR_WRK));
 
-    plyr_wrk.hp = 500;
+    plyr_wrk.hp = 5;
     plyr_wrk.spd = 5.5f;
     plyr_wrk.pr_info.se_foot = 0xff;
     plyr_wrk.dop.room_no = 0xff;

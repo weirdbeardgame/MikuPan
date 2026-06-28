@@ -2779,7 +2779,7 @@ static int AddTofuMouthVertices(sceVu0FVECTOR *vertices,
                                 int *vertex_count,
                                 int *mouth_indices)
 {
-    if (plyr_wrk.hp >= 400)
+    if (plyr_wrk.hp >= 4)
     {
         mouth_indices[0] = AddTofuMouthSegment(vertices, vertex_count,
                                                -4.2f, 36.7f, -1.4f, 35.4f);
@@ -2790,7 +2790,7 @@ static int AddTofuMouthVertices(sceVu0FVECTOR *vertices,
         return 3;
     }
 
-    if (plyr_wrk.hp >= 150)
+    if (plyr_wrk.hp >= 2)
     {
         mouth_indices[0] = AddTofuMouthSegment(vertices, vertex_count,
                                                -4.0f, 36.0f, 4.0f, 36.0f);

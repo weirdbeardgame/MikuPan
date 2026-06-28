@@ -369,7 +369,7 @@ int GetMapItemJudge()
                 }
 
                 if (
-                    item_dsp_wrk[i][j].pos[1] < (int)(plyr_wrk.move_box.pos[1] + 500.0f) &&
+                    item_dsp_wrk[i][j].pos[1] < (int)(plyr_wrk.move_box.pos[1] + 5.0f) &&
                     item_dsp_wrk[i][j].pos[1] > (int)(plyr_wrk.move_box.pos[1] - 1000.0f)
                 )
                 {

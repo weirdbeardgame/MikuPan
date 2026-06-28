@@ -630,18 +630,12 @@ void ItemUse(u_char item_no)
         SeStartFix(SE_SEALING, 0, 0x1000, 0x1000, 1);
     break;
     case 3:
-        /// Check if player is already max HP
-        if (plyr_wrk.hp == 500)
-        {
-            //SeStartFix(SE_SEALING, 0, 0x1000, 0x1000, 1);
-            break;
-        }
-
+    // Herbal medicine
         plyr_wrk.hp += item_use_dat[item_no].value1;
 
-        if (plyr_wrk.hp > 500)
+        if (plyr_wrk.hp > 5)
         {
-            plyr_wrk.hp = 500;
+            plyr_wrk.hp = 5;
         }
 
         if (item_use_dat[item_no].value0 != 0)
@@ -930,8 +924,8 @@ static void GageAnime(short int pos_x, short int pos_y, u_char alpha)
     {
         iew.gage_hp = plyr_wrk.hp;
     }
-    PutStsBar(0xE5U, 0x808080, alpha, plyr_wrk.hp / 500.0f);
-    PutStsBar(0xE8U, 0x808080, alpha, iew.gage_hp / 500.0f);
+    PutStsBar(0xE5U, 0x808080, alpha, plyr_wrk.hp / 5.0f);
+    PutStsBar(0xE8U, 0x808080, alpha, iew.gage_hp / 5.0f);
 }
 
 static void PutStsBar(u_char char_label, int rgb, u_char alp, float scl_x)
@@ -2470,9 +2464,10 @@ static void SttsRenew()
 {
     iew.hp_max_chk = 0;
 
+    // Stone mirror
     if (
         item_use_dat[menu_item_wrk[ig_menu_wrk.csr[1]].item_no].type == 3 &&
-        plyr_wrk.hp == 500
+        plyr_wrk.hp == 5
     )
     {
         iew.hp_max_chk = 1;
