@@ -286,6 +286,8 @@ set(MIKUPAN_SOURCES
         src/mikupan/mikupan_config.c
         src/mikupan/mikupan_config_ini.cpp
         src/mikupan/mikupan_config.h
+        src/mikupan/mikupan_args.h
+        src/mikupan/mikupan_args.cpp
         src/mikupan/mikupan_controller.c
         src/mikupan/mikupan_controller.h
         src/mikupan/mikupan_screenshot.c

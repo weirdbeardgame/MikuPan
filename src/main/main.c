@@ -24,6 +24,7 @@
 #include "mikupan/mikupan_file_c.h"
 #include "mikupan/gs/mikupan_texture_manager_c.h"
 #include "mikupan/ui/mikupan_ui.h"
+#include "mikupan/mikupan_args_c.h"
 #include "os/eeiop/se_cmd.h"
 
 #include <SDL3/SDL.h>
@@ -81,6 +82,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     {
         return result;
     }
+
+    MikuPan_InitArgs();
+    MikuPan_ParseArgs(argc, argv);
 
     MikuPan_InitPs2Memory();
 
